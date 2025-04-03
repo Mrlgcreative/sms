@@ -65,8 +65,9 @@ class UserModel {
 
     public function updatePassword($id, $password) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->db->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("si", $hashed_password, $id);
+        $current_date = date('Y-m-d H:i:s');
+        $stmt = $this->db->prepare("UPDATE users SET password = ?, password_change_date = ? WHERE id = ?");
+        $stmt->bind_param("ssi", $hashed_password, $current_date, $id);
         $success = $stmt->execute();
         $stmt->close();
         return $success;
@@ -348,6 +349,204 @@ class UserModel {
         
         $stmt->close();
         return false;
+    }
+    
+    /**
+     * Register a new user
+     * 
+     * @param string $username
+     * @param string $password
+     * @param string $email
+     * @param string $role
+     * @param string $image
+     * @param string $telephone
+     * @param string $adresse
+     * @param int $password_expiry_days
+     * @return int|bool User ID on success, false on failure
+     */
+    public function register($username, $password, $email, $role = 'user', $image = 'dist/img/default-avatar.png', $telephone = '', $adresse = '', $password_expiry_days = 90) {
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            return false;
+        }
+        
+        // Check if username already exists
+        $check_stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ?");
+        $check_stmt->bind_param("s", $username);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            $check_stmt->close();
+            $mysqli->close();
+            return false;
+        }
+        $check_stmt->close();
+        
+        // Check if email already exists
+        $check_email_stmt = $mysqli->prepare("SELECT id FROM users WHERE email = ?");
+        $check_email_stmt->bind_param("s", $email);
+        $check_email_stmt->execute();
+        $check_email_result = $check_email_stmt->get_result();
+        
+        if ($check_email_result->num_rows > 0) {
+            $check_email_stmt->close();
+            $mysqli->close();
+            return false;
+        }
+        $check_email_stmt->close();
+        
+        // Hash the password
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        
+        // Set current date for created_at and password_change_date
+        $current_date = date('Y-m-d H:i:s');
+        
+        // Default values
+        $locked = 0;
+        $lock_expiry = null;
+        
+        // Prepare the statement with all columns
+        $stmt = $mysqli->prepare("
+            INSERT INTO users (
+                username, 
+                password, 
+                role, 
+                created_at, 
+                email, 
+                image, 
+                telephone, 
+                adresse, 
+                locked, 
+                lock_expiry, 
+                password_change_date, 
+                password_expiry_days
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->bind_param(
+            "ssssssssisii", 
+            $username, 
+            $hashed_password, 
+            $role, 
+            $current_date, 
+            $email, 
+            $image, 
+            $telephone, 
+            $adresse, 
+            $locked, 
+            $lock_expiry, 
+            $current_date, 
+            $password_expiry_days
+        );
+        
+        // Execute the statement
+        $result = $stmt->execute();
+        
+        // Get the ID of the newly created user
+        $user_id = $mysqli->insert_id;
+        
+        $stmt->close();
+        $mysqli->close();
+        
+        return $result ? $user_id : false;
+    }
+
+    /**
+     * Get user by username
+     * 
+     * @param string $username
+     * @return array|false User data or false if not found
+     */
+    public function getUserByUsername($username) {
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            return false;
+        }
+        
+        $stmt = $mysqli->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            $stmt->close();
+            $mysqli->close();
+            return false;
+        }
+        
+        $user = $result->fetch_assoc();
+        
+        $stmt->close();
+        $mysqli->close();
+        
+        return $user;
+    }
+
+    /**
+     * Get user by email
+     * 
+     * @param string $email
+     * @return array|false User data or false if not found
+     */
+    public function getUserByEmail($email) {
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            return false;
+        }
+        
+        $stmt = $mysqli->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            $stmt->close();
+            $mysqli->close();
+            return false;
+        }
+        
+        $user = $result->fetch_assoc();
+        
+        $stmt->close();
+        $mysqli->close();
+        
+        return $user;
+    }
+
+    /**
+     * Get user by ID
+     * 
+     * @param int $id
+     * @return array|false User data or false if not found
+     */
+    public function getUserById($id) {
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            return false;
+        }
+        
+        $stmt = $mysqli->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            $stmt->close();
+            $mysqli->close();
+            return false;
+        }
+        
+        $user = $result->fetch_assoc();
+        
+        $stmt->close();
+        $mysqli->close();
+        
+        return $user;
     }
 }
 ?>

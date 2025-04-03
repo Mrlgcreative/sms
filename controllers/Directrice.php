@@ -1,79 +1,97 @@
 
 <?php
-require 'models/EleveModel.php';
-require 'models/ProfesseurModel.php';
-require 'models/FraisModel.php';
-require 'models/HistoriqueModel.php';
-require 'models/ParentModel.php';
 
 class Directrice {
     private $eleveModel;
     private $professeurModel;
-    private $fraisModel;
-    private $historiqueModel;
-    private $parentModel;
-
+    private $sessionscolaireModel;
+    
     public function __construct() {
+        require_once 'models/EleveModel.php';
+        require_once 'models/ProfesseurModel.php';
+        require_once 'models/SessionscolaireModel.php';
+        
         $this->eleveModel = new EleveModel();
         $this->professeurModel = new ProfesseurModel();
-        $this->fraisModel = new FraisModel();
-        $this->historiqueModel = new HistoriqueModel();
-        $this->parentModel = new ParentModel();
+        $this->sessionscolaireModel = new SessionscolaireModel();
     }
-
+    
     public function accueil() {
-        require 'views/directrice/accueil.php';
-    }
-
-    public function eleves() {
-        $eleves = $this->eleveModel->getAll();
-        require 'views/directrice/eleves.php';
-    }
-
-    public function professeurs() {
-        $professeurs = $this->professeurModel->getAll();
-        require 'views/directrice/professeurs.php';
-    }
-
-    public function ajoutProfesseur() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $nom = $_POST['nom'];
-            $prenom = $_POST['prenom'];
-            $email = $_POST['email'];
-            $contact = $_POST['contact'];
-            $classe = $_POST['classe'];
-            $this->professeurModel->add($nom, $prenom, $email, $contact, $classe);
-            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
-        } else {
-            require 'views/directrice/ajout_professeur.php';
+        // Récupérer les informations de session pour la vue
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
-    }
-
-    public function frais() {
-        $frais = $this->fraisModel->getAll();
-        require 'views/directrice/frais.php';
-    }
-
-    public function ajoutFrais() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $montant = $_POST['montant'];
-            $description = $_POST['description'];
-            $classe = $_POST['classe'];
-            $this->fraisModel->add($montant, $description, $classe);
-            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=frais');
-        } else {
-            require 'views/directrice/ajout_frais.php';
+        $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
+        $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
+        $email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+        
+        // Vérifier si c'est une nouvelle connexion
+        $showWelcomeMessage = false;
+        if (isset($_SESSION['new_login']) && $_SESSION['new_login'] === true) {
+            $showWelcomeMessage = true;
+            // Réinitialiser le flag pour ne pas afficher le message à chaque chargement de page
+            $_SESSION['new_login'] = false;
         }
+        
+        // Récupérer la session scolaire active
+        $session_active = $this->sessionscolaireModel->getActive();
+        $current_session = $session_active ? $session_active['annee_debut'] . '-' . $session_active['annee_fin'] : date('Y') . '-' . (date('Y') + 1);
+        
+        require 'views/comptable/accueil.php';
     }
-
-    public function historiques() {
-        $historiques = $this->historiqueModel->getAll('maternelle');
-        require 'views/directrice/historiques.php';
+    
+    public function profil() {
+        // Vérifier si l'utilisateur est connecté
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'directrice') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue du profil
+        require 'views/directrice/profil.php';
     }
-
-    public function parents() {
-        $parents = $this->parentModel->getAll();
-        require 'views/directrice/parents.php';
+    
+    // Fonction pour enregistrer les actions des utilisateurs
+    public function logAction($action) {
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            return false;
+        }
+        
+        $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur inconnu';
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $action = $mysqli->real_escape_string($action);
+        
+        // Vérifier si la table et la colonne existent
+        $tableCheck = $mysqli->query("SHOW COLUMNS FROM system_logs LIKE 'action'");
+        
+        if ($tableCheck && $tableCheck->num_rows > 0) {
+            $result = $mysqli->query("INSERT INTO system_logs (username, action, ip_address) 
+                                    VALUES ('$username', '$action', '$ip')");
+        } else {
+            // Créer la table si elle n'existe pas
+            $mysqli->query("CREATE TABLE IF NOT EXISTS system_logs (
+                id INT(11) NOT NULL AUTO_INCREMENT,
+                username VARCHAR(255) NOT NULL,
+                action VARCHAR(255) NOT NULL,
+                action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                ip_address VARCHAR(50) NOT NULL,
+                PRIMARY KEY (id)
+            )");
+            
+            // Réessayer l'insertion
+            $result = $mysqli->query("INSERT INTO system_logs (username, action, ip_address) 
+                                    VALUES ('$username', '$action', '$ip')");
+        }
+        
+        $mysqli->close();
+        
+        return isset($result) ? $result : false;
     }
 }
 ?>
