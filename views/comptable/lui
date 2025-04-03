@@ -1,0 +1,15 @@
+<ul class="dropdown-menu">
+              <li class="user-header">
+                <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
+                <p><?php echo $role; ?></p>
+              </li>
+              <li class="user-footer">
+                <div class="pull-left">
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=profil" class="btn btn-default btn-flat">Profil</a>
+                </div>
+                <div class="pull-right">
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
+                </div>
+              </li>
+              <!-- Reste du menu déroulant -->
+            </ul>

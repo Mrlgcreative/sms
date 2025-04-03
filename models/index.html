@@ -1,0 +1,33 @@
+public function ajoutEleve() {
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      // Traitement du formulaire d'ajout d'un élève
+      $nom = $_POST['nom'];
+      $post_nom= $_POST['post_nom'];
+      $prenom = $_POST['prenom'];
+      $date_naissance = $_POST['date_naissance'];
+      $sexe = $_POST['sexe'];
+      $lieu_naissance= $_POST['lieu_naissance'];
+      $adresse=$_POST['adresse'];
+      $section=$_POST['section'],
+      $classe_id=$_POST['classe_id'];
+      $option_id= $_POST['option_id'];
+      $nom_pere=$_POST['nom_pere'];
+      $nom_mere= $_POST['nom_mere'];
+      $contact_pere=$_POST['contact_pere'];
+      $contact_mere=$_POST['contact_mere']
+
+      
+
+      $eleveModel = new EleveModel();
+      $eleveModel->add($nom,$post_nom, $prenom, $date_naissance, $sexe,$lieu_naissance,$adresse, $section, $classe_id, $option_id,$nom_pere,$nom_mere  $contact_pere,$contact_mere);
+
+      // Rediriger après ajout
+      header("Location: " . BASE_URL . "index.php?controller=Admin&action=eleves");
+  } else {
+      $classeModel = new ClasseModel();
+      $classes = $classeModel->getAllClasses(); // Récupération des classes
+      $parentModel = new ParentModel();
+      $parents = $parentModel->getAllParents(); // Récupération des parents
+      include 'views/admin/add_eleve.php';
+  }
+} 

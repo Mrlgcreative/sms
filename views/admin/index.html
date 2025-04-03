@@ -1,0 +1,194 @@
+Pour afficher le profil de l'utilisateur connecté, vous pouvez suivre les étapes suivantes. Cela implique de récupérer les informations de l'utilisateur depuis la base de données et de les afficher sur la page de profil.
+
+Exemple de gestion de session utilisateur en PHP
+
+Connexion et stockage des informations de l'utilisateur
+
+Lorsque l'utilisateur se connecte, stockez ses informations dans la session.
+
+*Exemple de fichier Auth.php*
+
+php
+<?php
+session_start();
+require 'models/UserModel.php';
+
+class Auth {
+    private $userModel;
+
+    public function __construct() {
+        $this->userModel = new UserModel();
+    }
+
+    public function login() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+
+            $user = $this->userModel->getByUsername($username);
+
+            if ($user && password_verify($password, $user['password'])) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['email'] = $user['email'];
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=dashboard');
+            } else {
+                $error = "Nom d'utilisateur ou mot de passe incorrect";
+                require 'views/auth/login.php';
+            }
+        } else {
+            require 'views/auth/login.php';
+        }
+    }
+
+    public function logout() {
+        session_destroy();
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+    }
+}
+?>
+
+
+*Exemple de page de profil profil.php*
+
+Cette page affiche les informations de l'utilisateur connecté.
+
+php
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+    exit();
+}
+
+$username = $_SESSION['username'];
+$email = $_SESSION['email'];
+$role = $_SESSION['role'];
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil de l'utilisateur</title>
+</head>
+<body>
+    <h1>Profil de <?php echo $username; ?></h1>
+    <p>Email : <?php echo $email; ?></p>
+    <p>Rôle : <?php echo $role; ?></p>
+
+    <a href="index.php?controller=Auth&action=logout">Déconnexion</a>
+</body>
+</html>
+
+
+Explications des étapes :
+
+1. Connexion utilisateur : Lorsque l'utilisateur se connecte, ses informations sont récupérées depuis la base de données et stockées dans la session PHP.
+2. Affichage du profil : Sur la page de profil, les informations de l'utilisateur connecté sont récupérées depuis la session et affichées.
+3. Gestion de la session : Si l'utilisateur n'est pas connecté, il est redirigé vers la page de connexion.
+
+Avec cette mise en œuvre, vous pouvez afficher les informations du profil de l'utilisateur connecté sur la page de profil. Si vous avez besoin de plus d'aide ou de modifications supplémentaires, faites-le moi savoir ! 😊
+⁽¹⁾⁽²⁾
+
+Sources:
+[1]  (https://github.com/Developers-Society-Jadavpur-University/venue-booking/tree/c039c5d72427a6b5745fd3aac1954296f9c73b56/controllers%2Fauth.php)
+[2]  (https://github.com/RaineCagape/USeP_Online_Guidance_Counseling/tree/152b90c001dc7e27378cbb1458d06b2628b2758e/Profile.php)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Voici une version améliorée de votre formulaire d'inscription. J'ai ajouté des améliorations pour l'accessibilité, la sécurité, ainsi que des placeholders et options par défaut pour améliorer l'expérience utilisateur.
+
+Formulaire mis à jour
+
+```php
+<div class="container">
+    <h2>INSCRIPTION</h2>
+    <form method="POST" action="index.php?controller=Admin&action=ajoutEleve">
+        <div class="form-group">
+            <label for="nom">Nom :</label>
+            <input type="text" id="nom" name="nom" placeholder="Entrez le nom" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="prenom">Prénom :</label>
+            <input type="text" id="prenom" name="prenom" placeholder="Entrez le prénom" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="date_naissance">Date de Naissance :</label>
+            <input type="date" id="date_naissance" name="date_naissance" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="sexe">Sexe :</label>
+            <select id="sexe" name="sexe" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez le sexe --</option>
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="section">Section :</label>
+            <select id="section" name="section" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez une section --</option>
+                <option value="maternelle">Maternelle</option>
+                <option value="primaire">Primaire</option>
+                <option value="secondaire">Secondaire</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="option">Option :</label>
+            <input type="text" id="option" name="option" placeholder="Entrez l'option (si applicable)" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="classe_id">Classe :</label>
+            <select id="classe_id" name="classe_id" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez une classe --</option>
+                <?php foreach ($classes as $classe): ?>
+                    <option value="<?php echo htmlspecialchars($classe['id']); ?>">
+                        <?php echo htmlspecialchars($classe['nom']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="adresse">Adresse :</label>
+            <input type="text" id="adresse" name="adresse" placeholder="Entrez l'adresse" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="contact">Contact :</label>
+            <input type="text" id="contact" name="contact" placeholder="Entrez le numéro de contact" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="parent_id">Parent :</label>
+            <select name="parent_id" id="parent_id" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez un parent --</option>
+                <?php foreach ($parents as $parent): ?>
+                    <option value="<?php echo htmlspecialchars($parent['id']); ?>">
+                        <?php echo htmlspecialchars($parent['nom']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="frais_status">Statut des frais :</label>
+            <select id="frais_status" name="frais_status" class="form-select" required>
+                <option value="" disabled selected>-- Sélectionnez le statut des frais --</option>
+                <option value="payé">Payé</option>
+                <option value="non payé">Non payé</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+    </form>
+</div>
