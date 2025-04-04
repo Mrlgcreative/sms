@@ -34,7 +34,11 @@ if ($eleves_par_classe_result) {
 }
 
 // Récupération des actions par utilisateur
-$actions_query = "SELECT username, COUNT(*) as total_actions FROM system_logs GROUP BY username ORDER BY total_actions DESC LIMIT 10";
+$actions_query = "SELECT l.username, COUNT(*) as total_actions 
+                 FROM logs l 
+                 GROUP BY l.username 
+                 ORDER BY total_actions DESC 
+                 LIMIT 10";
 $actions_result = $mysqli->query($actions_query);
 $actions_data = [];
 $actions_labels = [];

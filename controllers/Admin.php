@@ -1016,6 +1016,7 @@ public function rapportactions() {
         }
     }
     
+    
     // Méthode pour supprimer un événement scolaire
     public function supprimerEvenement() {
         // Vérifier si l'utilisateur est connecté et a les droits d'administrateur

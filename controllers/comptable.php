@@ -822,6 +822,109 @@ public function updatePaiement() {
     }
     exit;
 }
+public function logActivit($type, $description) {
+    require_once 'models/LogModel.php';
+    $logModel = new LogModel();
+    
+    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+    $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Système';
+    
+    return $logModel->add($user_id, $username, $description);
+}
+
+/**
+ * Exporte les paiements au format Excel
+ */
+public function exportPaiements() {
+    // Vérifier si l'utilisateur est connecté et a les droits
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'comptable') {
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Récupérer tous les paiements
+    $paiements = $this->paiementModel->getAll();
+    
+    // Vérifier si des paiements existent
+    if (empty($paiements)) {
+        $_SESSION['error'] = "Aucun paiement à exporter.";
+        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=paiements');
+        exit();
+    }
+    
+    // Définir les en-têtes pour le téléchargement du fichier Excel
+    header('Content-Type: application/vnd.ms-excel');
+    header('Content-Disposition: attachment;filename="liste_paiements_' . date('Y-m-d') . '.xls"');
+    header('Cache-Control: max-age=0');
+    
+    // Générer le contenu HTML qui sera interprété comme un fichier Excel
+    echo '<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            h1, h2 { text-align: center; }
+        </style>
+    </head>
+    <body>
+        <h1>Liste des Paiements</h1>
+        <h2>Date d\'exportation: ' . date('d/m/Y') . '</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom de l\'élève</th>
+                    <th>Classe</th>
+                    <th>Option</th>
+                    <th>Section</th>
+                    <th>Frais</th>
+                    <th>Montant Payé</th>
+                    <th>Date Paiement</th>
+                    <th>Mois</th>
+                    <th>Date Création</th>
+                </tr>
+            </thead>
+            <tbody>';
+    
+    foreach ($paiements as $paiement) {
+        echo '<tr>
+            <td>' . $paiement['id'] . '</td>
+            <td>' . htmlspecialchars($paiement['eleve_nom']) . '</td>
+            <td>' . htmlspecialchars($paiement['classe']) . '</td>
+            <td>' . htmlspecialchars(isset($paiement['option_nom']) ? $paiement['option_nom'] : 'Non défini') . '</td>
+            <td>' . htmlspecialchars($paiement['section']) . '</td>
+            <td>' . htmlspecialchars($paiement['frais_description']) . '</td>
+            <td>' . $paiement['amount_paid'] . '</td>
+            <td>' . date('d/m/Y', strtotime($paiement['payment_date'])) . '</td>
+            <td>' . htmlspecialchars($paiement['mois']) . '</td>
+            <td>' . date('d/m/Y H:i', strtotime($paiement['created_at'])) . '</td>
+        </tr>';
+    }
+    
+    echo '</tbody>
+        </table>
+        
+        <div style="margin-top: 20px; text-align: right; font-weight: bold;">
+            Total des paiements: ' . count($paiements) . '
+        </div>
+    </body>
+    </html>';
+    
+    // Journaliser l'activité
+    $this->logActivity('export', 'Exportation de la liste des paiements au format Excel');
+    
+    exit();
+}
+
+// ... existing code ...
 
 
 
@@ -944,15 +1047,6 @@ public function exportLogs() {
 }
 
 // Méthode utilitaire pour enregistrer les actions dans les logs
-public function logActivit($type, $description) {
-    require_once 'models/LogModel.php';
-    $logModel = new LogModel();
-    
-    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
-    $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Système';
-    
-    return $logModel->add($user_id, $username, $description);
-}
 // ... existing code ...
 
 /**
@@ -1051,7 +1145,7 @@ if ($stmt) {
     $mysqli->close();
     
     // Journaliser l'activité
-    $this->logActivity('view', 'Consultation du profil de l\'élève ID: ' . $id);
+ 
     
     // Charger la vue
     require 'views/comptable/view_student.php';

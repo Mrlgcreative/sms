@@ -213,6 +213,13 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
         <li><a href="#"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Tableau de bord</li>
       </ol>
+
+      <?php if (isset($showWelcomeMessage) && $showWelcomeMessage): ?>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Bienvenue <?php echo htmlspecialchars($username); ?> !</strong> Vous êtes maintenant connecté en tant que <?php echo htmlspecialchars($role); ?>.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
     </section>
 
     <section class="content">

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 03 avr. 2025 à 13:04
+-- Généré le : ven. 04 avr. 2025 à 22:14
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -20,6 +20,25 @@ SET time_zone = "+00:00";
 --
 -- Base de données : `college1`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `achats_fournitures`
+--
+
+CREATE TABLE `achats_fournitures` (
+  `id` int(11) NOT NULL,
+  `date_achat` date NOT NULL,
+  `fournisseur` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `quantite` int(11) NOT NULL,
+  `montant` decimal(10,2) NOT NULL,
+  `facture_ref` varchar(100) DEFAULT NULL,
+  `date_creation` timestamp NOT NULL DEFAULT current_timestamp(),
+  `date_modification` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -45,7 +64,19 @@ INSERT INTO `active_sessions` (`id`, `user_id`, `session_id`, `ip_address`, `use
 (6, 21, '9f9l5omdvq8q7ng84ujcb7o8ag', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-02 18:57:23', '2025-04-02 18:57:23'),
 (7, 20, 'nvnap7qnn5g2lh3ecbf95r1rf0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0', '2025-04-02 19:04:07', '2025-04-02 19:04:07'),
 (9, 20, 'gqqequ1p091mjkls4of8j57pec', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0', '2025-04-03 10:15:26', '2025-04-03 10:15:26'),
-(10, 21, '0mg18usq7882c89c3pi46bkdk1', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-03 12:31:03', '2025-04-03 12:31:03');
+(10, 21, '0mg18usq7882c89c3pi46bkdk1', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-03 12:31:03', '2025-04-03 12:31:03'),
+(13, 33, 'c6gfl065lonkbtvn4adcq1voec', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0', '2025-04-03 15:37:11', '2025-04-03 15:37:11'),
+(14, 33, '1nlpc558kacd3gbgjm9keeh8aq', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0', '2025-04-03 15:43:57', '2025-04-03 15:43:57'),
+(15, 33, '3pab8p1p6h4hg49la8ppg7aaq1', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-03 15:55:45', '2025-04-03 15:55:45'),
+(17, 33, '6rhgbdrjfct9rkqd63mje2oif0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0', '2025-04-03 16:02:08', '2025-04-03 16:02:08'),
+(21, 21, 'at65irpimtp1gkrdpnnqnds2je', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-03 19:50:09', '2025-04-03 19:50:09'),
+(22, 21, 'dmbgknvn67ailf75jr94iuu6n0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-04 07:45:25', '2025-04-04 07:45:25'),
+(23, 20, 'haben5c3ufvnq5pmuq02uil183', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-04 08:14:11', '2025-04-04 08:14:11'),
+(24, 20, 'fbbk3hjmd5lr66iip8486qjqmv', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-04 11:37:09', '2025-04-04 11:37:09'),
+(25, 20, 'ccncogavqhsifki8p0cke075hr', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-04 15:37:35', '2025-04-04 15:37:35'),
+(27, 21, 'ob7dph37la4ascc94e18i4bj0i', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-04 18:50:42', '2025-04-04 18:50:42'),
+(30, 20, 'ujbkkgkmb404is3p0k5un2dfdk', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '2025-04-04 19:49:27', '2025-04-04 19:49:27'),
+(32, 22, 'dihld8m3us08fm0qop5ld5dlju', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0', '2025-04-04 20:48:26', '2025-04-04 20:48:26');
 
 -- --------------------------------------------------------
 
@@ -75,6 +106,13 @@ CREATE TABLE `blocked_ips` (
   `block_date` datetime NOT NULL,
   `expiry_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `blocked_ips`
+--
+
+INSERT INTO `blocked_ips` (`id`, `ip_address`, `reason`, `block_date`, `expiry_date`) VALUES
+(1, '::1', 'Trop de tentatives de connexion échouées', '2025-04-03 14:56:48', '2025-04-03 15:26:48');
 
 -- --------------------------------------------------------
 
@@ -280,6 +318,34 @@ INSERT INTO `employes` (`id`, `nom`, `prenom`, `email`, `contact`, `poste`, `cre
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `evenements_scolaires`
+--
+
+CREATE TABLE `evenements_scolaires` (
+  `id` int(11) NOT NULL,
+  `titre` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `date_debut` datetime NOT NULL,
+  `date_fin` datetime NOT NULL,
+  `lieu` varchar(255) DEFAULT NULL,
+  `responsable` varchar(255) DEFAULT NULL,
+  `couleur` varchar(50) DEFAULT '#3c8dbc',
+  `statut` enum('planifie','en_cours','termine','annule') DEFAULT 'planifie',
+  `date_creation` timestamp NOT NULL DEFAULT current_timestamp(),
+  `date_modification` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `evenements_scolaires`
+--
+
+INSERT INTO `evenements_scolaires` (`id`, `titre`, `description`, `date_debut`, `date_fin`, `lieu`, `responsable`, `couleur`, `statut`, `date_creation`, `date_modification`, `user_id`) VALUES
+(1, 'Maths', 'jkj', '2025-04-04 12:56:00', '2025-04-18 19:59:00', 'kj', NULL, '', 'planifie', '2025-04-04 10:56:48', '2025-04-04 10:58:36', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `failed_logins`
 --
 
@@ -411,7 +477,103 @@ INSERT INTO `logs` (`id`, `user_id`, `level`, `username`, `action`, `message`, `
 (26, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-03 10:15:27'),
 (27, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"ciella\",\"ip\":\"::1\"}', '2025-04-03 10:15:27'),
 (28, 21, 'INFO', 'Daniel', 'Connexion réussie', '', NULL, NULL, '2025-04-03 12:31:03'),
-(29, 0, 'INFO', 'Daniel', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Daniel\",\"ip\":\"::1\"}', '2025-04-03 12:31:03');
+(29, 0, 'INFO', 'Daniel', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Daniel\",\"ip\":\"::1\"}', '2025-04-03 12:31:03'),
+(30, 20, 'INFO', 'Ciella', 'Déconnexion automatique (inactivité)', '', NULL, NULL, '2025-04-03 14:29:51'),
+(31, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-03 14:29:57'),
+(32, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"ciella\",\"ip\":\"::1\"}', '2025-04-03 14:29:57'),
+(33, 20, 'INFO', 'Ciella', 'Déconnexion', '', NULL, NULL, '2025-04-03 14:43:10'),
+(34, 0, 'WARNING', 'Anonyme', 'Action utilisateur', 'Échec de connexion', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 14:47:14'),
+(35, 0, 'WARNING', 'Anonyme', 'Action utilisateur', 'Échec de connexion', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 14:47:55'),
+(36, 0, 'WARNING', 'Anonyme', 'Action utilisateur', 'Échec de connexion', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 14:48:44'),
+(37, 0, 'WARNING', 'Anonyme', 'Action utilisateur', 'Échec de connexion', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 14:48:47'),
+(38, 0, 'WARNING', 'Anonyme', 'Action utilisateur', 'Échec de connexion', '::1', ' {\"username\":\"Plamedi\",\"ip\":\"::1\"}', '2025-04-03 14:56:27'),
+(39, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Compte verrouillé après trop de tentatives', '::1', ' {\"username\":\"Plamedi\",\"ip\":\"::1\"}', '2025-04-03 14:56:48'),
+(40, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 14:56:50'),
+(41, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 14:56:52'),
+(42, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 14:56:53'),
+(43, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 14:56:54'),
+(44, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 14:56:56'),
+(45, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 14:56:57'),
+(46, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 15:04:57'),
+(47, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 15:05:03'),
+(48, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 15:05:17'),
+(49, 0, 'SECURITY', 'Anonyme', 'Action utilisateur', 'Tentative de connexion depuis une IP bloquée', '::1', ' {\"ip\":\"::1\"}', '2025-04-03 15:05:19'),
+(50, 0, 'INFO', 'Anonyme', 'Action utilisateur', 'Nouvel utilisateur enregistré', '::1', ' {\"username\":\"Plamedie\",\"role\":\"directrice\"}', '2025-04-03 15:31:13'),
+(51, 33, 'INFO', 'Plamedie', 'Connexion réussie', '', NULL, NULL, '2025-04-03 15:31:18'),
+(52, 0, 'INFO', 'Plamedie', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 15:31:18'),
+(53, 33, 'INFO', 'Plamedie', 'Déconnexion', '', NULL, NULL, '2025-04-03 15:37:08'),
+(54, 33, 'INFO', 'Plamedie', 'Connexion réussie', '', NULL, NULL, '2025-04-03 15:37:11'),
+(55, 0, 'INFO', 'Plamedie', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 15:37:11'),
+(56, 33, 'INFO', 'Plamedie', 'Connexion réussie', '', NULL, NULL, '2025-04-03 15:43:57'),
+(57, 0, 'INFO', 'Plamedie', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 15:43:57'),
+(58, 33, 'INFO', 'Plamedie', 'Changement de mot de passe', '', NULL, NULL, '2025-04-03 15:47:36'),
+(59, 0, 'INFO', 'Plamedie', 'Action utilisateur', 'Mot de passe changé avec succès', '::1', ' {\"user_id\":33}', '2025-04-03 15:47:36'),
+(60, 33, 'INFO', 'Plamedie', 'Connexion réussie', '', NULL, NULL, '2025-04-03 15:55:45'),
+(61, 0, 'INFO', 'Plamedie', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 15:55:45'),
+(62, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-03 15:59:38'),
+(63, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"ciella\",\"ip\":\"::1\"}', '2025-04-03 15:59:38'),
+(64, 20, 'INFO', 'Ciella', 'Déconnexion', '', NULL, NULL, '2025-04-03 16:01:59'),
+(65, 0, 'INFO', 'Plamedie', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"directrice\"}', '2025-04-03 16:02:08'),
+(66, 33, 'INFO', 'Plamedie', 'Connexion réussie', '', NULL, NULL, '2025-04-03 16:02:08'),
+(67, 0, 'INFO', 'Plamedie', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Plamedie\",\"ip\":\"::1\"}', '2025-04-03 16:02:08'),
+(68, 0, 'INFO', 'Ciella', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"admin\"}', '2025-04-03 16:05:53'),
+(69, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-03 16:05:53'),
+(70, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"ciella\",\"ip\":\"::1\"}', '2025-04-03 16:05:53'),
+(71, 20, 'INFO', 'Ciella', 'Déconnexion', '', NULL, NULL, '2025-04-03 16:06:00'),
+(72, 0, 'INFO', 'Exou', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-03 16:06:10'),
+(73, 22, 'INFO', 'Exou', 'Connexion réussie', '', NULL, NULL, '2025-04-03 16:06:10'),
+(74, 0, 'INFO', 'Exou', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Exou\",\"ip\":\"::1\"}', '2025-04-03 16:06:10'),
+(75, 22, 'INFO', 'Exou', 'Déconnexion', '', NULL, NULL, '2025-04-03 16:12:26'),
+(76, 0, 'INFO', 'Anonyme', 'Action utilisateur', 'Nouvel utilisateur enregistré', '::1', ' {\"username\":\"Fab\",\"role\":\"directrice\"}', '2025-04-03 16:13:42'),
+(77, 0, 'WARNING', 'Anonyme', 'Action utilisateur', 'Échec de connexion', '::1', ' {\"username\":\"Fab\",\"ip\":\"::1\"}', '2025-04-03 16:14:59'),
+(78, 0, 'INFO', 'Fab', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"directrice\"}', '2025-04-03 16:15:27'),
+(79, 34, 'INFO', 'Fab', 'Connexion réussie', '', NULL, NULL, '2025-04-03 16:15:27'),
+(80, 0, 'INFO', 'Fab', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Fab\",\"ip\":\"::1\"}', '2025-04-03 16:15:27'),
+(81, 34, 'INFO', 'Fab', 'Déconnexion', '', NULL, NULL, '2025-04-03 16:18:59'),
+(82, 0, 'INFO', 'Daniel', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-03 19:50:09'),
+(83, 21, 'INFO', 'Daniel', 'Connexion réussie', '', NULL, NULL, '2025-04-03 19:50:09'),
+(84, 0, 'INFO', 'Daniel', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Daniel\",\"ip\":\"::1\"}', '2025-04-03 19:50:09'),
+(85, 0, 'INFO', 'Daniel', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-04 07:45:25'),
+(86, 21, 'INFO', 'Daniel', 'Connexion réussie', '', NULL, NULL, '2025-04-04 07:45:25'),
+(87, 0, 'INFO', 'Daniel', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Daniel\",\"ip\":\"::1\"}', '2025-04-04 07:45:25'),
+(88, 0, 'WARNING', 'Anonyme', 'Action utilisateur', 'Échec de connexion', '::1', ' {\"username\":\"Ciella\",\"ip\":\"::1\"}', '2025-04-04 08:13:58'),
+(89, 0, 'INFO', 'Ciella', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"admin\"}', '2025-04-04 08:14:11'),
+(90, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-04 08:14:11'),
+(91, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Ciella\",\"ip\":\"::1\"}', '2025-04-04 08:14:12'),
+(92, 20, 'INFO', 'Ciella', 'Déconnexion automatique (inactivité)', '', NULL, NULL, '2025-04-04 11:36:59'),
+(93, 0, 'INFO', 'Ciella', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"admin\"}', '2025-04-04 11:37:09'),
+(94, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-04 11:37:09'),
+(95, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Ciella\",\"ip\":\"::1\"}', '2025-04-04 11:37:09'),
+(96, 0, 'INFO', 'Ciella', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"admin\"}', '2025-04-04 15:37:35'),
+(97, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-04 15:37:35'),
+(98, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Ciella\",\"ip\":\"::1\"}', '2025-04-04 15:37:35'),
+(99, 20, 'INFO', 'Ciella', 'Déconnexion automatique (inactivité)', '', NULL, NULL, '2025-04-04 18:44:09'),
+(100, 0, 'INFO', 'Ciella', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"admin\"}', '2025-04-04 18:46:50'),
+(101, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-04 18:46:50'),
+(102, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Ciella\",\"ip\":\"::1\"}', '2025-04-04 18:46:50'),
+(103, 20, 'INFO', 'Ciella', 'Déconnexion', '', NULL, NULL, '2025-04-04 18:50:32'),
+(104, 0, 'INFO', 'Daniel', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-04 18:50:42'),
+(105, 21, 'INFO', 'Daniel', 'Connexion réussie', '', NULL, NULL, '2025-04-04 18:50:42'),
+(106, 0, 'INFO', 'Daniel', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Daniel\",\"ip\":\"::1\"}', '2025-04-04 18:50:42'),
+(107, 21, 'INFO', 'Daniel', 'Déconnexion automatique (inactivité)', '', NULL, NULL, '2025-04-04 19:41:51'),
+(108, 0, 'INFO', 'Daniel', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-04 19:42:01'),
+(109, 21, 'INFO', 'Daniel', 'Connexion réussie', '', NULL, NULL, '2025-04-04 19:42:01'),
+(110, 0, 'INFO', 'Daniel', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Daniel\",\"ip\":\"::1\"}', '2025-04-04 19:42:01'),
+(111, 21, 'INFO', 'Daniel', 'Déconnexion', '', NULL, NULL, '2025-04-04 19:42:26'),
+(112, 0, 'INFO', 'Daniel', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-04 19:42:32'),
+(113, 21, 'INFO', 'Daniel', 'Connexion réussie', '', NULL, NULL, '2025-04-04 19:42:32'),
+(114, 0, 'INFO', 'Daniel', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Daniel\",\"ip\":\"::1\"}', '2025-04-04 19:42:32'),
+(115, 21, 'INFO', 'Daniel', 'Déconnexion', '', NULL, NULL, '2025-04-04 19:49:17'),
+(116, 0, 'INFO', 'Ciella', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"admin\"}', '2025-04-04 19:49:27'),
+(117, 20, 'INFO', 'Ciella', 'Connexion réussie', '', NULL, NULL, '2025-04-04 19:49:27'),
+(118, 0, 'INFO', 'Ciella', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Ciella\",\"ip\":\"::1\"}', '2025-04-04 19:49:27'),
+(119, 0, 'INFO', 'Exou', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-04 20:20:01'),
+(120, 22, 'INFO', 'Exou', 'Connexion réussie', '', NULL, NULL, '2025-04-04 20:20:01'),
+(121, 0, 'INFO', 'Exou', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Exou\",\"ip\":\"::1\"}', '2025-04-04 20:20:01'),
+(122, 22, 'INFO', 'Exou', 'Déconnexion', '', NULL, NULL, '2025-04-04 20:48:23'),
+(123, 0, 'INFO', 'Exou', 'Action utilisateur', 'User role for redirection', '::1', ' {\"role\":\"comptable\"}', '2025-04-04 20:48:26'),
+(124, 22, 'INFO', 'Exou', 'Connexion réussie', '', NULL, NULL, '2025-04-04 20:48:26'),
+(125, 0, 'INFO', 'Exou', 'Action utilisateur', 'Connexion réussie', '::1', ' {\"username\":\"Exou\",\"ip\":\"::1\"}', '2025-04-04 20:48:26');
 
 -- --------------------------------------------------------
 
@@ -522,7 +684,8 @@ INSERT INTO `paiements_frais` (`id`, `eleve_id`, `amount_paid`, `payment_date`, 
 (36, 49, 300.00, '2025-04-02', '2025-04-01 22:00:00', 3, '3eme', NULL, 'maternelle', 6),
 (37, 49, 50.00, '2025-04-02', '2025-04-01 22:00:00', 6, '3eme', NULL, 'maternelle', 9),
 (38, 47, 300.00, '0000-00-00', '0000-00-00 00:00:00', 1, '7eme', NULL, 'secondaire', 6),
-(39, 45, 65.00, '0000-00-00', '0000-00-00 00:00:00', 3, '1er', NULL, 'primaire', 10);
+(39, 45, 65.00, '0000-00-00', '0000-00-00 00:00:00', 3, '1er', NULL, 'primaire', 10),
+(40, 47, 65.00, '0000-00-00', '0000-00-00 00:00:00', 2, '7eme', NULL, 'secondaire', 10);
 
 -- --------------------------------------------------------
 
@@ -639,7 +802,8 @@ INSERT INTO `security_logs` (`id`, `page`, `ip_address`, `details`, `date`) VALU
 (3, 'login', '::1', 'Invalid CSRF token', '2025-04-02 15:11:57'),
 (4, 'login', '::1', 'Invalid CSRF token', '2025-04-02 15:12:19'),
 (5, 'login', '::1', 'Invalid CSRF token', '2025-04-02 15:13:28'),
-(6, 'login', '::1', 'Invalid CSRF token', '2025-04-02 15:14:24');
+(6, 'login', '::1', 'Invalid CSRF token', '2025-04-02 15:14:24'),
+(7, 'login', '::1', 'Too many failed login attempts', '2025-04-03 14:56:48');
 
 -- --------------------------------------------------------
 
@@ -664,6 +828,49 @@ INSERT INTO `sessions_scolaires` (`id`, `annee_debut`, `annee_fin`, `libelle`, `
 (1, 2023, 2024, 'Année scolaire 2023-2024', 1, '2025-04-01 07:50:20'),
 (2, 2024, 2025, 'Année scolaire 2024-2025', 0, '2025-04-01 07:50:20'),
 (3, 2025, 2026, 'Année scolaire 2025-2026', 0, '2025-04-01 07:50:20');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `stock_items`
+--
+
+CREATE TABLE `stock_items` (
+  `id` int(11) NOT NULL,
+  `nom` varchar(255) NOT NULL,
+  `categorie` varchar(100) NOT NULL,
+  `quantite` int(11) NOT NULL DEFAULT 0,
+  `seuil_alerte` int(11) DEFAULT 10,
+  `description` text DEFAULT NULL,
+  `emplacement` varchar(100) DEFAULT NULL,
+  `date_ajout` timestamp NOT NULL DEFAULT current_timestamp(),
+  `date_modification` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `stock_items`
+--
+
+INSERT INTO `stock_items` (`id`, `nom`, `categorie`, `quantite`, `seuil_alerte`, `description`, `emplacement`, `date_ajout`, `date_modification`, `user_id`) VALUES
+(1, 'Lumingu', 'Fourniture', 26, 10, 'frais', NULL, '2025-04-03 22:00:00', '2025-04-04 09:57:52', NULL),
+(2, 'Mr sky board', 'Fourniture', 7, 10, '9', NULL, '2025-04-03 22:00:00', '2025-04-04 10:36:37', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `stock_mouvements`
+--
+
+CREATE TABLE `stock_mouvements` (
+  `id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `type_mouvement` enum('entree','sortie') NOT NULL,
+  `quantite` int(11) NOT NULL,
+  `date_mouvement` timestamp NOT NULL DEFAULT current_timestamp(),
+  `motif` text DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -737,7 +944,21 @@ INSERT INTO `system_logs` (`id`, `user_id`, `username`, `action_type`, `action_d
 (49, 21, 'Daniel', '', 'Consultation du profil de l\'élève ID: 45', '::1', '2025-04-02 17:08:51'),
 (50, NULL, 'Ciella', NULL, 'Consultation du rapport d\'actions', '::1', '2025-04-03 10:36:19'),
 (51, NULL, 'Ciella', NULL, 'Consultation du rapport d\'actions', '::1', '2025-04-03 10:39:48'),
-(52, NULL, 'Ciella', NULL, 'Consultation du rapport d\'actions', '::1', '2025-04-03 10:56:14');
+(52, NULL, 'Ciella', NULL, 'Consultation du rapport d\'actions', '::1', '2025-04-03 10:56:14'),
+(53, NULL, 'Ciella', NULL, 'Consultation du rapport d\'actions', '::1', '2025-04-03 11:32:43'),
+(54, 21, 'Daniel', '', 'Consultation du profil de l\'élève ID: 47', '::1', '2025-04-04 05:48:01'),
+(55, NULL, 'Ciella', NULL, 'Ajout d\'un achat de fourniture: mmm', '::1', '2025-04-04 07:25:24'),
+(56, NULL, 'Ciella', NULL, 'Suppression d\'un achat de fourniture: mmm', '::1', '2025-04-04 07:35:20'),
+(57, NULL, 'Ciella', NULL, 'Ajout d\'un achat de fourniture: mmmmm', '::1', '2025-04-04 07:35:51'),
+(58, NULL, 'Ciella', NULL, 'Ajout d\'un article au stock: Lumingu', '::1', '2025-04-04 09:57:52'),
+(59, NULL, 'Ciella', NULL, 'Ajout d\'un article au stock: Mr sky board', '::1', '2025-04-04 10:36:37'),
+(60, NULL, 'Ciella', NULL, 'Ajout d\'un événement scolaire: Maths', '::1', '2025-04-04 10:56:48'),
+(61, NULL, 'Ciella', NULL, 'Mise à jour d\'un événement scolaire via AJAX: Maths', '::1', '2025-04-04 10:58:36'),
+(62, NULL, 'Ciella', NULL, 'Mise à jour d\'un événement scolaire via AJAX: Maths', '::1', '2025-04-04 10:58:38'),
+(63, NULL, 'Ciella', NULL, 'Suppression d\'un achat de fourniture: mmmmm', '::1', '2025-04-04 11:01:54'),
+(64, NULL, 'Ciella', NULL, 'Ajout d\'un achat de fourniture: maternelle', '::1', '2025-04-04 13:57:34'),
+(65, NULL, 'Ciella', NULL, 'Suppression d\'un achat de fourniture: maternelle', '::1', '2025-04-04 14:07:22'),
+(66, 21, 'Daniel', '', 'Exportation de la liste des paiements au format Excel', '::1', '2025-04-04 17:06:47');
 
 -- --------------------------------------------------------
 
@@ -768,14 +989,23 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `created_at`, `email`, `image`, `session_id`, `telephone`, `adresse`, `locked`, `lock_expiry`, `password_change_date`, `password_expiry_days`) VALUES
 (19, 'Gloire', '$2y$10$QHAuehKGxjO9jLi0/PJKuORiQ2b0D5KYNBUTVd1sOyw076hC/SMeu', 'comptable', '2025-03-19 08:45:01', 'gloirelumingu10@gmail.com', NULL, 'frfouhlo5luld5mo9a8fbrjkiv', NULL, NULL, 0, NULL, NULL, 90),
-(20, 'Ciella', '$2y$10$uJLRIw7C4DRSuD2eh5lVhuDufMtiUOSdWII2vrKctvpQnoNGKeuqW', 'admin', '2025-03-19 08:59:55', 'ciellamujinga@mail.com', 'uploads/avatars/avatar_20_1743670890.jpg', NULL, '+243 89 079 1919', 'AV. Mbembe, Q.KAMANYOLA No. 48', 0, NULL, NULL, 90),
+(20, 'Ciella', '$2y$10$uJLRIw7C4DRSuD2eh5lVhuDufMtiUOSdWII2vrKctvpQnoNGKeuqW', 'admin', '2025-03-19 08:59:55', 'ciellamujinga@mail.com', 'uploads/avatars/avatar_20_1743764467.jpg', NULL, '+243 89 079 1919', 'AV. Mbembe, Q.KAMANYOLA No. 48', 0, NULL, NULL, 90),
 (21, 'Daniel', '$2y$10$WuERiUQT6GPfGzueKeTdBuswctFUtJ1Uf8UVk8n4BPFTMF03QgIEq', 'comptable', '2025-03-19 09:39:16', 'dantunku@mail.com', 'uploads/profile_photos/user_21_1743545962.jpg', 'frfouhlo5luld5mo9a8fbrjkiv', NULL, NULL, 0, NULL, NULL, 90),
 (22, 'Exou', '$2y$10$pJW2td5lYJpnzmcHMq6p2OdqFm9jtrhseMCXfT233nQftp7hSLhmG', 'comptable', '2025-03-19 10:54:28', 'exoukapenda@mail.com', NULL, 'frfouhlo5luld5mo9a8fbrjkiv', NULL, NULL, 0, NULL, NULL, 90),
-(24, 'piter', '$2y$10$FHhGeCK4MsvJiQVU0qCGpOpoR1Hz0iPoPSUnzt67jvZgKG.h1Yyfu', 'admin', '2025-03-27 12:08:45', 'piterpedro@gmail.com', NULL, NULL, NULL, NULL, 0, NULL, NULL, 90);
+(24, 'piter', '$2y$10$FHhGeCK4MsvJiQVU0qCGpOpoR1Hz0iPoPSUnzt67jvZgKG.h1Yyfu', 'admin', '2025-03-27 12:08:45', 'piterpedro@gmail.com', NULL, NULL, NULL, NULL, 0, NULL, NULL, 90),
+(33, 'Plamedie', '$2y$10$P.gqe6pTUb6HAE2GzqJBf.v.ua7zvXoS/ruOqt3cyucNxWV7MFMdG', 'directrice', '2025-04-03 13:31:13', 'plamediemashat@gmail.com', 'dist/img/users/user_1743687073_1073.jpg', NULL, '0979411767', 'Kolwezi.manika, Moïse Tshombe, mbembe,48', 0, NULL, '2025-04-03 15:47:36', 90),
+(34, 'Fab', '$2y$10$5zrd3efdYMeJ2AivNuN37OogS.2dK50Ya8QRyinghqakbMqI8Hqpu', 'directrice', '2025-04-03 14:13:41', 'fabkap006@gmail.com', 'dist/img/users/user_1743689621_7907.jpg', NULL, '0979411767', 'AV. Mbembe, Q.KAMANYOLA No. 48', 0, NULL, '0000-00-00 00:00:00', 90);
 
 --
 -- Index pour les tables déchargées
 --
+
+--
+-- Index pour la table `achats_fournitures`
+--
+ALTER TABLE `achats_fournitures`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Index pour la table `active_sessions`
@@ -853,6 +1083,13 @@ ALTER TABLE `eleves_archives`
 ALTER TABLE `employes`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Index pour la table `evenements_scolaires`
+--
+ALTER TABLE `evenements_scolaires`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Index pour la table `failed_logins`
@@ -972,6 +1209,21 @@ ALTER TABLE `sessions_scolaires`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `stock_items`
+--
+ALTER TABLE `stock_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Index pour la table `stock_mouvements`
+--
+ALTER TABLE `stock_mouvements`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `item_id` (`item_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Index pour la table `system_logs`
 --
 ALTER TABLE `system_logs`
@@ -989,10 +1241,16 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT pour la table `achats_fournitures`
+--
+ALTER TABLE `achats_fournitures`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT pour la table `active_sessions`
 --
 ALTER TABLE `active_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT pour la table `attendances`
@@ -1004,7 +1262,7 @@ ALTER TABLE `attendances`
 -- AUTO_INCREMENT pour la table `blocked_ips`
 --
 ALTER TABLE `blocked_ips`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `classes`
@@ -1055,10 +1313,16 @@ ALTER TABLE `employes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT pour la table `evenements_scolaires`
+--
+ALTER TABLE `evenements_scolaires`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT pour la table `failed_logins`
 --
 ALTER TABLE `failed_logins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `frais`
@@ -1082,7 +1346,7 @@ ALTER TABLE `horaires`
 -- AUTO_INCREMENT pour la table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
 
 --
 -- AUTO_INCREMENT pour la table `mois`
@@ -1106,7 +1370,7 @@ ALTER TABLE `paiements`
 -- AUTO_INCREMENT pour la table `paiements_frais`
 --
 ALTER TABLE `paiements_frais`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT pour la table `parents`
@@ -1142,7 +1406,7 @@ ALTER TABLE `recu`
 -- AUTO_INCREMENT pour la table `security_logs`
 --
 ALTER TABLE `security_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT pour la table `sessions_scolaires`
@@ -1151,20 +1415,38 @@ ALTER TABLE `sessions_scolaires`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT pour la table `stock_items`
+--
+ALTER TABLE `stock_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT pour la table `stock_mouvements`
+--
+ALTER TABLE `stock_mouvements`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `system_logs`
 --
 ALTER TABLE `system_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- Contraintes pour les tables déchargées
 --
+
+--
+-- Contraintes pour la table `achats_fournitures`
+--
+ALTER TABLE `achats_fournitures`
+  ADD CONSTRAINT `achats_fournitures_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Contraintes pour la table `attendances`
@@ -1187,10 +1469,29 @@ ALTER TABLE `eleves`
   ADD CONSTRAINT `fk_eleve_session_scolaire` FOREIGN KEY (`session_scolaire_id`) REFERENCES `sessions_scolaires` (`id`);
 
 --
+-- Contraintes pour la table `evenements_scolaires`
+--
+ALTER TABLE `evenements_scolaires`
+  ADD CONSTRAINT `evenements_scolaires_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
 -- Contraintes pour la table `historique`
 --
 ALTER TABLE `historique`
   ADD CONSTRAINT `historique_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Contraintes pour la table `stock_items`
+--
+ALTER TABLE `stock_items`
+  ADD CONSTRAINT `stock_items_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Contraintes pour la table `stock_mouvements`
+--
+ALTER TABLE `stock_mouvements`
+  ADD CONSTRAINT `stock_mouvements_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `stock_items` (`id`),
+  ADD CONSTRAINT `stock_mouvements_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
