@@ -11,12 +11,10 @@ class PaiementModel {
     }
 
     public function getPaiementById($id) {
-        $stmt = $this->db->prepare("SELECT p.*, e.nom as eleve_nom, e.prenom as eleve_prenom, c.nom as classe, o.nom as option_nom, s.nom as section, f.description as frais_description 
+        $stmt = $this->db->prepare("SELECT p.*, e.nom as eleve_nom, e.prenom as eleve_prenom, e. classe, o.nom as option_nom, e.section, f.description as frais_description 
                                 FROM paiements_frais p
                                 JOIN eleves e ON p.eleve_id = e.id
-                                JOIN classes c ON e.classe_id = c.id
                                 JOIN options o ON e.option_id = o.id
-                                JOIN sections s ON e.section_id = s.id
                                 JOIN frais f ON p.frais_id = f.id
                                 WHERE p.id = ?");
         $stmt->bind_param("i", $id);
@@ -175,8 +173,94 @@ class PaiementModel {
         return $paiement_id;
     }
 
+    /**
+     * Supprime un paiement par son ID
+     * 
+     * @param int $id L'identifiant du paiement à supprimer
+     * @return bool True si la suppression a réussi, false sinon
+     */
+    public function delete($id) {
+        // Vérifier si le paiement existe avant de le supprimer
+        $check = $this->getPaiementById($id);
+        if (!$check) {
+            return false;
+        }
+        
+        // Préparer la requête de suppression
+        $stmt = $this->db->prepare("DELETE FROM paiements_frais WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $result = $stmt->execute();
+        
+        // Enregistrer l'action dans les logs
+        if ($result) {
+            $this->logAction("Suppression du paiement ID: $id");
+        }
+        
+        $stmt->close();
+        return $result;
+    }
+
     public function getLastInsertedId() {
         return $this->db->insert_id;
+    }
+    
+    /**
+     * Met à jour un paiement existant
+     * 
+     * @param int $id ID du paiement à mettre à jour
+     * @param int $eleve_id ID de l'élève
+     * @param int $frais_id ID du frais
+     * @param string $amount_paid Montant payé
+     * @param string $payment_date Date du paiement
+     * @param int $moi_id ID du mois
+     * @param string $classe Classe de l'élève
+     * @param int $option_id ID de l'option
+     * @param string $section Section de l'élève
+     * @return bool True si la mise à jour a réussi, false sinon
+     */
+    public function update($id, $eleve_id, $frais_id, $amount_paid, $payment_date, $moi_id, $classe, $option_id, $section) {
+        // Vérifier si le paiement existe
+        $check = $this->getPaiementById($id);
+        if (!$check) {
+            return false;
+        }
+        
+        // Préparer la requête de mise à jour
+        $query = "UPDATE paiements_frais SET 
+                  eleve_id = ?, 
+                  frais_id = ?, 
+                  amount_paid = ?, 
+                  payment_date = ?, 
+                  moi_id = ?, 
+                  classe = ?, 
+                  option_id = ?, 
+                  section = ?,
+                  updated_at = NOW()
+                  WHERE id = ?";
+        
+        $stmt = $this->db->prepare($query);
+        
+        if (!$stmt) {
+            die("Erreur de préparation: " . $this->db->error);
+        }
+        
+        // Lier les paramètres
+        $stmt->bind_param("iisdisisi", $eleve_id, $frais_id, $amount_paid, $payment_date, $moi_id, $classe, $option_id, $section, $id);
+        
+        // Exécuter la requête
+        $result = $stmt->execute();
+        
+        if (!$result) {
+            die("Erreur d'exécution: " . $stmt->error);
+        }
+        
+        // Enregistrer l'action dans les logs
+        if ($result) {
+            $this->logAction("Mise à jour du paiement ID: $id");
+        }
+        
+        $stmt->close();
+        return $result;
     }
 }
 ?>

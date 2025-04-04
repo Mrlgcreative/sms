@@ -34,3 +34,5 @@
 [2025-04-03 16:14:59] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Fab","ip":"::1"}
 [2025-04-03 16:15:27] [INFO] [::1] [Fab] User role for redirection {"role":"directrice"}
 [2025-04-03 16:15:27] [INFO] [::1] [Fab] Connexion réussie {"username":"Fab","ip":"::1"}
+[2025-04-03 19:50:09] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-03 19:50:09] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

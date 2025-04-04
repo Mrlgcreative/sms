@@ -798,6 +798,474 @@ public function rapportactions() {
     require 'views/admin/rapport_actions.php';
 }
 
+    // Ajouter ces méthodes au contrôleur Admin
+    
+    /**
+     * Vérifie si un administrateur est connecté
+     * @return bool Retourne true si un administrateur est connecté, false sinon
+     */
+    private function isAdminLoggedIn() {
+        // Vérifier si la session est démarrée
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Vérifier si l'utilisateur est connecté et a le rôle d'administrateur
+        return isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+    }
+    
+    public function achatFournitures() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue
+        require_once 'views/admin/achatFournitures.php';
+    }
+    
+    public function gestionStock() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue
+        require_once 'views/admin/gestionStock.php';
+    }
+    
+    
+    
+    public function ajouterAchat() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $date = isset($_POST['date_achat']) ? $_POST['date_achat'] : date('Y-m-d');
+            $fournisseur = isset($_POST['fournisseur']) ? $_POST['fournisseur'] : '';
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $quantite = isset($_POST['quantite']) ? intval($_POST['quantite']) : 0;
+            $montant = isset($_POST['montant']) ? floatval($_POST['montant']) : 0;
+            $facture_ref = isset($_POST['facture_ref']) ? $_POST['facture_ref'] : '';
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+            
+            // Instancier le modèle
+            require_once 'models/AchatFourniture.php';
+            $achatModel = new AchatFourniture($mysqli);
+            
+            // Ajouter l'achat
+            $result = $achatModel->ajouterAchat($date, $fournisseur, $description, $quantite, $montant, $facture_ref);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $this->logAction("Ajout d'un achat de fourniture: " . $description);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=achatFournitures&success=1&message=' . urlencode('Achat ajouté avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=achatFournitures&error=1&message=' . urlencode('Erreur lors de l\'ajout de l\'achat'));
+            }
+            
+            $mysqli->close();
+            exit;
+        } else {
+            // Afficher le formulaire d'ajout
+            require_once 'views/admin/ajout_achat.php';
+        }
+    }
+
+
+    public function evenementsScolaires() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue
+        require_once 'views/admin/evenementsScolaires.php';
+    }
+    
+    // Méthode pour ajouter un événement scolaire
+    public function ajouterEvenement() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $titre = isset($_POST['titre']) ? $_POST['titre'] : '';
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : '';
+            $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '';
+            $lieu = isset($_POST['lieu']) ? $_POST['lieu'] : '';
+            $responsable = isset($_POST['responsable']) ? $_POST['responsable'] : '';
+            $couleur = isset($_POST['couleur']) ? $_POST['couleur'] : '#3c8dbc';
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+            
+            // Instancier le modèle
+            require_once 'models/EvenementScolaire.php';
+            $evenementModel = new EvenementScolaire($mysqli);
+            
+            // Ajouter l'événement
+            $result = $evenementModel->ajouterEvenement($titre, $description, $date_debut, $date_fin, $lieu, $responsable, $couleur);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $this->logAction("Ajout d'un événement scolaire: " . $titre);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&success=1&message=' . urlencode('Événement ajouté avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=ajouterEvenement&error=1&message=' . urlencode('Erreur lors de l\'ajout de l\'événement'));
+            }
+            
+            $mysqli->close();
+            exit;
+        } else {
+            // Afficher le formulaire d'ajout
+            require_once 'views/admin/ajout_evenement.php';
+        }
+    }
+    
+    // Méthode pour modifier un événement scolaire
+    public function modifierEvenement() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if (!isset($_GET['id'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&error=1&message=' . urlencode('ID d\'événement non spécifié'));
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            die("Connection failed: " . $mysqli->connect_error);
+        }
+        
+        // Instancier le modèle
+        require_once 'models/EvenementScolaire.php';
+        $evenementModel = new EvenementScolaire($mysqli);
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $titre = isset($_POST['titre']) ? $_POST['titre'] : '';
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : '';
+            $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '';
+            $lieu = isset($_POST['lieu']) ? $_POST['lieu'] : '';
+            $responsable = isset($_POST['responsable']) ? $_POST['responsable'] : '';
+            $couleur = isset($_POST['couleur']) ? $_POST['couleur'] : '#3c8dbc';
+            
+            // Modifier l'événement
+            $result = $evenementModel->modifierEvenement($id, $titre, $description, $date_debut, $date_fin, $lieu, $responsable, $couleur);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $this->logAction("Modification d'un événement scolaire: " . $titre);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&success=1&message=' . urlencode('Événement modifié avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=modifierEvenement&id=' . $id . '&error=1&message=' . urlencode('Erreur lors de la modification de l\'événement'));
+            }
+            
+            $mysqli->close();
+            exit;
+        } else {
+            // Récupérer les informations de l'événement
+            $evenement = $evenementModel->getEvenementById($id);
+            
+            if (!$evenement) {
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&error=1&message=' . urlencode('Événement non trouvé'));
+                exit;
+            }
+            
+            // Afficher le formulaire de modification
+            require_once 'views/admin/modifier_evenement.php';
+        }
+    }
+    
+    // Méthode pour supprimer un événement scolaire
+    public function supprimerEvenement() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if (!isset($_GET['id'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&error=1&message=' . urlencode('ID d\'événement non spécifié'));
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            die("Connection failed: " . $mysqli->connect_error);
+        }
+        
+        // Instancier le modèle
+        require_once 'models/EvenementScolaire.php';
+        $evenementModel = new EvenementScolaire($mysqli);
+        
+        // Récupérer les informations de l'événement avant suppression pour le log
+        $evenement = $evenementModel->getEvenementById($id);
+        
+        if (!$evenement) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&error=1&message=' . urlencode('Événement non trouvé'));
+            exit;
+        }
+        
+        // Supprimer l'événement
+        $result = $evenementModel->supprimerEvenement($id);
+        
+        if ($result) {
+            // Enregistrer l'action dans les logs
+            $this->logAction("Suppression d'un événement scolaire: " . $evenement['titre']);
+            
+            // Rediriger avec un message de succès
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&success=1&message=' . urlencode('Événement supprimé avec succès'));
+        } else {
+            // Rediriger avec un message d'erreur
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=evenementsScolaires&error=1&message=' . urlencode('Erreur lors de la suppression de l\'événement'));
+        }
+        
+        $mysqli->close();
+        exit;
+    }
+    
+    // Méthode pour récupérer les détails d'un événement (pour AJAX)
+    public function getEvenementDetails() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            echo json_encode(['success' => false, 'message' => 'Non autorisé']);
+            exit;
+        }
+        
+        if (!isset($_GET['id'])) {
+            echo json_encode(['success' => false, 'message' => 'ID d\'événement non spécifié']);
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données']);
+            exit;
+        }
+        
+        // Instancier le modèle
+        require_once 'models/EvenementScolaire.php';
+        $evenementModel = new EvenementScolaire($mysqli);
+        
+        // Récupérer les informations de l'événement
+        $evenement = $evenementModel->getEvenementById($id);
+        
+        if (!$evenement) {
+            echo json_encode(['success' => false, 'message' => 'Événement non trouvé']);
+        } else {
+            echo json_encode(['success' => true, 'data' => $evenement]);
+        }
+        
+        $mysqli->close();
+        exit;
+    }
+    
+    // Méthode pour mettre à jour un événement via AJAX
+    public function updateEvenement() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            echo json_encode(['success' => false, 'message' => 'Non autorisé']);
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['event_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Données invalides']);
+            exit;
+        }
+        
+        $id = intval($_POST['event_id']);
+        $titre = isset($_POST['event_title']) ? $_POST['event_title'] : '';
+        $date_debut = isset($_POST['event_start']) ? $_POST['event_start'] : '';
+        $date_fin = isset($_POST['event_end']) ? $_POST['event_end'] : '';
+        $lieu = isset($_POST['event_location']) ? $_POST['event_location'] : '';
+        $responsable = isset($_POST['event_responsible']) ? $_POST['event_responsible'] : '';
+        $description = isset($_POST['event_description']) ? $_POST['event_description'] : '';
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données']);
+            exit;
+        }
+        
+        // Instancier le modèle
+        require_once 'models/EvenementScolaire.php';
+        $evenementModel = new EvenementScolaire($mysqli);
+        
+        // Récupérer l'événement actuel pour obtenir la couleur
+        $evenement = $evenementModel->getEvenementById($id);
+        if (!$evenement) {
+            echo json_encode(['success' => false, 'message' => 'Événement non trouvé']);
+            exit;
+        }
+        
+        $couleur = $evenement['couleur'];
+        
+        // Mettre à jour l'événement
+        $result = $evenementModel->modifierEvenement($id, $titre, $description, $date_debut, $date_fin, $lieu, $responsable, $couleur);
+        
+        if ($result) {
+            // Enregistrer l'action dans les logs
+            $this->logAction("Mise à jour d'un événement scolaire via AJAX: " . $titre);
+            
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de la mise à jour de l\'événement']);
+        }
+        
+        $mysqli->close();
+        exit;
+    }
+
+    
+
+    public function supprimerAchat() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if (isset($_GET['id'])) {
+            $id = intval($_GET['id']);
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+            
+            // Instancier le modèle
+            require_once 'models/AchatFourniture.php';
+            $achatModel = new AchatFourniture($mysqli);
+            
+            // Récupérer les informations de l'achat avant suppression pour le log
+            $achat = $achatModel->getAchatById($id);
+            
+            // Supprimer l'achat
+            $result = $achatModel->supprimerAchat($id);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $description = isset($achat['description']) ? $achat['description'] : 'Achat #' . $id;
+                $this->logAction("Suppression d'un achat de fourniture: " . $description);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=achatFournitures&success=1&message=' . urlencode('Achat supprimé avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=achatFournitures&error=1&message=' . urlencode('Erreur lors de la suppression de l\'achat'));
+            }
+            
+            $mysqli->close();
+        } else {
+            // Rediriger si aucun ID n'est fourni
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=achatFournitures&error=1&message=' . urlencode('ID d\'achat non spécifié'));
+        }
+        exit;
+    }
+
+
+        
+    
+    public function ajouterArticle() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $categorie = isset($_POST['categorie']) ? $_POST['categorie'] : '';
+            $quantite = isset($_POST['quantite']) ? intval($_POST['quantite']) : 0;
+            $prix_unitaire = isset($_POST['prix_unitaire']) ? floatval($_POST['prix_unitaire']) : 0;
+            $date_ajout = isset($_POST['date_ajout']) ? $_POST['date_ajout'] : date('Y-m-d');
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+            
+            // Instancier le modèle
+            require_once 'models/Stock.php';
+            $articleModel = new Stock($mysqli);
+            
+            // Ajouter l'article
+            $result = $articleModel->ajouterArticle($nom, $description, $categorie, $quantite, $prix_unitaire, $date_ajout);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $this->logAction("Ajout d'un article au stock: " . $nom);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=gestionStock&success=1&message=' . urlencode('Article ajouté avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=gestionStock&error=1&message=' . urlencode('Erreur lors de l\'ajout de l\'article'));
+            }
+            
+            $mysqli->close();
+            exit;
+        } else {
+            // Afficher le formulaire d'ajout
+            require_once 'views/admin/ajout_article.php';
+        }
+    }
 
 // Fonction pour enregistrer les actions des utilisateurs
 public function logAction($action) {
