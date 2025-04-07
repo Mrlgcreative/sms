@@ -1,0 +1,148 @@
+D'accord, je vais mettre à jour ton formulaire d'inscription pour inclure tous les champs de la table eleves tels que définis précédemment. Voici le formulaire complet :
+
+```html
+<div class="container" style="align-items:center">
+    <h2>INSCRIPTION</h2>
+    <form method="POST" action="index.php?controller=comptable&action=inscris">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="nom">Nom :</label>
+                <input type="text" id="nom" name="nom" placeholder="Entrez le nom" class="form-control" style="width: 60%;" required>
+            </div>
+            <div class="form-group">
+                <label for="post_nom">Post-nom :</label>
+                <input type="text" id="post_nom" name="post_nom" placeholder="Entrez le post-nom" class="form-control" style="width: 60%;" required>
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" placeholder="Entrez le prénom" class="form-control" style="width: 60%;" required>
+            </div>
+            <div class="form-group">
+                <label for="date_naissance">Date de Naissance :</label>
+                <input type="date" id="date_naissance" name="date_naissance" class="form-control" style="width: 60%;" required>
+            </div>
+            <div class="form-group">
+                <label for="lieu_naissance">Lieu de Naissance :</label>
+                <input type="text" id="lieu_naissance" name="lieu_naissance" placeholder="Entrez le lieu de naissance" class="form-control" style="width: 60%;" required>
+            </div>
+            <div class="form-group">
+                <label for="sexe">Sexe :</label>
+                <select id="sexe" name="sexe" class="form-control select2" style="width: 60%;" required>
+                    <option value="" disabled selected>-- Sélectionnez le sexe --</option>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="section">Section :</label>
+                <select id="section" name="section" class="form-control select2" style="width: 60%;" required>
+                    <option value="" disabled selected>-- Sélectionnez une section --</option>
+                    <option value="maternelle">Maternelle</option>
+                    <option value="primaire">Primaire</option>
+                    <option value="secondaire">Secondaire</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="option_id">Option :</label>
+                <select id="option_id" name="option_id" class="form-control select2" style="width: 60%;" required>
+                    <option value="" disabled selected>-- Sélectionnez une option --</option>
+                    <?php foreach ($option as $optio) :?>
+                        <option value="<?php echo ($optio['id']); ?>">
+                            <?php echo ($optio['nom_option']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="classe_id">Classe :</label>
+                <select id="classe_id" name="classe_id" class="form-control select2" style="width: 60%;" required>
+                    <option value="" disabled selected>-- Sélectionnez une classe --</option>
+                    <?php foreach ($classes as $classe): ?>
+                        <option value="<?php echo ($classe['id']); ?>">
+                            <?php echo ($classe['nom']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="adresse">Adresse:</label>
+                <input type="text" id="adresse" name="adresse" placeholder="Entrez l'adresse" class="form-control" style="width: 60%;" required>
+            </div>
+            <div class="form-group">
+                <label for="nom_pere">Nom du Père :</label>
+                <input type="text" id="nom_pere" name="nom_pere" placeholder="Entrez le nom du père" class="form-control" style="width: 60%;">
+            </div>
+            <div class="form-group">
+                <label for="nom_mere">Nom de la Mère :</label>
+                <input type="text" id="nom_mere" name="nom_mere" placeholder="Entrez le nom de la mère" class="form-control" style="width: 60%;">
+            </div>
+            <div class="form-group">
+                <label for="contact_pere">Contact du Père :</label>
+                <input type="text" id="contact_pere" name="contact_pere" placeholder="Entrez le contact du père" class="form-control" style="width: 60%;">
+            </div>
+            <div class="form-group">
+                <label for="contact_mere">Contact de la Mère :</label>
+                <input type="text" id="contact_mere" name="contact_mere" placeholder="Entrez le contact de la mère" class="form-control" style="width: 60%;">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+*Explications des changements:*
+1. *Ajout de `post_nom` et `lieu_naissance`* : Ces champs ont été ajoutés pour correspondre à la table `eleves`.
+2. *Sélection de l'option (`option_id`)* : J'ai modifié l'élément `<select>` pour utiliser `option_id` et afficher les options correctes.
+3. *Sélection de la classe (`classe_id`)* : Corrigé pour utiliser `classe_id` comme valeur, tout en affichant le nom de la classe.
+4. *Champs de Contact* : Ajout de champs pour le nom et le contact des parents (`nom_pere`, `nom_mere`, `contact_pere`, `contact_mere`).
+
+*Traitement côté serveur en PHP*
+Voici un exemple pour traiter les données envoyées par ce formulaire dans `index.php?controller=comptable&action=inscris` :
+
+php
+<?php
+// Connexion à la base de données
+$conn = new mysqli("localhost", "root", "", "votre_base_de_donnees");
+
+if ($conn->connect_error) {
+    die("Échec de la connexion à la base de données : " . $conn->connect_error);
+}
+
+// Récupération des données du formulaire
+$nom = $_POST['nom'];
+$post_nom = $_POST['post_nom'];
+$prenom = $_POST['prenom'];
+$date_naissance = $_POST['date_naissance'];
+$lieu_naissance = $_POST['lieu_naissance'];
+$sexe = $_POST['sexe'];
+$section = $_POST['section'];
+$option_id = $_POST['option_id'];
+$classe_id = $_POST['classe_id'];
+$adresse = $_POST['adresse'];
+$nom_pere = $_POST['nom_pere'];
+$nom_mere = $_POST['nom_mere'];
+$contact_pere = $_POST['contact_pere'];
+$contact_mere = $_POST['contact_mere'];
+
+// Insertion des données dans la table
+$sql = "INSERT INTO eleves (nom, post_nom, prenom, date_naissance, lieu_naissance, sexe, section, option_id, classe_id, adresse, nom_pere, nom_mere, contact_pere, contact_mere)
+        VALUES ('$nom', '$post_nom', '$prenom', '$date_naissance', '$lieu_naissance', '$sexe', '$section', '$option_id', '$classe_id', '$adresse', '$nom_pere', '$nom_mere', '$contact_pere', '$contact_mere')";
+
+if ($conn->query($sql) === TRUE) {
+    echo "Élève inscrit avec succès.";
+} else {
+    echo "Erreur : " . $conn->error;
+}
+
+// Fermeture de la connexion
+$conn->close();
+?>
+```
+
+Si tu as des questions ou des besoins supplémentaires, fais-le-moi savoir ! 😊

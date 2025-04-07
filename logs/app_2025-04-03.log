@@ -1,0 +1,38 @@
+[2025-04-03 10:15:27] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-03 12:31:03] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-03 14:29:57] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-03 14:47:14] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Plamedie","ip":"::1"}
+[2025-04-03 14:47:55] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Plamedie","ip":"::1"}
+[2025-04-03 14:48:44] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Plamedie","ip":"::1"}
+[2025-04-03 14:48:47] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Plamedie","ip":"::1"}
+[2025-04-03 14:56:27] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Plamedi","ip":"::1"}
+[2025-04-03 14:56:48] [SECURITY] [::1] [Anonyme] Compte verrouillé après trop de tentatives {"username":"Plamedi","ip":"::1"}
+[2025-04-03 14:56:50] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 14:56:52] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 14:56:53] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 14:56:54] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 14:56:56] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 14:56:57] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 15:04:57] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 15:05:03] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 15:05:17] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 15:05:19] [SECURITY] [::1] [Anonyme] Tentative de connexion depuis une IP bloquée {"ip":"::1"}
+[2025-04-03 15:31:13] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"Plamedie","role":"directrice"}
+[2025-04-03 15:31:18] [INFO] [::1] [Plamedie] Connexion réussie {"username":"Plamedie","ip":"::1"}
+[2025-04-03 15:37:11] [INFO] [::1] [Plamedie] Connexion réussie {"username":"Plamedie","ip":"::1"}
+[2025-04-03 15:43:57] [INFO] [::1] [Plamedie] Connexion réussie {"username":"Plamedie","ip":"::1"}
+[2025-04-03 15:47:36] [INFO] [::1] [Plamedie] Mot de passe changé avec succès {"user_id":33}
+[2025-04-03 15:55:45] [INFO] [::1] [Plamedie] Connexion réussie {"username":"Plamedie","ip":"::1"}
+[2025-04-03 15:59:38] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-03 16:02:08] [INFO] [::1] [Plamedie] User role for redirection {"role":"directrice"}
+[2025-04-03 16:02:08] [INFO] [::1] [Plamedie] Connexion réussie {"username":"Plamedie","ip":"::1"}
+[2025-04-03 16:05:53] [INFO] [::1] [Ciella] User role for redirection {"role":"admin"}
+[2025-04-03 16:05:53] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-03 16:06:09] [INFO] [::1] [Exou] User role for redirection {"role":"comptable"}
+[2025-04-03 16:06:10] [INFO] [::1] [Exou] Connexion réussie {"username":"Exou","ip":"::1"}
+[2025-04-03 16:13:41] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"Fab","role":"directrice"}
+[2025-04-03 16:14:59] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Fab","ip":"::1"}
+[2025-04-03 16:15:27] [INFO] [::1] [Fab] User role for redirection {"role":"directrice"}
+[2025-04-03 16:15:27] [INFO] [::1] [Fab] Connexion réussie {"username":"Fab","ip":"::1"}
+[2025-04-03 19:50:09] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-03 19:50:09] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

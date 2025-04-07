@@ -1,0 +1,1010 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Professeurs - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestion des Professeurs</h1>
+        <nav>
+            <ul>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil">Accueil</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">Élèves</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=professeurs">Professeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=frais">Frais</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiementProfs">Paiements</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs">Directeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices">Directrices</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets">Préfets</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=employes">Employés</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=historiques">Historiques</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=parents">Parents</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=cours">Cours</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=classes">Classes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Liste des Professeurs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Classe</th>
+                        <th>Section</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($professeurs as $professeur) : ?>
+                    <tr>
+                        <td><?php echo $professeur['id']; ?></td>
+                        <td><?php echo $professeur['nom']; ?></td>
+                        <td><?php echo $professeur['prenom']; ?></td>
+                        <td><?php echo $professeur['email']; ?></td>
+                        <td><?php echo $professeur['contact']; ?></td>
+                        <td><?php echo $professeur['section']?></td>
+                        <td><?php echo $professeur['classe']; ?></td>
+                       
+                        <td>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editProfesseur&id=<?php echo $professeur['id']; ?>">Modifier</a> |
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=deleteProfesseur&id=<?php echo $professeur['id']; ?>">Supprimer</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=ajoutprofesseur">Ajouter un Professeur</a>
+            <button onclick="window.print()">Imprimer</button>
+        </section>
+    </main>
+</body>
+
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un élève</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <?php include 'includes/navbar.php'; ?>
+    <div class="container">
+        <h2>Ajouter un élève</h2>
+        <form method="POST" action="index.php?controller=Admin&action=ajoutEleve">
+            <div class="form-group">
+                <label for="nom">Nom :</label>
+                <input type="text" id="nom" name="nom" required>
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" required>
+            </div>
+            <div class="form-group">
+                <label for="date_naissance">Date de Naissance :</label>
+                <input type="date" id="date_naissance" name="date_naissance" required>
+            </div>
+            <div class="form-group">
+                <label for="sexe">Sexe :</label>
+                <select id="sexe" name="sexe" required>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="section">Section :</label>
+                <select id="section" name="section" required>
+                    <option value="maternelle">Maternelle</option>
+                    <option value="primaire">Primaire</option>
+                    <option value="secondaire">Secondaire</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="option">Option :</label>
+                <input type="text" id="option" name="option">
+            </div>
+            <div class="form-group">
+                <label for="classe_id">Classe :</label>
+                <select id="classe_id" name="classe_id" required>
+                    <?php foreach ($classes as $classe): ?>
+                        <option value="<?php echo $classe['id']; ?>"><?php echo $classe['name']; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="adresse">Adresse :</label>
+                <input type="text" id="adresse" name="adresse" required>
+            </div>
+            <div class="form-group">
+                <label for="contact">Contact :</label>
+                <input type="text" id="contact" name="contact" required>
+            </div>
+            <div class="form-group">
+                <label for="id_parent">ID Parent :</label>
+                <input type="number" id="id_parent" name="id_parent" required>
+            </div>
+            <div class="form-group">
+                <label for="frais_status">Statut des frais :</label>
+                <select id="frais_status" name="frais_status" required>
+                    <option value="payé">Payé</option>
+                    <option value="non payé">Non payé</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+    </div>
+    <?php include 'includes/footer.php'; ?>
+</body>
+</html> -->
+
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un cours</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <?php include 'views/include/sidebar.php'; ?>
+    <div class="container">
+        <h2>Ajouter un cours</h2>
+        <form method="POST" action="index.php?controller=Admin&action=ajoutCours">
+            <div class="form-group">
+                <label for="titre">Titre :</label>
+                <input type="text" id="titre" name="titre" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description :</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="enseignant_id">Enseignant:</label>
+                <input type="number" id="enseignant_id" name="enseignant_id" required>
+            </div>
+            <div class="form-group">
+                <label for="classe_id">Classe :</label>
+                <input type="number" id="classe_id" name="classe_id" required>
+            </div>
+            <div class="form-group">
+                <label for="section">Section :</label>
+                <select id="section" name="section" required>
+                    <option value="maternelle">Maternelle</option>
+                    <option value="primaire">Primaire</option>
+                    <option value="secondaire">Secondaire</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="option">Option :</label>
+                <input type="text" id="option" name="option">
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+    </div>
+ -->
+
+
+ <!-- ```php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un employé</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <?php include 'views/include/sidebar.php'; ?>
+    <div class="container">
+        <h2>Ajouter un employé</h2>
+        <form method="POST" action="index.php?controller=Admin&action=ajoutEmploye">
+            <div class="form-group">
+                <label for="nom">Nom :</label>
+                <input type="text" id="nom" name="nom" required>
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="contact">Contact :</label>
+                <input type="text" id="contact" name="contact" required>
+            </div>
+            <div class="form-group">
+                <label for="poste">Poste :</label>
+                <input type="text" id="poste" name="poste" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+    </div>
+
+</body>
+</html>
+
+ -->
+
+ <!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter des Frais - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Ajouter des Frais</h1>
+        <nav>
+            <ul>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil">Accueil</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">Élèves</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=professeurs">Professeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=frais">Frais</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiementProfs">Paiements</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs">Directeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices">Directrices</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets">Préfets</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=employes">Employés</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=historiques">Historiques</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=parents">Parents</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=cours">Cours</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=classes">Classes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Ajouter de Nouveaux Frais</h2>
+            <form action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=ajoutFrais" method="POST">
+                <label for="montant">Montant :</label>
+                <input type="number" id="montant" name="montant" required>
+
+                <label for="description">Description :</label>
+                <input type="text" id="description" name="description" required>
+
+                <label for="classe">Classe :</label>
+                <select id="classe" name="classe" required>
+                    <option value="maternelle">Maternelle</option>
+                    <option value="primaire">Primaire</option>
+                    <option value="secondaire">Secondaire</option>
+                </select>
+
+                <button type="submit">Ajouter</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
+
+ -->
+
+ <!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un Professeur - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Ajouter un Professeur</h1>
+       
+        <nav>
+        <?php require_once("views/include/sidebar.php");
+        ?>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Ajouter un Nouveau Professeur</h2>
+            <form action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=ajoutProfesseur" method="POST">
+                <label for="nom">Nom :</label>
+                <input type="text" id="nom" name="nom" required>
+
+                <label for="prenom">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" required>
+
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="contact">Contact :</label>
+                <input type="text" id="contact" name="contact" required>
+
+                <label for="classe">Classe:</label>
+                <select id="classe" name="classe" required>
+                    <option value="1">1er A</option>
+                    <option value="2">2er A</option>
+                    <option value="3">3er A</option>
+                    <option value="4">4er A</option>
+                </select>
+
+                <label for="section">Section :</label>
+                <select id="section" name="section" required>
+                    <option value="maternelle">Maternelle</option>
+                    <option value="primaire">Primaire</option>
+                    <option value="secondaire">Secondaire</option>
+                </select>
+
+                <button type="submit">Ajouter</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
+ -->
+
+ <!-- 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des classes</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+    <script>
+        function showClasses(section) {
+            var sections = document.getElementsByClassName('class-section');
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].style.display = 'none';
+            }
+            document.getElementById(section).style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+<?php include "views/include/sidebar.php"?>
+    <div class="container">
+        <h2>Gestion des classes</h2>
+        <div class="section-buttons">
+            <button onclick="showClasses('maternelle')">Maternelle</button>
+            <button onclick="showClasses('primaire')">Primaire</button>
+            <button onclick="showClasses('secondaire')">Secondaire</button>
+        </div>
+
+        <div id="maternelle" class="class-section" style="display:none;">
+            <h3>Section Maternelle</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Niveau</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($classes as $classe): ?>
+                        <?php if ($classe['section'] == 'maternelle'): ?>
+                            <tr>
+                                <td><?php echo $classe['id']; ?></td>
+                                <td><?php echo $classe['niveau']; ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="primaire" class="class-section" style="display:none;">
+            <h3>Section Primaire</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Niveau</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($classes as $classe): ?>
+                        <?php if ($classe['section'] == 'primaire'): ?>
+                            <tr>
+                                <td><?php echo $classe['id']; ?></td>
+                                <td><?php echo $classe['niveau']; ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="secondaire" class="class-section" style="display:none;">
+            <h3>Section Secondaire</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Niveau</th>
+                        <th>Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($classes as $classe): ?>
+                        <?php if ($classe['section'] == 'secondaire'): ?>
+                            <tr>
+                                <td><?php echo $classe['id']; ?></td>
+                                <td><?php echo $classe['niveau']; ?></td>
+                                <td><?php echo $classe['option']; ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <a href="index.php?controller=Admin&action=ajoutClasse" class="btn btn-primary">Ajouter une classe</a>
+    </div>
+    
+    </body>
+    </html> -->
+
+
+    <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des cours</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+    <script>
+        function showCours(section) {
+            var sections = document.getElementsByClassName('course-section');
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].style.display = 'none';
+            }
+            document.getElementById(section).style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+    <?php include 'views/include/sidebar.php'; ?>
+    <div class="container">
+        <h2>Gestion des cours</h2>
+        <div class="section-buttons">
+            <button onclick="showCours('maternelle')">Maternelle</button>
+            <button onclick="showCours('primaire')">Primaire</button>
+            <button onclick="showCours('secondaire')">Secondaire</button>
+        </div>
+
+        <div id="maternelle" class="course-section" style="display:none;">
+            <h3>Section Maternelle</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Description</th>
+                        <th>Enseignant</th>
+                        <th>Classe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($cours as $cour): ?>
+                        <?php if ($cour['section'] == 'maternelle'): ?>
+                            <tr>
+                                <td><?php echo $cour['id']; ?></td>
+                                <td><?php echo $cour['titre'];?></td>
+                                <td><?php echo $cour['description']; ?></td>
+                                <td><?php echo $cour['enseignant_id']; ?></td>
+                                <td><?php echo $cour['classe_id']; ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="primaire" class="course-section" style="display:none;">
+            <h3>Section Primaire</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Description</th>
+                        <th>Enseignant</th>
+                        <th>Classe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($cours as $cour): ?>
+                        <?php if ($cour['section'] == 'primaire'): ?>
+                            <tr>
+                                <td><?php echo $cour['id']; ?></td>
+                                <td><?php echo $cour['titre']; ?></td>
+                                <td><?php echo $cour['description']; ?></td>
+                                <td><?php echo $cour['enseignant_id']; ?></td>
+                                <td><?php echo $cour['classe_id']; ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="secondaire" class="course-section" style="display:none;">
+            <h3>Section Secondaire</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Description</th>
+                        <th>Enseignant</th>
+                        <th>Classe</th>
+                        <th>Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($cours as $cour): ?>
+                        <?php if ($cour['section'] == 'secondaire'): ?>
+                            <tr>
+                                <td><?php echo $cour['id']; ?></td>
+                                <td><?php echo $cour['titre']; ?></td>
+                                <td><?php echo $cour['description']; ?></td>
+                                <td><?php echo $cour['enseignant_id']; ?></td>
+                                <td><?php echo $cour['classe_id']; ?></td>
+                                <td><?php echo $cour['option']; ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <a href="index.php?controller=Admin&action=ajoutCours" class="btn btn-primary">Ajouter un cours</a>
+    </div>
+   
+</body>
+</html>
+
+ -->
+
+
+ <!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Directeurs - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestion des Directeurs</h1>
+        <nav>
+            <ul>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil">Accueil</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">Élèves</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=professeurs">Professeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=frais">Frais</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiementProfs">Paiements</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs">Directeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices">Directrices</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets">Préfets</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=employes">Employés</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=historiques">Historiques</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=parents">Parents</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=cours">Cours</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=classes">Classes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Liste des Directeurs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($directeurs as $directeur) : ?>
+                    <tr>
+                        <td><?php echo $directeur['id']; ?></td>
+                        <td><?php echo $directeur['nom']; ?></td>
+                        <td><?php echo $directeur['prenom']; ?></td>
+                        <td><?php echo $directeur['email']; ?></td>
+                        <td><?php echo $directeur['contact']; ?></td>
+                        <td>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editDirecteur&id=<?php echo $directeur['id']; ?>">Modifier</a> |
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=deleteDirecteur&id=<?php echo $directeur['id']; ?>">Supprimer</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addDirecteur">Ajouter un Directeur</a>
+            <button onclick="window.print()">Imprimer</button>
+        </section>
+    </main>
+</body>
+</html>
+
+ -->
+
+
+ <!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Directrices - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestion des Directrices</h1>
+        <nav>
+            <ul>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil">Accueil</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">Élèves</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=professeurs">Professeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=frais">Frais</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiementProfs">Paiements</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs">Directeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices">Directrices</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets">Préfets</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=employes">Employés</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=historiques">Historiques</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=parents">Parents</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=cours">Cours</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=classes">Classes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Liste des Directrices</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($directrices as $directrice) : ?>
+                    <tr>
+                        <td><?php echo $directrice['id']; ?></td>
+                        <td><?php echo $directrice['nom']; ?></td>
+                        <td><?php echo $directrice['prenom']; ?></td>
+                        <td><?php echo $directrice['email']; ?></td>
+                        <td><?php echo $directrice['contact']; ?></td>
+                        <td>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editDirectrice&id=<?php echo $directrice['id']; ?>">Modifier</a> |
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=deleteDirectrice&id=<?php echo $directrice['id']; ?>">Supprimer</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addDirectrice">Ajouter une Directrice</a>
+            <button onclick="window.print()">Imprimer</button>
+        </section>
+    </main>
+</body>
+</html>
+
+ -->
+
+ <!-- 
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des employés</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+<?php include 'views/include/sidebar.php'; ?>
+    <div class="container">
+        <h2>Gestion des employés</h2>
+        <a href="index.php?controller=Admin&action=ajoutEmploye" class="btn btn-primary">Ajouter un employé</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>Poste</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($employes as $employe): ?>
+                    <tr>
+                        <td><?php echo $employe['id']; ?></td>
+                        <td><?php echo $employe['nom']; ?></td>
+                        <td><?php echo $employe['prenom']; ?></td>
+                        <td><?php echo $employe['email']; ?></td>
+                        <td><?php echo $employe['contact']; ?></td>
+                        <td><?php echo $employe['poste']; ?></td>
+                        <td>
+                            <a href="index.php?controller=Admin&action=editEmploye&id=<?php echo $employe['id']; ?>" class="btn btn-warning">Modifier</a>
+                            <a href="index.php?controller=Admin&action=deleteEmploye&id=<?php echo $employe['id']; ?>" class="btn btn-danger">Supprimer</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+   
+</body>
+</html>
+
+ -->
+
+ <!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Frais - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestion des Frais</h1>
+        <nav>
+            <ul>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil">Accueil</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">Élèves</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=professeurs">Professeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=frais">Frais</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiementProfs">Paiements</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs">Directeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices">Directrices</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets">Préfets</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=employes">Employés</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=historiques">Historiques</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=parents">Parents</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=cours">Cours</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=classes">Classes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Liste des Frais</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Montant</th>
+                        <th>Description</th>
+                        <th>Classe</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($frais as $fraisItem) : ?>
+                    <tr>
+                        <td><?php echo $fraisItem['id']; ?></td>
+                        <td><?php echo $fraisItem['montant']; ?></td>
+                        <td><?php echo $fraisItem['description']; ?></td>
+                        <td><?php echo $fraisItem['classe']; ?></td>
+                        <td>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editFrais&id=<?php echo $fraisItem['id']; ?>">Modifier</a> |
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=deleteFrais&id=<?php echo $fraisItem['id']; ?>">Supprimer</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addFrais">Ajouter des Frais</a>
+            <button onclick="window.print()">Imprimer</button>
+        </section>
+    </main>
+</body>
+</html>
+ -->
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Préfets - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestion des Préfets</h1>
+        <nav>
+            <ul>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil">Accueil</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">Élèves</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=professeurs">Professeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=frais">Frais</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiementProfs">Paiements</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs">Directeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices">Directrices</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets">Préfets</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=employes">Employés</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=historiques">Historiques</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=parents">Parents</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=cours">Cours</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=classes">Classes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Liste des Préfets</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($prefets as $prefet) : ?>
+                    <tr>
+                        <td><?php echo $prefet['id']; ?></td>
+                        <td><?php echo $prefet['nom']; ?></td>
+                        <td><?php echo $prefet['prenom']; ?></td>
+                        <td><?php echo $prefet['email']; ?></td>
+                        <td><?php echo $prefet['contact']; ?></td>
+                        <td>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editPrefet&id=<?php echo $prefet['id']; ?>">Modifier</a> |
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=deletePrefet&id=<?php echo $prefet['id']; ?>">Supprimer</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addPrefet">Ajouter un Préfet</a>
+            <button onclick="window.print()">Imprimer</button>
+        </section>
+    </main>
+</body>
+</html>
+
+ -->
+
+ <!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Parents</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+   
+    <div class="main-content">
+        <h2>Gestion des Parents</h2>
+        <a href="index.php?controller=Admin&action=ajoutParent" class="btn btn-primary">Ajouter un parent</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php if (!empty($parents)): ?>
+                    <?php foreach ($parents as $parent): ?>
+                        <tr>
+                            <td><?php echo $parent['id']; ?></td>
+                            <td><?php echo $parent['nom']; ?></td>
+                            <td><?php echo $parent['prenom']; ?></td>
+                            <td><?php echo $parent['email']; ?></td>
+                            <td><?php echo $parent['contact']; ?></td>
+                            <td>
+                                <a href="index.php?controller=Admin&action=editParent&id=<?php echo $parent['id']; ?>" class="btn btn-warning">Modifier</a>
+                                <a href="index.php?controller=Admin&action=deleteParent&id=<?php echo $parent['id']; ?>" class="btn btn-danger">Supprimer</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="6">Aucun parent trouvé.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php include 'views/include/footer.php'; ?>
+</body>
+</html>
+
+ -->
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Paiement des Professeurs - Admin</title>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Paiement des Professeurs</h1>
+        <nav>
+            <ul>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil">Accueil</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">Élèves</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=professeurs">Professeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=frais">Frais</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiementProfs">Paiements</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs">Directeurs</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices">Directrices</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets">Préfets</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=employes">Employés</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=historiques">Historiques</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=parents">Parents</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=cours">Cours</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=classes">Classes</a></li>
+                <li><a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Enregistrer un Paiement pour les Professeurs</h2>
+            <form action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=ajoutPaiementProf" method="POST">
+                <label for="professeur_id">ID du Professeur :</label>
+                <input type="number" id="professeur_id" name="professeur_id" required>
+
+                <label for="montant">Montant :</label>
+                <input type="number" id="montant" name="montant" required>
+
+                <label for="date_paiement">Date de Paiement :</label>
+                <input type="date" id="date_paiement" name="date_paiement" required>
+
+                <button type="submit">Enregistrer le Paiement</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
+
+ -->

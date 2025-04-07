@@ -1,0 +1,85 @@
+
+<?php
+require_once 'models/UserModel.php';
+require_once 'config/config.php';
+require_once 'libraries/GoogleAuth.php';
+require_once 'libraries/IOSAuth.php';
+
+class AuthController {
+    public function login() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Traitement des données de connexion
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            
+            // Vérifiez les informations d'identification de l'utilisateur
+            $userModel = new UserModel();
+            $user = $userModel->getUserByUsername($username);
+            
+            if ($user && password_verify($password, $user['password'])) {
+                session_start();
+                $_SESSION['username']=$username;
+                $_SESSION['role'] = $user['role']; // Stocker le rôle de l'utilisateur dans la session
+                
+                // Rediriger en fonction du rôle de l'utilisateur
+                switch ($user['role']) {
+                    case 'admin':
+                        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil');
+                        break;
+                    case 'comptable':
+                        header('Location: ' . BASE_URL . 'index.php?controller=Comptable&action=accueil');
+                        break;
+                    case 'prefet':
+                        header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=accueil');
+                        break;
+                    case 'directeur':
+                        header('Location: ' . BASE_URL . 'index.php?controller=Directeur&action=accueil');
+                        break;
+                    case 'directrice':
+                        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=accueil');
+                        break;
+                    default:
+                        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+                        break;
+                }
+                exit();
+            } else {
+                $errorMessage = 'Nom d\'utilisateur ou mot de passe incorrect.';
+                include 'views/auth/login.php';
+            }
+        } else {
+            include 'views/auth/login.php';
+        }
+    }
+
+    public function googleLogin() {
+        $googleAuth = new GoogleAuth();
+        if ($googleAuth->checkRedirectCode()) {
+            session_start();
+            $_SESSION['username'] = $googleAuth->getProfileInfo()['email'];
+            $_SESSION['role'] = $googleAuth->getProfileInfo()['role']; // Stocker le rôle de l'utilisateur
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil');
+        } else {
+            $googleAuth->authenticate();
+        }
+    }
+
+    public function iosLogin() {
+        $iosAuth = new IOSAuth();
+        if ($iosAuth->checkRedirectCode()) {
+            session_start();
+            $_SESSION['username'] = $iosAuth->getProfileInfo()['email'];
+            $_SESSION['role'] = $iosAuth->getProfileInfo()['role']; // Stocker le rôle de l'utilisateur
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil');
+        } else {
+            $iosAuth->authenticate();
+        }
+    }
+
+    public function logout() {
+        session_start();
+        session_destroy();
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit();
+    }
+}
