@@ -19,31 +19,6 @@ if (!isset($_SESSION['role'])) {
 $username = $_SESSION['username'];
 $email = $_SESSION['email'];
 $role = $_SESSION['role'];
-$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
-// Connexion à la base de données
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-              
-if ($mysqli->connect_error) {
-    die("Erreur de connexion: " . $mysqli->connect_error);
-}
-
-// Récupérer la liste des achats
-$achats_query = $mysqli->query("SELECT * FROM achats_fournitures ORDER BY date_achat DESC");
-$achats = [];
-if ($achats_query) {
-    while ($row = $achats_query->fetch_assoc()) {
-        $achats[] = $row;
-    }
-}
-
-// Récupérer la liste des fournisseurs
-$fournisseurs_query = $mysqli->query("SELECT * FROM achats_fournitures ORDER BY fournisseur");
-$fournisseurs = [];
-if ($fournisseurs_query) {
-    while ($row = $fournisseurs_query->fetch_assoc()) {
-        $fournisseurs[] = $row;
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -51,7 +26,7 @@ if ($fournisseurs_query) {
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>St Sofie | Achats de Fournitures</title>
+  <title>St Sofie | Détail de l'événement</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -64,9 +39,7 @@ if ($fournisseurs_query) {
   <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
   <!-- AdminLTE Skins. Choose a skin from the css/skins folder instead of downloading all of them to reduce the load. -->
   <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
-  <!-- DataTables -->
-  <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-  
+
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
@@ -162,7 +135,7 @@ if ($fournisseurs_query) {
             <i class="fa fa-graduation-cap"></i> <span>Classes</span>
           </a>
         </li>
-        <li class="active">
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=achats">
             <i class="fa fa-shopping-cart"></i> <span>Achats</span>
           </a>
@@ -172,7 +145,7 @@ if ($fournisseurs_query) {
             <i class="fa fa-cubes"></i> <span>Gestion de Stock</span>
           </a>
         </li>
-        <li>
+        <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=evenements">
             <i class="fa fa-calendar"></i> <span>Événements</span>
           </a>
@@ -196,86 +169,67 @@ if ($fournisseurs_query) {
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Achats de Fournitures et Équipements
-        <small>Gestion des achats scolaires</small>
+        Détail de l'événement
+        <small><?php echo $evenement['titre']; ?></small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
-        <li class="active">Achats</li>
+        <li><a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=evenements">Événements</a></li>
+        <li class="active">Détail de l'événement</li>
       </ol>
     </section>
 
     <!-- Main content -->
     <section class="content">
       <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Liste des achats</h3>
-              <div class="box-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-ajouter-achat">
-                  <i class="fa fa-plus"></i> Nouvel achat
-                </button>
-              </div>
+        <div class="col-md-12">
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Informations sur l'événement</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <table id="achats-table" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Fournisseur</th>
-                  <th>Description</th>
-                  <th>Montant</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($achats as $achat): ?>
-                <tr>
-                  <td><?php echo $achat['id']; ?></td>
-                  <td><?php echo date('d/m/Y', strtotime($achat['date_achat'])); ?></td>
-                  <td><?php echo $achat['fournisseur']; ?></td>
-                  <td><?php echo $achat['description']; ?></td>
-                  <td><?php echo number_format($achat['montant'], 2, ',', ' '); ?> $</td>
-                  <td>
-                    <?php if ($achat['statut'] == 'En attente'): ?>
-                      <span class="label label-warning">En attente</span>
-                    <?php elseif ($achat['statut'] == 'Livré'): ?>
-                      <span class="label label-success">Livré</span>
-                    <?php elseif ($achat['statut'] == 'Annulé'): ?>
-                      <span class="label label-danger">Annulé</span>
-                    <?php else: ?>
-                      <span class="label label-default"><?php echo $achat['statut']; ?></span>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modal-details-achat-<?php echo $achat['id']; ?>">
-                      <i class="fa fa-eye"></i> Détails
-                    </button>
-                    <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modal-modifier-achat-<?php echo $achat['id']; ?>">
-                      <i class="fa fa-edit"></i> Modifier
-                    </button>
-                  </td>
-                </tr>
-                <?php endforeach; ?>
-                </tbody>
-                <tfoot>
-                <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Fournisseur</th>
-                  <th>Description</th>
-                  <th>Montant</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
-                </tr>
-                </tfoot>
-              </table>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Titre:</label>
+                    <p><?php echo $evenement['titre']; ?></p>
+                  </div>
+                  <div class="form-group">
+                    <label>Type:</label>
+                    <p><?php echo $evenement['type']; ?></p>
+                  </div>
+                  <div class="form-group">
+                    <label>Description:</label>
+                    <p><?php echo nl2br($evenement['description']); ?></p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Date de début:</label>
+                    <p><?php echo date('d/m/Y H:i', strtotime($evenement['date_debut'])); ?></p>
+                  </div>
+                  <div class="form-group">
+                    <label>Date de fin:</label>
+                    <p><?php echo date('d/m/Y H:i', strtotime($evenement['date_fin'])); ?></p>
+                  </div>
+                  <div class="form-group">
+                    <label>Lieu:</label>
+                    <p><?php echo $evenement['lieu']; ?></p>
+                  </div>
+                  <div class="form-group">
+                    <label>Responsable:</label>
+                    <p><?php echo $evenement['responsable']; ?></p>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- /.box-body -->
+            <div class="box-footer">
+              <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=evenements" class="btn btn-default">Retour à la liste</a>
+              <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=modifierEvenement&id=<?php echo $evenement['id']; ?>" class="btn btn-primary">Modifier</a>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-supprimer">Supprimer</button>
+            </div>
           </div>
           <!-- /.box -->
         </div>
@@ -286,6 +240,30 @@ if ($fournisseurs_query) {
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
+  <!-- Modal de confirmation de suppression -->
+  <div class="modal fade" id="modal-supprimer">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Confirmer la suppression</h4>
+        </div>
+        <div class="modal-body">
+          <p>Êtes-vous sûr de vouloir supprimer cet événement?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Annuler</button>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=supprimerEvenement&id=<?php echo $evenement['id']; ?>" class="btn btn-danger">Supprimer</a>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
   <footer class="main-footer">
     <div class="pull-right hidden-xs">
       <b>Version</b> 1.0.0
@@ -295,66 +273,10 @@ if ($fournisseurs_query) {
 </div>
 <!-- ./wrapper -->
 
-<!-- Modal Ajouter Achat -->
-<div class="modal fade" id="modal-ajouter-achat">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Ajouter un nouvel achat</h4>
-      </div>
-      <form action="<?php echo BASE_URL; ?>index.php?controller=directrice&action=ajouterAchat" method="post">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="fournisseur">Fournisseur</label>
-            <select class="form-control" name="fournisseur" id="fournisseur" required>
-              <option value="">-- Sélectionner un fournisseur --</option>
-              <?php foreach ($fournisseurs as $fournisseur): ?>
-                <option value="<?php echo $fournisseur['id']; ?>"><?php echo $fournisseur['nom']; ?></option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="date_achat">Date d'achat</label>
-            <input type="date" class="form-control" name="date_achat" id="date_achat" required>
-          </div>
-          <div class="form-group">
-            <label for="description">Description</label>
-            <textarea class="form-control" name="description" id="description" rows="3" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="montant">Montant ($)</label>
-            <input type="number" step="0.01" class="form-control" name="montant" id="montant" required>
-          </div>
-          <div class="form-group">
-            <label for="statut">Statut</label>
-            <select class="form-control" name="statut" id="statut" required>
-              <option value="En attente">En attente</option>
-              <option value="Livré">Livré</option>
-              <option value="Annulé">Annulé</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Fermer</button>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </div>
-      </form>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
-
 <!-- jQuery 3 -->
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- DataTables -->
-<script src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 <!-- SlimScroll -->
 <script src="bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
 <!-- FastClick -->
@@ -363,21 +285,5 @@ if ($fournisseurs_query) {
 <script src="dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="dist/js/demo.js"></script>
-<!-- page script -->
-<script>
-  $(function () {
-    $('#achats-table').DataTable({
-      'paging'      : true,
-      'lengthChange': true,
-      'searching'   : true,
-      'ordering'    : true,
-      'info'        : true,
-      'autoWidth'   : false,
-      'language': {
-        'url': '//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json'
-      }
-    })
-  })
-</script>
 </body>
 </html>

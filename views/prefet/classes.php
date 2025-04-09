@@ -8,15 +8,15 @@ if ($mysqli->connect_error) {
 
 // Récupération des classes de la section secondaire
 $classes = [];
-$classes_query = "SELECT c.*, COUNT(e.id) as total_eleves 
+$classes_query = "SELECT c.*, COUNT(e.id) as nb_eleves 
                  FROM classes c 
-                 LEFT JOIN eleves e ON c.nom = e.classe AND e.section = 'secondaire'
-                 WHERE c.section = 'secondaire'
-                 GROUP BY c.id
-                 ORDER BY c.nom ASC";
+                 LEFT JOIN eleves e ON e.classe_id = c.id
+                 GROUP BY c.id";
 $classes_result = $mysqli->query($classes_query);
 if ($classes_result) {
     while ($row = $classes_result->fetch_assoc()) {
+        // Add total_eleves key for compatibility with existing code
+        $row['total_eleves'] = $row['nb_eleves'];
         $classes[] = $row;
     }
 }
@@ -60,6 +60,8 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <!-- SweetAlert -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>plugins/sweetalert2/sweetalert2.min.css">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -182,6 +184,16 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
     </section>
 
     <section class="content">
+      <!-- Affichage des messages de succès ou d'erreur -->
+      <?php if (isset($_SESSION['message'])): ?>
+        <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-<?php echo $_SESSION['message_type'] == 'success' ? 'check' : 'ban'; ?>"></i> Information</h4>
+          <?php echo $_SESSION['message']; ?>
+        </div>
+        <?php unset($_SESSION['message']); unset($_SESSION['message_type']); ?>
+      <?php endif; ?>
+
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
@@ -191,9 +203,31 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-ajouter-classe">
                   <i class="fa fa-plus"></i> Ajouter une classe
                 </button>
+                <button type="button" class="btn btn-success" onclick="printContent('classes-table')">
+                  <i class="fa fa-print"></i> Imprimer
+                </button>
               </div>
             </div>
             <div class="box-body">
+              <!-- Filtres de recherche -->
+              <div class="row" style="margin-bottom: 15px;">
+                <div class="col-md-3">
+                  <select id="filter-niveau" class="form-control">
+                    <option value="">Tous les niveaux</option>
+                    <option value="6ème">6ème</option>
+                    <option value="5ème">5ème</option>
+                    <option value="4ème">4ème</option>
+                    <option value="3ème">3ème</option>
+                    <option value="2nde">2nde</option>
+                    <option value="1ère">1ère</option>
+                    <option value="Terminale">Terminale</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <input type="text" id="search-classe" class="form-control" placeholder="Rechercher une classe...">
+                </div>
+              </div>
+
               <table id="classes-table" class="table table-bordered table-striped">
                 <thead>
                   <tr>
@@ -201,8 +235,8 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                     <th>Niveau</th>
                     <th>Titulaire</th>
                     <th>Nombre d'élèves</th>
-                    <th>Salle</th>
-                    <th>Actions</th>
+                    
+                    <th class="no-print">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -212,15 +246,16 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                     <td><?php echo htmlspecialchars($classe['niveau']); ?></td>
                     <td><?php echo htmlspecialchars($classe['titulaire']); ?></td>
                     <td><?php echo $classe['total_eleves']; ?></td>
-                    <td><?php echo htmlspecialchars($classe['salle']); ?></td>
-                    <td>
+                    
+                    <td class="no-print">
                       <div class="btn-group">
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-voir-classe" 
                                 data-id="<?php echo $classe['id']; ?>" 
                                 data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
                                 data-niveau="<?php echo htmlspecialchars($classe['niveau']); ?>"
                                 data-titulaire="<?php echo htmlspecialchars($classe['titulaire']); ?>"
-                                data-salle="<?php echo htmlspecialchars($classe['salle']); ?>">
+                                
+                                data-eleves="<?php echo $classe['total_eleves']; ?>">
                           <i class="fa fa-eye"></i>
                         </button>
                         <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-modifier-classe"
@@ -228,12 +263,19 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                                 data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
                                 data-niveau="<?php echo htmlspecialchars($classe['niveau']); ?>"
                                 data-titulaire="<?php echo htmlspecialchars($classe['titulaire']); ?>"
-                                data-salle="<?php echo htmlspecialchars($classe['salle']); ?>">
+                               
+                                data-prof-id="<?php echo $classe['prof_id']; ?>">
                           <i class="fa fa-edit"></i>
                         </button>
                         <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleves&classe=<?php echo urlencode($classe['nom']); ?>" class="btn btn-success btn-sm">
                           <i class="fa fa-users"></i>
                         </a>
+                        <button type="button" class="btn btn-danger btn-sm btn-delete-classe" 
+                                data-id="<?php echo $classe['id']; ?>"
+                                data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
+                                data-eleves="<?php echo $classe['total_eleves']; ?>">
+                          <i class="fa fa-trash"></i>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -251,6 +293,9 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
           <div class="box box-info">
             <div class="box-header with-border">
               <h3 class="box-title">Répartition des élèves par classe</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
             </div>
             <div class="box-body">
               <canvas id="classeChart" style="height:250px"></canvas>
@@ -262,6 +307,9 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
           <div class="box box-success">
             <div class="box-header with-border">
               <h3 class="box-title">Informations générales</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
             </div>
             <div class="box-body">
               <div class="row">
@@ -298,6 +346,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                       <th>Niveau</th>
                       <th>Nombre de classes</th>
                       <th>Total d'élèves</th>
+                      <th>Moyenne par classe</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -315,16 +364,35 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                     }
                     
                     foreach ($niveaux as $niveau => $data) {
+                      $moyenne = $data['count'] > 0 ? round($data['eleves'] / $data['count'], 1) : 0;
                       echo "<tr>
                               <td>{$niveau}</td>
                               <td>{$data['count']}</td>
                               <td>{$data['eleves']}</td>
+                              <td>{$moyenne}</td>
                             </tr>";
                     }
                     ?>
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphique de répartition par niveau -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-warning">
+            <div class="box-header with-border">
+              <h3 class="box-title">Répartition des élèves par niveau</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <canvas id="niveauChart" style="height:250px"></canvas>
             </div>
           </div>
         </div>
@@ -348,19 +416,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
               <label for="nom">Nom de la classe</label>
               <input type="text" class="form-control" id="nom" name="nom" required>
             </div>
-            <div class="form-group">
-              <label for="niveau">Niveau</label>
-              <select class="form-control" id="niveau" name="niveau" required>
-                <option value="">Sélectionner un niveau</option>
-                <option value="6ème">6ème</option>
-                <option value="5ème">5ème</option>
-                <option value="4ème">4ème</option>
-                <option value="3ème">3ème</option>
-                <option value="2nde">2nde</option>
-                <option value="1ère">1ère</option>
-                <option value="Terminale">Terminale</option>
-              </select>
-            </div>
+            
             <div class="form-group">
               <label for="titulaire">Professeur titulaire</label>
               <select class="form-control" id="titulaire" name="titulaire" required>
@@ -370,16 +426,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                 <?php endforeach; ?>
               </select>
             </div>
-            <div class="form-group">
-              <label for="salle">Salle</label>
-              <input type="text" class="form-control" id="salle" name="salle" required>
-            </div>
-            <input type="hidden" name="section" value="secondaire">
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Fermer</button>
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-          </div>
+            
         </form>
       </div>
     </div>
@@ -462,6 +509,9 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                 <b>Salle</b> <a class="pull-right" id="view-salle"></a>
               </li>
               <li class="list-group-item">
+                <b>Nombre d'élèves</b> <a class="pull-right" id="view-eleves"></a>
+              </li>
+              <li class="list-group-item">
                 <b>Section</b> <a class="pull-right">Secondaire</a>
               </li>
             </ul>
@@ -475,6 +525,11 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
       </div>
     </div>
   </div>
+
+  <!-- Formulaire de suppression caché -->
+  <form id="delete-classe-form" action="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=supprimerClasse" method="post" style="display: none;">
+    <input type="hidden" name="id" id="delete-id">
+  </form>
 
   <footer class="main-footer">
     <div class="pull-right hidden-xs">
@@ -490,11 +545,12 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 <script src="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 <script src="<?php echo BASE_URL; ?>bower_components/chart.js/Chart.js"></script>
 <script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
+<script src="<?php echo BASE_URL; ?>plugins/sweetalert2/sweetalert2.min.js"></script>
 
 <script>
 $(function () {
   // Initialiser DataTable
-  $('#classes-table').DataTable({
+  var table = $('#classes-table').DataTable({
     'paging'      : true,
     'lengthChange': true,
     'searching'   : true,
@@ -506,7 +562,17 @@ $(function () {
     }
   });
   
-  // Préparer les données pour le graphique
+  // Filtrage par niveau
+  $('#filter-niveau').on('change', function() {
+    table.column(1).search(this.value).draw();
+  });
+  
+  // Recherche globale
+  $('#search-classe').on('keyup', function() {
+    table.search(this.value).draw();
+  });
+  
+  // Préparer les données pour le graphique des classes
   var classLabels = [];
   var classData = [];
   var backgroundColors = [
@@ -548,9 +614,7 @@ $(function () {
     },
     options: {
       responsive: true,
-      legend: {
-        position: 'top',
-      },
+      maintainAspectRatio: false,
       scales: {
         yAxes: [{
           ticks: {
@@ -561,7 +625,52 @@ $(function () {
     }
   });
   
-  // Gestion des modals
+  // Préparer les données pour le graphique des niveaux
+  var niveauLabels = [];
+  var niveauData = [];
+  var niveauColors = [
+    'rgba(60, 141, 188, 0.8)',
+    'rgba(0, 166, 90, 0.8)',
+    'rgba(243, 156, 18, 0.8)',
+    'rgba(221, 75, 57, 0.8)',
+    'rgba(0, 192, 239, 0.8)',
+    'rgba(210, 214, 222, 0.8)',
+    'rgba(216, 27, 96, 0.8)'
+  ];
+  
+  <?php
+  if (!empty($niveaux)) {
+    echo "// Données des niveaux\n";
+    foreach ($niveaux as $niveau => $data) {
+      echo "niveauLabels.push('" . addslashes($niveau) . "');\n";
+      echo "niveauData.push(" . $data['eleves'] . ");\n";
+    }
+  }
+  ?>
+  
+  // Créer le graphique des niveaux
+  var niveauCtx = document.getElementById('niveauChart').getContext('2d');
+  var niveauChart = new Chart(niveauCtx, {
+    type: 'pie',
+    data: {
+      labels: niveauLabels,
+      datasets: [{
+        data: niveauData,
+        backgroundColor: niveauColors,
+        borderColor: niveauColors.map(color => color.replace('0.8', '1')),
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        position: 'right'
+      }
+    }
+  });
+  
+  // Gestion du modal de modification
   $('#modal-modifier-classe').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var id = button.data('id');
@@ -578,6 +687,7 @@ $(function () {
     modal.find('#edit-salle').val(salle);
   });
   
+  // Gestion du modal de visualisation
   $('#modal-voir-classe').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var id = button.data('id');
@@ -585,14 +695,71 @@ $(function () {
     var niveau = button.data('niveau');
     var titulaire = button.data('titulaire');
     var salle = button.data('salle');
+    var eleves = button.data('eleves');
     
     var modal = $(this);
     modal.find('#view-nom').text(nom);
     modal.find('#view-niveau').text(niveau);
     modal.find('#view-titulaire').text(titulaire);
     modal.find('#view-salle').text(salle);
+    modal.find('#view-eleves').text(eleves);
+    
+    // Mettre à jour le lien pour voir les élèves
     modal.find('#view-eleves-link').attr('href', '<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleves&classe=' + encodeURIComponent(nom));
   });
+  
+  // Gestion de la suppression
+  $('.btn-delete-classe').on('click', function() {
+    var id = $(this).data('id');
+    var nom = $(this).data('nom');
+    var eleves = parseInt($(this).data('eleves'));
+    
+    // Confirmation avec SweetAlert2
+    Swal.fire({
+      title: 'Êtes-vous sûr?',
+      text: 'Voulez-vous vraiment supprimer la classe ' + nom + '?' + (eleves > 0 ? ' Cette classe contient ' + eleves + ' élève(s)!' : ''),
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Oui, supprimer!',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Soumettre le formulaire de suppression
+        $('#delete-id').val(id);
+        $('#delete-classe-form').submit();
+      }
+    });
+  });
+  
+  // Fonction pour imprimer le contenu
+  function printContent(elementId) {
+    var printContents = document.getElementById(elementId).outerHTML;
+    var originalContents = document.body.innerHTML;
+    
+    // Créer une feuille de style pour l'impression
+    var printStyles = '<style>' +
+      '.no-print { display: none !important; }' +
+      'table { width: 100%; border-collapse: collapse; }' +
+      'table, th, td { border: 1px solid black; }' +
+      'th, td { padding: 8px; text-align: left; }' +
+      'h1 { text-align: center; }' +
+      '</style>';
+    
+    // Ajouter un en-tête pour l'impression
+    var header = '<h1>Liste des Classes - Section Secondaire</h1>' +
+                 '<p style="text-align: center;">Date d\'impression: ' + new Date().toLocaleDateString() + '</p>';
+    
+    document.body.innerHTML = printStyles + header + printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+    
+    // Réinitialiser les événements après l'impression
+    $(function() {
+      location.reload();
+    });
+  }
 });
 </script>
 </body>

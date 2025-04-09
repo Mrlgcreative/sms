@@ -8,6 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
+$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -166,13 +167,13 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
               $total_eleves = $result->fetch_assoc()['total'];
               
               // Récupérer les statistiques par classe
-              $classes_query = $mysqli->query("SELECT classe, 
+              $classes_query = $mysqli->query("SELECT classe_id, 
                                              COUNT(*) as total, 
                                              SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as garcons,
                                              SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as filles
                                       FROM eleves 
                                       WHERE section = 'Maternelle'
-                                      GROUP BY classe");
+                                      GROUP BY classe_id");
               
               $classes_stats = [];
               if ($classes_query) {
@@ -272,7 +273,11 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
                   <tbody>
                     <?php
                     // Récupérer les 5 derniers élèves inscrits de la section maternelle
-                    $result = $mysqli->query("SELECT * FROM eleves WHERE section = 'Maternelle' ORDER BY created_at DESC LIMIT 5");
+                    $result = $mysqli->query("SELECT e.*, c.nom as classe_nom 
+                                             FROM eleves e
+                                             LEFT JOIN classes c ON e.classe_id = c.id
+                                             WHERE e.section = 'Maternelle' 
+                                             ORDER BY e.created_at DESC LIMIT 5");
                     
                     if ($result && $result->num_rows > 0) {
                         while ($eleve = $result->fetch_assoc()) {
@@ -280,7 +285,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
                     <tr>
                       <td><?php echo !empty($eleve['matricule']) ? $eleve['matricule'] : 'Non attribué'; ?></td>
                       <td><a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=viewStudent&id=<?php echo $eleve['id']; ?>"><?php echo $eleve['nom'] . ' ' . $eleve['post_nom'] . ' ' . $eleve['prenom']; ?></a></td>
-                      <td><?php echo $eleve['classe']; ?></td>
+                      <td><?php echo $eleve['classe_nom'] ?? 'Non assigné'; ?></td>
                       <td><?php echo !empty($eleve['date_inscription']) ? date('d/m/Y', strtotime($eleve['date_inscription'])) : 'Non renseignée'; ?></td>
                     </tr>
                     <?php

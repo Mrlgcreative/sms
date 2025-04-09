@@ -345,12 +345,12 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                       </div>
                     </div>
                     <div class="form-group">
-                      <label for="classe">Classe</label>
-                      <select class="form-control" id="classe" name="classe" required>
+                      <label for="classe_id">Classe</label>
+                      <select class="form-control" id="classe_id" name="classe_id" required>
                         <option value="">-- Sélectionner une classe --</option>
-                        <option value="1er">1er</option>
-                        <option value="2eme">2eme</option>
-                        <option value="3eme">3eme</option>
+                        <?php foreach ($classes as $classe) : ?>
+                          <option value="<?php echo $classe['nom']; ?>"><?php echo $classe['id']; ?></option>
+                        <?php endforeach; ?>
                       </select>
                     </div>
                     <div class="form-group">
@@ -454,12 +454,9 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                       <label for="classe">Classe</label>
                       <select class="form-control" id="classe" name="classe" required>
                         <option value="">-- Sélectionner une classe --</option>
-                        <option value="1er">1er</option>
-                        <option value="2eme">2eme</option>
-                        <option value="3eme">3eme</option>
-                        <option value="4eme">4eme</option>
-                        <option value="5eme">5eme</option>
-                        <option value="6eme">6eme</option>
+                        <?php foreach ($classes as $classe) : ?>
+                          <option value="<?php echo $classe['nom']; ?>"><?php echo $classe['id']; ?></option>
+                        <?php endforeach; ?>
                       </select>
                     </div>
                     <div class="form-group">
@@ -555,12 +552,9 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                       <label for="classe">Classe</label>
                       <select class="form-control" id="classe" name="classe" required>
                         <option value="">-- Sélectionner une classe --</option>
-                        <option value="7eme">7eme</option>
-                        <option value="8eme">8eme</option>
-                        <option value="1ere">1ere</option>
-                        <option value="2eme">2eme</option>
-                        <option value="3eme">3eme</option>
-                        <option value="4eme">4eme</option>
+                        <?php foreach ($classes as $classe) : ?>
+                          <option value="<?php echo $classe['nom']; ?>"><?php echo $classe['id']; ?></option>
+                        <?php endforeach; ?>
                       </select>
                     </div>
                     <div class="form-group">

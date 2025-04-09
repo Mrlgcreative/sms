@@ -19,7 +19,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 
 // Récupération des préfets depuis la table users
 $prefets = [];
-$query = "SELECT username, telephone as contact, email, adresse FROM users WHERE role = 'prefet' ORDER BY username, email";
+$query = "SELECT id, username, telephone as contact, email, adresse, role FROM users WHERE role = 'prefet' ORDER BY username, email";
 $result = $mysqli->query($query);
 
 if ($result) {
@@ -291,7 +291,7 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
               <tr>
                 <th>#</th>
                 <th>Nom</th>
-                <th>Prénom</th>
+               
                 <th>Contact</th>
                 <th>Email</th>
                 <th>Adresse</th>
@@ -306,15 +306,15 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
               ?>
                 <tr>
                   <td><?php echo $index + 1; ?></td>
-                  <td><?php echo $prefet['nom']; ?></td>
-                  <td><?php echo $prefet['prenom']; ?></td>
+                  <td><?php echo $prefet['username']; ?></td>
+                 
                   <td><?php echo $prefet['contact']; ?></td>
                   <td><?php echo $prefet['email']; ?></td>
                   <td><?php echo $prefet['adresse']; ?></td>
-                  <td><?php echo $prefet['poste']; ?></td>
+                  <td>Préfet</td>
                   <td class="no-print">
-                    <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editprefet&id=<?php echo $prefet['id']; ?>" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i> Modifier</a>
-                    <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets&delete_id=<?php echo $prefet['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce préfet?');"><i class="fa fa-trash"></i> Supprimer</a>
+                    <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editprefet&id=<?php echo isset($prefet['id']) ? $prefet['id'] : ''; ?>" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i> Modifier</a>
+                    <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets&delete_id=<?php echo isset($prefet['id']) ? $prefet['id'] : ''; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce préfet?');"><i class="fa fa-trash"></i> Supprimer</a>
                   </td>
                 </tr>
               <?php 

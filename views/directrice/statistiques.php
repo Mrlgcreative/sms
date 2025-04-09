@@ -164,13 +164,14 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
               $total_eleves = $result->fetch_assoc()['total'];
               
               // Récupérer les statistiques par classe
-              $classes_query = $mysqli->query("SELECT classe, 
-                                             COUNT(*) as total, 
-                                             SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as garcons,
-                                             SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as filles
-                                      FROM eleves 
-                                      WHERE section = 'Maternelle'
-                                      GROUP BY classe");
+              $classes_query = $mysqli->query("SELECT 
+        c.nom as classe_nom, 
+        COUNT(e.id) as total 
+    FROM classes c
+    LEFT JOIN eleves e ON c.id = e.classe_id AND e.section = 'maternelle'
+    WHERE c.section = 'maternelle'
+    GROUP BY c.id, c.nom
+    ORDER BY c.nom");
               
               $classes_stats = [];
               if ($classes_query) {
@@ -294,14 +295,16 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
                 <tbody>
                   <?php
                   // Récupérer les statistiques par classe
-                  $result = $mysqli->query("SELECT e.classe, 
+                  $result = $mysqli->query("SELECT 
+                                           c.nom as classe, 
                                            COUNT(e.id) as total, 
                                            SUM(CASE WHEN e.sexe = 'M' THEN 1 ELSE 0 END) as garcons,
                                            SUM(CASE WHEN e.sexe = 'F' THEN 1 ELSE 0 END) as filles
-                                    FROM eleves e
-                                    WHERE e.section = 'Maternelle'
-                                    GROUP BY e.classe
-                                    ORDER BY e.classe");
+                                    FROM classes c
+                                    LEFT JOIN eleves e ON c.id = e.classe_id AND e.section = 'Maternelle'
+                                    WHERE c.section = 'Maternelle'
+                                    GROUP BY c.id, c.nom
+                                    ORDER BY c.nom");
                   
                   $classes_data = [];
                   $garcons_data = [];

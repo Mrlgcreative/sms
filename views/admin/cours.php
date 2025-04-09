@@ -20,9 +20,9 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 // Récupération des cours avec les noms des professeurs et des classes
 $cours = [];
 $query = "SELECT c.id, c.titre, c.description, c.section, c.option_, 
-          u.username as professeur_nom, cl.nom as classe_nom 
+          p.nom as professeur_nom, cl.nom as classe_nom 
           FROM cours c 
-          LEFT JOIN users u ON c.professeur_id = u.id 
+          LEFT JOIN professeurs p ON c.professeur_id = p.id 
           LEFT JOIN classes cl ON c.classe_id = cl.id 
           ORDER BY c.id";
 $result = $mysqli->query($query);

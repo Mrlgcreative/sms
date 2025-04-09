@@ -11,32 +11,40 @@ class ClasseModel {
     }
 
     public function getAll() {
-        $result = $this->db->query("SELECT * FROM classes");
+        $result = $this->db->query("SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom 
+                                    FROM classes c 
+                                    LEFT JOIN professeurs p ON c.prof_id = p.id");
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getById($id) {
-        $stmt = $this->db->prepare("SELECT * FROM classes WHERE id = ?");
+        $stmt = $this->db->prepare("SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom 
+                                    FROM classes c 
+                                    LEFT JOIN professeurs p ON c.prof_id = p.id 
+                                    WHERE c.id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_assoc();
     }
 
-    public function add($nom, $section) {
-        $stmt = $this->db->prepare("INSERT INTO classes (nom, section) VALUES (?, ?)");
-        $stmt->bind_param("ss", $nom, $section);
-        $stmt->execute();
+    public function add($nom, $niveau, $section, $titulaire = null, $prof_id = null) {
+        $stmt = $this->db->prepare("INSERT INTO classes (nom, niveau, section, titulaire, prof_id) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssi", $nom, $niveau, $section, $titulaire, $prof_id);
+        return $stmt->execute();
     }
 
-    public function update($id, $nom, $section) {
-        $stmt = $this->db->prepare("UPDATE classes SET nom = ?, section = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $nom, $section, $id);
-        $stmt->execute();
+    public function update($id, $nom, $niveau, $section, $titulaire = null, $prof_id = null) {
+        $stmt = $this->db->prepare("UPDATE classes SET nom = ?, niveau = ?, section = ?, titulaire = ?, prof_id = ? WHERE id = ?");
+        $stmt->bind_param("ssssii", $nom, $niveau, $section, $titulaire, $prof_id, $id);
+        return $stmt->execute();
     }
 
     public function getAllClasses() {
-        $sql = "SELECT * FROM classes";
+        $sql = "SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom 
+                FROM classes c 
+                LEFT JOIN professeurs p ON c.prof_id = p.id 
+                ORDER BY c.nom";
         $result = $this->db->query($sql);
 
         if (!$result) {
@@ -46,12 +54,37 @@ class ClasseModel {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-
     public function delete($id) {
         $sql = "DELETE FROM classes WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("i", $id);
         return $stmt->execute();
+    }
+    
+    public function getClassesBySection($section) {
+        $stmt = $this->db->prepare("SELECT * FROM classes WHERE section = ? ORDER BY nom");
+        $stmt->bind_param("s", $section);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+    
+    public function getClassesWithStats() {
+        $sql = "SELECT c.*, 
+                COUNT(e.id) as total_eleves,
+                p.nom as prof_nom, p.prenom as prof_prenom
+                FROM classes c
+                LEFT JOIN eleves e ON e.classe = c.id
+                LEFT JOIN professeurs p ON c.prof_id = p.id
+                GROUP BY c.id
+                ORDER BY c.nom";
+        $result = $this->db->query($sql);
+        
+        if (!$result) {
+            throw new Exception("Erreur lors de la récupération des statistiques de classes : " . $this->db->error);
+        }
+        
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 }
 ?>

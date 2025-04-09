@@ -254,8 +254,8 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                     // Get unique classes from the paiements array
                     $classes = [];
                     foreach ($paiements as $paiement) {
-                      if (!empty($paiement['classe']) && !in_array($paiement['classe'], $classes)) {
-                        $classes[] = $paiement['classe'];
+                      if (!empty($paiement['classe_id']) && !in_array($paiement['classe_id'], $classes)) {
+                        $classes[] = $paiement['classe_id'];
                       }
                     }
                     sort($classes); // Sort classes alphabetically

@@ -20,7 +20,10 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 
 // Récupération des classes depuis la base de données
 $classes = [];
-$query = "SELECT * FROM classes ORDER BY nom";
+$query = "SELECT c.*, CONCAT(p.nom, ' ', p.prenom) as prof_nom 
+          FROM classes c 
+          LEFT JOIN professeurs p ON c.prof_id = p.id 
+          ORDER BY c.nom";
 $result = $mysqli->query($query);
 
 if ($result) {
@@ -310,7 +313,9 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
                   <tr>
                     <th>ID</th>
                     <th>Libellé</th>
+                    <th>Niveau</th>
                     <th>Section</th>
+                    <th>Titulaire</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -319,7 +324,9 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
                     <tr>
                       <td><?php echo $classe['id']; ?></td>
                       <td><?php echo $classe['nom']; ?></td>
+                      <td><?php echo isset($classe['niveau']) ? $classe['niveau'] : 'N/A'; ?></td>
                       <td><?php echo $classe['section']; ?></td>
+                      <td><?php echo isset($classe['titulaire']) ? $classe['titulaire'] : (isset($classe['prof_nom']) ? $classe['prof_nom'] : 'N/A'); ?></td>
                       <td>
                         <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editClasse&id=<?php echo $classe['id']; ?>" class="btn btn-info btn-xs">
                           <i class="fa fa-pencil"></i> Modifier

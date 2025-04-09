@@ -391,7 +391,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                       <td><?php echo $index + 1; ?></td>
                                 <td><?php echo $paiement['id']; ?></td>
                                 <td><?php echo $paiement['eleve_nom']; ?></td>
-                                <td><?php echo $paiement['classe']; ?></td>
+                                <td><?php echo $paiement['classe_nom']; ?></td>
                                 <td><?php echo $paiement['option_nom']?></td>
                                 <td><?php echo $paiement['section']; ?></td>
                                 <td><?php echo $paiement['frais_description']; ?></td>

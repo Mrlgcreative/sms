@@ -218,7 +218,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                         <td><?php echo $eleve['lieu_naissance']; ?></td>
                         <td><?php echo $eleve['section']; ?></td>
                         <td><?php echo $eleve['option_nom']; ?></td>
-                        <td><?php echo $eleve['classe']; ?></td>
+                        <td><?php echo $eleve['classe_nom']; ?></td>
                         <td><?php echo $eleve['adresse']; ?></td>
                         <td class="no-print">
                           <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=viewStudent&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Détails</a>

@@ -8,10 +8,9 @@ if ($mysqli->connect_error) {
 
 // Récupération des événements scolaires
 $evenements = [];
-$evenements_query = "SELECT e.*, c.nom as classe_nom 
+$evenements_query = "SELECT e.*, date_debut, description
                     FROM evenements_scolaires e 
-                    LEFT JOIN classes c ON e.classe = c.id 
-                    ORDER BY e.date_debut DESC";
+                    ORDER BY e.date_debut, description DESC";
 $evenements_result = $mysqli->query($evenements_query);
 if ($evenements_result) {
     while ($row = $evenements_result->fetch_assoc()) {
@@ -265,7 +264,7 @@ unset($_SESSION['error_message']);
                     <th>Type</th>
                     <th>Date de début</th>
                     <th>Date de fin</th>
-                    <th>Classe concernée</th>
+                    
                     <th>Lieu</th>
                     <th>Actions</th>
                   </tr>
@@ -277,7 +276,7 @@ unset($_SESSION['error_message']);
                     <td>
                       <span class="label 
                         <?php 
-                          switch($evt['type']) {
+                          switch($evt['description']) {
                             case 'Examen': echo 'bg-green'; break;
                             case 'Réunion': echo 'bg-yellow'; break;
                             case 'Sortie scolaire': echo 'bg-aqua'; break;
@@ -287,42 +286,18 @@ unset($_SESSION['error_message']);
                             default: echo 'bg-gray'; break;
                           }
                         ?>">
-                        <?php echo htmlspecialchars($evt['type']); ?>
+                        <?php echo htmlspecialchars($evt['description']); ?>
                       </span>
                     </td>
                     <td><?php echo date('d/m/Y H:i', strtotime($evt['date_debut'])); ?></td>
                     <td><?php echo date('d/m/Y H:i', strtotime($evt['date_fin'])); ?></td>
-                    <td><?php echo $evt['classe'] ? htmlspecialchars($evt['classe_nom']) : 'Toutes les classes'; ?></td>
                     <td><?php echo htmlspecialchars($evt['lieu']); ?></td>
                     <td>
-                      <div class="btn-group">
-                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-voir-evenement" 
-                                data-id="<?php echo $evt['id']; ?>" 
-                                data-titre="<?php echo htmlspecialchars($evt['titre']); ?>"
-                                data-type="<?php echo htmlspecialchars($evt['type']); ?>"
-                                data-debut="<?php echo $evt['date_debut']; ?>"
-                                data-fin="<?php echo $evt['date_fin']; ?>"
-                                data-classe-id="<?php echo $evt['classe_id']; ?>"
-                                data-classe-nom="<?php echo htmlspecialchars($evt['classe_nom']); ?>"
-                                data-lieu="<?php echo htmlspecialchars($evt['lieu']); ?>"
-                                data-description="<?php echo htmlspecialchars($evt['description']); ?>">
-                          <i class="fa fa-eye"></i>
-                        </button>
-                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-modifier-evenement"
-                                data-id="<?php echo $evt['id']; ?>" 
-                                data-titre="<?php echo htmlspecialchars($evt['titre']); ?>"
-                                data-type="<?php echo htmlspecialchars($evt['type']); ?>"
-                                data-debut="<?php echo $evt['date_debut']; ?>"
-                                data-fin="<?php echo $evt['date_fin']; ?>"
-                                data-classe-id="<?php echo $evt['classe_id']; ?>"
-                                data-lieu="<?php echo htmlspecialchars($evt['lieu']); ?>"
-                                data-description="<?php echo htmlspecialchars($evt['description']); ?>">
-                          <i class="fa fa-edit"></i>
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmerSuppression(<?php echo $evt['id']; ?>, '<?php echo htmlspecialchars($evt['titre']); ?>')">
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </div>
+                     
+                      
+                    <button class="btn btn-xs btn-info view-event" data-id="<?php echo $evenement['id']; ?>"><i class="fa fa-eye"></i> Détails</button>
+                      <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=modifierEvenement&id=<?php echo $evenement['id']; ?>" class="btn btn-xs btn-warning"><i class="fa fa-edit"></i> Modifier</a>
+                      <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=supprimerEvenement&id=<?php echo $evenement['id']; ?>" class="btn btn-xs btn-danger delete-event" data-id="<?php echo $evenement['id']; ?>"><i class="fa fa-trash"></i> Supprimer</a>
                     </td>
                   </tr>
                   <?php endforeach; ?>

@@ -104,7 +104,7 @@
                 <div>
                     <p><strong>Date:</strong> <?php echo isset($paiement['payment_date']) ? date('d/m/Y', strtotime($paiement['payment_date'])) : date('d/m/Y'); ?></p>
                     <p><strong>Élève:</strong> <?php echo isset($paiement['eleve_nom']) ? htmlspecialchars($paiement['eleve_nom']) : 'Non spécifié'; ?></p>
-                    <p><strong>Classe:</strong> <?php echo isset($paiement['classe']) ? htmlspecialchars($paiement['classe']) : 'Non spécifié'; ?></p>
+                    <p><strong>Classe:</strong> <?php echo isset($paiement['classe_nom']) ? htmlspecialchars($paiement['classe_nom']) : 'Non spécifié'; ?></p>
                 </div>
                 <div>
                     <p><strong>Section:</strong> <?php echo isset($paiement['section']) ? htmlspecialchars($paiement['section']) : 'Non spécifié'; ?></p>

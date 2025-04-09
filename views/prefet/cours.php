@@ -8,7 +8,7 @@ if ($mysqli->connect_error) {
 
 // Récupération des cours de la section secondaire
 $cours = [];
-$cours_query = "SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom, cl.nom as classe_nom 
+$cours_query = "SELECT c.*, c.titre as nom, p.nom as prof_nom, p.prenom as prof_prenom, cl.nom as classe_nom 
                 FROM cours c 
                 LEFT JOIN professeurs p ON c.professeur_id = p.id 
                 LEFT JOIN classes cl ON c.classe_id = cl.id 
@@ -244,8 +244,8 @@ unset($_SESSION['error_message']);
                     <td><?php echo htmlspecialchars($c['nom']); ?></td>
                     <td><?php echo htmlspecialchars($c['classe_nom']); ?></td>
                     <td><?php echo htmlspecialchars($c['prof_nom'] . ' ' . $c['prof_prenom']); ?></td>
-                    <td><?php echo $c['coefficient']; ?></td>
-                    <td><?php echo $c['heures_semaine']; ?></td>
+                    <td><?php echo isset($c['coefficient']) ? $c['coefficient'] : 'N/A'; ?></td>
+                    <td><?php echo isset($c['heures_semaine']) ? $c['heures_semaine'] : 'N/A'; ?></td>
                     <td>
                       <div class="btn-group">
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-voir-cours" 
@@ -255,8 +255,8 @@ unset($_SESSION['error_message']);
                                 data-classe-id="<?php echo $c['classe_id']; ?>"
                                 data-professeur="<?php echo htmlspecialchars($c['prof_nom'] . ' ' . $c['prof_prenom']); ?>"
                                 data-professeur-id="<?php echo $c['professeur_id']; ?>"
-                                data-coefficient="<?php echo $c['coefficient']; ?>"
-                                data-heures="<?php echo $c['heures_semaine']; ?>"
+                                data-coefficient="<?php echo isset($c['coefficient']) ? $c['coefficient'] : ''; ?>"
+                                data-heures="<?php echo isset($c['heures_semaine']) ? $c['heures_semaine'] : ''; ?>"
                                 data-description="<?php echo htmlspecialchars($c['description']); ?>">
                           <i class="fa fa-eye"></i>
                         </button>
@@ -265,8 +265,8 @@ unset($_SESSION['error_message']);
                                 data-nom="<?php echo htmlspecialchars($c['nom']); ?>"
                                 data-classe-id="<?php echo $c['classe_id']; ?>"
                                 data-professeur-id="<?php echo $c['professeur_id']; ?>"
-                                data-coefficient="<?php echo $c['coefficient']; ?>"
-                                data-heures="<?php echo $c['heures_semaine']; ?>"
+                                data-coefficient="<?php echo isset($c['coefficient']) ? $c['coefficient'] : '1'; ?>"
+                                data-heures="<?php echo isset($c['heures_semaine']) ? $c['heures_semaine'] : '2'; ?>"
                                 data-description="<?php echo htmlspecialchars($c['description']); ?>">
                           <i class="fa fa-edit"></i>
                         </button>

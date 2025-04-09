@@ -1,0 +1,28 @@
+[2025-04-08 11:16:00] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-08 11:16:01] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-08 11:19:09] [INFO] [::1] [fabkap] User role for redirection {"role":"prefet"}
+[2025-04-08 11:19:09] [INFO] [::1] [fabkap] Connexion réussie {"username":"fabkap","ip":"::1"}
+[2025-04-08 11:59:42] [INFO] [::1] [Ciella] User role for redirection {"role":"admin"}
+[2025-04-08 11:59:42] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-08 12:42:49] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-08 12:42:50] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-08 12:44:51] [INFO] [::1] [fabkap] User role for redirection {"role":"prefet"}
+[2025-04-08 12:44:51] [INFO] [::1] [fabkap] Connexion réussie {"username":"fabkap","ip":"::1"}
+[2025-04-08 14:35:04] [INFO] [::1] [fabkap] User role for redirection {"role":"prefet"}
+[2025-04-08 14:35:05] [INFO] [::1] [fabkap] Connexion réussie {"username":"fabkap","ip":"::1"}
+[2025-04-08 14:51:20] [INFO] [::1] [Ciella] User role for redirection {"role":"admin"}
+[2025-04-08 14:51:20] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-08 15:35:17] [INFO] [::1] [fabkap] User role for redirection {"role":"prefet"}
+[2025-04-08 15:35:17] [INFO] [::1] [fabkap] Connexion réussie {"username":"fabkap","ip":"::1"}
+[2025-04-08 20:00:23] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"fabkap","ip":"::1"}
+[2025-04-08 20:00:37] [INFO] [::1] [fabkap] User role for redirection {"role":"prefet"}
+[2025-04-08 20:00:37] [INFO] [::1] [fabkap] Connexion réussie {"username":"fabkap","ip":"::1"}
+[2025-04-08 23:09:20] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"fabkap","ip":"::1"}
+[2025-04-08 23:09:30] [INFO] [::1] [fabkap] User role for redirection {"role":"prefet"}
+[2025-04-08 23:09:30] [INFO] [::1] [fabkap] Connexion réussie {"username":"fabkap","ip":"::1"}
+[2025-04-08 23:19:30] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-08 23:19:30] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-08 23:33:08] [INFO] [::1] [Ciella] User role for redirection {"role":"admin"}
+[2025-04-08 23:33:08] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-08 23:54:55] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-08 23:54:55] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

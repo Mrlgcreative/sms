@@ -135,6 +135,42 @@ class Admin {
         }
     }
 
+    /**
+ * Débloque une adresse IP
+ */
+public function unblockIP() {
+    // Vérifier si l'utilisateur est connecté et a le rôle d'administrateur
+    if (!isAuthenticated('admin')) {
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier le token CSRF
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil&unblock_error=1');
+        exit;
+    }
+    
+    // Récupérer l'adresse IP à débloquer
+    $ip_address = isset($_POST['ip_address']) ? cleanInput($_POST['ip_address']) : '';
+    
+    if (empty($ip_address)) {
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil&unblock_error=1');
+        exit;
+    }
+    
+    // Tenter de débloquer l'IP
+    $success = unblockIP($ip_address);
+    
+    if ($success) {
+        // Journaliser l'action
+        $this->logAction("Déblocage de l'adresse IP: " . $ip_address);
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil&unblock_success=1');
+    } else {
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil&unblock_error=1');
+    }
+    exit;
+}
    
 
     public function frais() {
@@ -278,6 +314,7 @@ public function deleteEmploye() {
 
     public function cours() {
         $cours = $this->coursModel->getAll();
+        $profs=$this->professeurModel->getAll();
         require 'views/admin/cours.php';
     }
 
@@ -321,9 +358,38 @@ public function deleteEmploye() {
     public function addClasse() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $nom = $_POST['nom'];
+            $niveau = isset($_POST['niveau']) ? $_POST['niveau'] : '';
             $section = $_POST['section'];
-            $this->classeModel->add($nom, $section);
-            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=classes');
+            $titulaire = isset($_POST['titulaire']) ? $_POST['titulaire'] : null;
+            $prof_id = isset($_POST['prof_id']) ? intval($_POST['prof_id']) : null;
+            
+            // Validation des données
+            $errors = [];
+            
+            if (empty($nom)) {
+                $errors[] = "Le nom de la classe est requis.";
+            }
+            
+            if (empty($niveau)) {
+                $errors[] = "Le niveau est requis.";
+            }
+            
+            if (empty($section)) {
+                $errors[] = "La section est requise.";
+            }
+            
+            if (empty($errors)) {
+                $this->classeModel->add($nom, $niveau, $section, $titulaire, $prof_id);
+                $_SESSION['message'] = "Classe ajoutée avec succès.";
+                $_SESSION['message_type'] = "success";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=classes');
+                exit();
+            } else {
+                $_SESSION['errors'] = $errors;
+                $_SESSION['form_data'] = $_POST;
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=addClasse');
+                exit();
+            }
         } else {
             require 'views/admin/add_classe.php';
         }

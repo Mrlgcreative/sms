@@ -166,9 +166,9 @@ $mysqli->close();
                     <th>ID</th>
                     <th>Nom</th>
                     <th>Prénom</th>
-                    <th>Spécialité</th>
+                
                     <th>Cours enseignés</th>
-                    <th>Téléphone</th>
+                   
                     <th>Email</th>
                     <th>Actions</th>
                   </tr>
@@ -181,9 +181,9 @@ $mysqli->close();
                               <td>{$row['id']}</td>
                               <td>{$row['nom']}</td>
                               <td>{$row['prenom']}</td>
-                              <td>{$row['specialite']}</td>
+                         
                               <td>{$row['cours_enseignes']}</td>
-                              <td>{$row['telephone']}</td>
+                             
                               <td>{$row['email']}</td>
                               <td>
                                 <a href='" . BASE_URL . "index.php?controller=Prefet&action=voirProfesseur&id={$row['id']}' class='btn btn-info btn-xs'><i class='fa fa-eye'></i> Voir</a>

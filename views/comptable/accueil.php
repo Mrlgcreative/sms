@@ -20,7 +20,7 @@ $row = $result->fetch_assoc();
 $total_professeurs = $row['total_professeurs'];
 
 // Récupérer le nombre de directeurs
-$result = $mysqli->query("SELECT COUNT(*) AS total_directeurs FROM directeur");
+$result = $mysqli->query("SELECT COUNT(*) AS total_directeurs FROM users WHERE role='director'");
 $row = $result->fetch_assoc();
 $total_directeurs = $row['total_directeurs'];
 
@@ -30,17 +30,17 @@ $row = $result->fetch_assoc();
 $total_employes = $row['total_employes'];
 
 // Récupérer le nombre de directrices
-$result = $mysqli->query("SELECT COUNT(*) AS total_directrices FROM directrice");
+$result = $mysqli->query("SELECT COUNT(*) AS total_directrices FROM users WHERE role='directrice'");
 $row = $result->fetch_assoc();
 $total_directrices = $row['total_directrices'];
 
 // Récupérer le nombre de préfets
-$result = $mysqli->query("SELECT COUNT(*) AS total_prefets FROM prefet");
+$result = $mysqli->query("SELECT COUNT(*) AS total_prefets FROM users WHERE role='prefet'");
 $row = $result->fetch_assoc();
 $total_prefets = $row['total_prefets'];
 
 // Récupérer le nombre de comptables
-$result = $mysqli->query("SELECT COUNT(*) AS total_comptables FROM comptable");
+$result = $mysqli->query("SELECT COUNT(*) AS total_comptables FROM users WHERE role='comptable'");
 $row = $result->fetch_assoc();
 $total_comptables = $row['total_comptables'];
 

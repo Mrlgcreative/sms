@@ -17,6 +17,9 @@ $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -274,7 +277,7 @@ if ($mysqli->connect_error) {
                       <td><?php echo $eleve['lieu_naissance']; ?></td>
                       <td><?php echo $eleve['section']; ?></td>
                       <td><?php echo $eleve['option_nom']; ?></td>
-                      <td><?php echo $eleve['classe']; ?></td>
+                      <td><?php echo $eleve['classe_nom']; ?></td>
                       <td><?php echo $eleve['adresse']; ?></td>
                       
                       <td>

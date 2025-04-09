@@ -114,11 +114,39 @@ function isIPBlocked($ip) {
 function blockIP($ip, $reason, $expiry_date = null) {
     $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     
-    $stmt = $db->prepare("INSERT INTO blocked_ips (ip_address, reason, block_date, expiry_date) VALUES (?, ?, NOW(), ?)");
-    $stmt->bind_param("sss", $ip, $reason, $expiry_date);
-    $stmt->execute();
-    $stmt->close();
+    // Vérifier d'abord si l'IP est déjà bloquée
+    $check = $db->prepare("SELECT COUNT(*) as count FROM blocked_ips WHERE ip_address = ?");
+    $check->bind_param("s", $ip);
+    $check->execute();
+    $result = $check->get_result();
+    $row = $result->fetch_assoc();
+    $check->close();
+    
+    if ($row['count'] > 0) {
+        // L'IP est déjà bloquée, mettre à jour la raison et la date d'expiration
+        $update = $db->prepare("UPDATE blocked_ips SET reason = ?, block_date = NOW(), expiry_date = ? WHERE ip_address = ?");
+        $update->bind_param("sss", $reason, $expiry_date, $ip);
+        $update->execute();
+        $update->close();
+    } else {
+        // Sinon, insérer un nouveau blocage
+        $stmt = $db->prepare("INSERT INTO blocked_ips (ip_address, reason, block_date, expiry_date) VALUES (?, ?, NOW(), ?)");
+        $stmt->bind_param("sss", $ip, $reason, $expiry_date);
+        $stmt->execute();
+        $stmt->close();
+    }
+    
     $db->close();
+    
+    // Définir un message d'erreur dans la session
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    $_SESSION['error'] = "Votre adresse IP a été temporairement bloquée pour des raisons de sécurité. Veuillez réessayer plus tard ou contacter l'administrateur.";
+    
+    // Rediriger vers la page de login avec un message d'erreur
+    header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+    exit;
 }
 
 /**
@@ -192,6 +220,68 @@ function isSessionExpired($maxLifetime = 1800) {
     // Mettre à jour le timestamp de dernière activité
     $_SESSION['last_activity'] = time();
     return false;
+}
+
+/**
+ * Débloque une adresse IP
+ * @param string $ip L'adresse IP à débloquer
+ * @return bool True si l'IP a été débloquée, false sinon
+ */
+function unblockIP($ip) {
+    $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    // Vérifier d'abord si l'IP est bloquée
+    $check = $db->prepare("SELECT COUNT(*) as count FROM blocked_ips WHERE ip_address = ?");
+    $check->bind_param("s", $ip);
+    $check->execute();
+    $result = $check->get_result();
+    $row = $result->fetch_assoc();
+    $check->close();
+    
+    if ($row['count'] > 0) {
+        // L'IP est bloquée, la supprimer de la table
+        $delete = $db->prepare("DELETE FROM blocked_ips WHERE ip_address = ?");
+        $delete->bind_param("s", $ip);
+        $success = $delete->execute();
+        $delete->close();
+        $db->close();
+        
+        return $success;
+    } else {
+        // L'IP n'était pas bloquée
+        $db->close();
+        return false;
+    }
+}
+
+/**
+ * Récupère la liste des adresses IP bloquées
+ * @param int $limit Nombre maximum d'entrées à récupérer
+ * @param int $offset Décalage pour la pagination
+ * @return array Liste des IP bloquées avec leurs détails
+ */
+function getBlockedIPs($limit = 50, $offset = 0) {
+    $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    $query = "SELECT ip_address, reason, block_date, expiry_date 
+              FROM blocked_ips 
+              ORDER BY block_date DESC 
+              LIMIT ? OFFSET ?";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bind_param("ii", $limit, $offset);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $blocked_ips = [];
+    while ($row = $result->fetch_assoc()) {
+        $blocked_ips[] = $row;
+    }
+    
+    $stmt->close();
+    $db->close();
+    
+    return $blocked_ips;
 }
 
 /**

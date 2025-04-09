@@ -19,7 +19,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 
 // Récupérer la liste des professeurs
 $professeurs = [];
-$query_prof = "SELECT id, username FROM users WHERE role = 'professeur' ORDER BY username";
+$query_prof = "SELECT id, nom, prenom FROM professeurs";  // Added id to the query
 $result_prof = $mysqli->query($query_prof);
 if ($result_prof) {
     while ($row = $result_prof->fetch_assoc()) {
@@ -337,7 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="">Sélectionnez un professeur</option>
                 <?php foreach ($professeurs as $professeur): ?>
                   <option value="<?php echo $professeur['id']; ?>" <?php echo (isset($professeur_id) && $professeur_id == $professeur['id']) ? 'selected' : ''; ?>>
-                    <?php echo $professeur['username']; ?>
+                    <?php echo $professeur['nom'] . ' ' . $professeur['prenom']; ?>
                   </option>
                 <?php endforeach; ?>
               </select>
@@ -363,6 +363,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
               <label for="option">Option</label>
               <input type="text" class="form-control" id="option" name="option" placeholder="Entrez l'option (facultatif)" value="<?php echo isset($option) ? $option : ''; ?>">
+            </div>
+            
+            <div class="form-group">
+              <label for="coefficient">Coefficient *</label>
+              <input type="number" class="form-control" id="coefficient" name="coefficient" placeholder="Entrez le coefficient du cours" value="<?php echo isset($coefficient) ? $coefficient : '1'; ?>" min="1" max="10" required>
+              <p class="help-block">Valeur entre 1 et 10</p>
+            </div>
+            
+            <div class="form-group">
+              <label for="heures_semaine">Heures par semaine *</label>
+              <input type="number" class="form-control" id="heures_semaine" name="heures_semaine" placeholder="Entrez le nombre d'heures par semaine" value="<?php echo isset($heures_semaine) ? $heures_semaine : '2'; ?>" min="1" max="20" required>
+              <p class="help-block">Valeur entre 1 et 20</p>
             </div>
           </div>
           

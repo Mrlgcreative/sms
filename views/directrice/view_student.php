@@ -145,7 +145,7 @@ if (!isset($eleve) || empty($eleve)) {
 
               <h3 class="profile-username text-center"><?php echo $eleve['nom'] . ' ' . $eleve['post_nom'] . ' ' . $eleve['prenom']; ?></h3>
 
-              <p class="text-muted text-center">Élève de <?php echo $eleve['classe']; ?></p>
+              <p class="text-muted text-center">Élève de <?php echo $eleve['classe_nom']; ?></p>
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">
@@ -211,7 +211,7 @@ if (!isset($eleve) || empty($eleve)) {
                         </div>
                         <div class="box-body">
                           <strong><i class="fa fa-graduation-cap margin-r-5"></i> Classe</strong>
-                          <p class="text-muted"><?php echo $eleve['classe']; ?></p>
+                          <p class="text-muted"><?php echo $eleve['classe_nom']; ?></p>
                           <hr>
                           
                           <strong><i class="fa fa-building margin-r-5"></i> Section</strong>

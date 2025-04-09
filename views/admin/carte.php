@@ -22,8 +22,9 @@ if ($mysqli->connect_error) {
 }
 
 // Récupérer les informations de l'élève
-$query = "SELECT e.*, o.nom as option_nom 
+$query = "SELECT e.*, o.nom as option_nom, c.nom as classe_nom
           FROM eleves e 
+          LEFT JOIN classes c ON e.classe_id = c.id
           LEFT JOIN options o ON e.option_id = o.id 
           WHERE e.id = ?";
 $stmt = $mysqli->prepare($query);
@@ -440,7 +441,7 @@ $code_carte = 'SGS-' . str_pad($eleve_id, 5, '0', STR_PAD_LEFT) . '-' . date('Y'
                         <p><strong>Nom:</strong> <?php echo $eleve['nom']; ?></p>
                         <p><strong>Post-nom:</strong> <?php echo $eleve['post_nom']; ?></p>
                         <p><strong>Prénom:</strong> <?php echo $eleve['prenom']; ?></p>
-                        <p><strong>Classe:</strong> <?php echo $eleve['classe']; ?></p>
+                        <p><strong>Classe:</strong> <?php echo $eleve['classe_nom']; ?></p>
                         <p><strong>Option:</strong> <?php echo $eleve['option_nom']; ?></p>
                         <p><strong>Section:</strong> <?php echo $eleve['section']; ?></p>
                         <p><strong>ID:</strong> <?php echo $code_carte; ?></p>

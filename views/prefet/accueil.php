@@ -12,10 +12,10 @@ $total_professeurs = $mysqli->query("SELECT COUNT(*) AS total FROM professeurs")
 
 // Récupération des élèves par classe (section secondaire uniquement)
 $eleves_par_classe = [];
-$eleves_par_classe_query = "SELECT e.classe, COUNT(e.id) as total 
+$eleves_par_classe_query = "SELECT e.classe_id, COUNT(*) as total 
                            FROM eleves e 
                            WHERE e.section='secondaire'
-                           GROUP BY e.classe 
+                           GROUP BY e.classe_id 
                            ORDER BY total DESC";
 $eleves_par_classe_result = $mysqli->query($eleves_par_classe_query);
 if ($eleves_par_classe_result) {
@@ -41,10 +41,10 @@ if ($cours_par_prof_result) {
 
 // Récupération des derniers événements scolaires
 $evenements = [];
-$evenements_query = "SELECT titre, date_evenement, description 
+$evenements_query = "SELECT titre, date_debut, description 
                     FROM evenements_scolaires 
-                    WHERE date_evenement >= CURDATE() 
-                    ORDER BY date_evenement ASC 
+                    WHERE date_debut >= CURDATE() 
+                    ORDER BY date_debut ASC 
                     LIMIT 3";
 $evenements_result = $mysqli->query($evenements_query);
 if ($evenements_result) {
@@ -256,7 +256,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                     if (!empty($eleves_par_classe)) {
                       foreach ($eleves_par_classe as $row) {
                         echo "<tr>
-                                <td>{$row['classe']}</td>
+                                <td>{$row['classe_id']}</td>
                                 <td>{$row['total']}</td>
                               </tr>";
                       }

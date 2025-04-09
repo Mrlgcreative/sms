@@ -322,5 +322,22 @@ class Prefet {
         // Charger la vue du profil
         require_once 'views/prefet/profil.php';
     }
+    
+    public function voirEleve() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'prefet') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID de l'élève est fourni
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=eleves');
+            exit;
+        }
+        
+        // Charger la vue du profil de l'élève
+        require 'views/prefet/voirEleve.php';
+    }
 }
 ?>

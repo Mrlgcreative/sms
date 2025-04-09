@@ -28,14 +28,19 @@ if ($mysqli->connect_error) {
 }
 
 // Récupérer les statistiques par classe pour la section maternelle
-$classes_query = $mysqli->query("SELECT classe, 
-                               COUNT(*) as total, 
-                               SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as garcons,
-                               SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as filles
-                        FROM eleves 
-                        WHERE section = 'Maternelle'
-                        GROUP BY classe
-                        ORDER BY classe");
+$classes_query = $mysqli->query("
+    SELECT 
+        c.id as classe_id,
+        c.nom as classe_nom, 
+        COUNT(e.id) as total, 
+        SUM(CASE WHEN e.sexe = 'M' THEN 1 ELSE 0 END) as garcons,
+        SUM(CASE WHEN e.sexe = 'F' THEN 1 ELSE 0 END) as filles
+    FROM classes c
+    LEFT JOIN eleves e ON c.id = e.classe_id AND e.section = 'Maternelle'
+    WHERE c.section = 'Maternelle'
+    GROUP BY c.id, c.nom
+    ORDER BY c.nom
+");
 
 $classes_stats = [];
 if ($classes_query) {
@@ -227,12 +232,12 @@ if ($classes_query) {
                 <tbody>
                 <?php foreach ($classes_stats as $classe): ?>
                 <tr>
-                  <td><?php echo $classe['classe']; ?></td>
+                  <td><?php echo $classe['classe_nom']; ?></td>
                   <td><?php echo $classe['total']; ?></td>
                   <td><?php echo $classe['garcons']; ?></td>
                   <td><?php echo $classe['filles']; ?></td>
                   <td>
-                    <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=eleves&classe=<?php echo urlencode($classe['classe']); ?>" class="btn btn-info btn-xs">
+                    <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=eleves&classe_id=<?php echo $classe['classe_id']; ?>" class="btn btn-info btn-xs">
                       <i class="fa fa-eye"></i> Voir les élèves
                     </a>
                   </td>

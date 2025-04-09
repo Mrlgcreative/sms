@@ -118,7 +118,7 @@ if(!$option){
             $payment_date = $_POST['payment_date'];
             $created_at = $_POST['created_at'];
             $moi_id = $_POST['mois'];
-            $classe_id = $_POST['classe'];
+            $classe_id = $_POST['classe_id'];
             $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? $_POST['option_id'] : null;
             $section = $_POST['section'];
             
@@ -304,6 +304,8 @@ if(!$option){
         
         // Récupérer la section depuis l'URL
         $section = isset($_GET['section']) ? $_GET['section'] : '';
+        // Récupérer les classes et options en fonction de la section
+        $classes = $this->classeModel->getAllClasses($section);
         
         // Si la section est secondaire, récupérer les options
         $options = [];
@@ -323,7 +325,7 @@ if(!$option){
             $date_naissance = $_POST['date_naissance'];
             $lieu_naissance = $_POST['lieu_naissance'];
             $adresse = $_POST['adresse'];
-            $classe = $_POST['classe'];
+            $classe = $_POST['classe_id'];
             $section = $_POST['section'];
             $option_id = isset($_POST['option_id']) ? $_POST['option_id'] : null;
             $sexe = isset($_POST['sexe']) ? $_POST['sexe'] : 'M';
@@ -1108,8 +1110,9 @@ public function viewStudent() {
     
     // Récupérer les informations de l'élève
     $stmt = $mysqli->prepare("
-        SELECT e.*, e. classe, e. section, o.nom AS option_nom
+        SELECT e.*, c. nom as classe_nom, e. section, o.nom AS option_nom
         FROM eleves e
+        LEFT JOIN classes c ON e. classe_id = c.id
         LEFT JOIN options o ON e.option_id = o.id
         WHERE e.id = ?
     ");

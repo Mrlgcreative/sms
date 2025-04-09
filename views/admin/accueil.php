@@ -21,9 +21,9 @@ $total_employes = $mysqli->query("SELECT COUNT(*) AS total FROM employes")->fetc
 
 // Récupération des élèves par classe
 $eleves_par_classe = [];
-$eleves_par_classe_query = "SELECT e.classe, COUNT(e.id) as total 
+$eleves_par_classe_query = "SELECT e.classe_id, COUNT(e.id) as total 
                            FROM eleves e 
-                           GROUP BY e.classe 
+                           GROUP BY e.classe_id 
                            ORDER BY total DESC 
                            LIMIT 5";
 $eleves_par_classe_result = $mysqli->query($eleves_par_classe_query);
@@ -67,6 +67,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Administrateur';
+$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -467,7 +468,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Administrateur';
                   if (!empty($eleves_par_classe)) {
                     foreach ($eleves_par_classe as $row) {
                       echo "<tr>
-                              <td>{$row['classe']}</td>
+                              <td>{$row['classe_id']}</td>
                               <td>{$row['total']}</td>
                             </tr>";
                     }
@@ -483,7 +484,96 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Administrateur';
       </div>
 
       
-      
+      <!-- ... existing code ... -->
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="box box-danger">
+      <div class="box-header with-border">
+        <h3 class="box-title"><i class="fa fa-unlock"></i> Débloquer une adresse IP</h3>
+      </div>
+      <div class="box-body">
+        <p>Utilisez ce formulaire pour débloquer une adresse IP qui a été bloquée suite à trop de tentatives de connexion échouées.</p>
+        
+        <?php if (isset($_GET['unblock_success'])): ?>
+          <div class="alert alert-success">
+            L'adresse IP a été débloquée avec succès.
+          </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['unblock_error'])): ?>
+          <div class="alert alert-danger">
+            Erreur lors du déblocage de l'adresse IP. Veuillez vérifier que l'adresse est correcte.
+          </div>
+        <?php endif; ?>
+        
+        <form action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=unblockIP" method="post" class="form-horizontal">
+          <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+          
+          <div class="form-group">
+            <label for="ip_address" class="col-sm-3 control-label">Adresse IP</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="ip_address" name="ip_address" placeholder="Exemple: 192.168.1.1" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+              <button type="submit" class="btn btn-danger">Débloquer cette IP</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="box box-info">
+      <div class="box-header with-border">
+        <h3 class="box-title"><i class="fa fa-ban"></i> Adresses IP bloquées récemment</h3>
+      </div>
+      <div class="box-body">
+        <?php 
+        $blocked_ips = getBlockedIPs(5, 0); 
+        if (count($blocked_ips) > 0):
+        ?>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Adresse IP</th>
+                <th>Raison</th>
+                <th>Date de blocage</th>
+                <th>Expiration</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($blocked_ips as $ip): ?>
+                <tr>
+                  <td><?php echo htmlspecialchars($ip['ip_address']); ?></td>
+                  <td><?php echo htmlspecialchars($ip['reason']); ?></td>
+                  <td><?php echo htmlspecialchars($ip['block_date']); ?></td>
+                  <td><?php echo $ip['expiry_date'] ? htmlspecialchars($ip['expiry_date']) : 'Permanent'; ?></td>
+                  <td>
+                    <form action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=unblockIP" method="post">
+                      <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                      <input type="hidden" name="ip_address" value="<?php echo htmlspecialchars($ip['ip_address']); ?>">
+                      <button type="submit" class="btn btn-xs btn-danger">Débloquer</button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php else: ?>
+          <p>Aucune adresse IP n'est actuellement bloquée.</p>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ... existing code ... -->
       <!-- Nouveau graphique pour les actions des utilisateurs -->
       <div class="row">
         <div class="col-md-12">

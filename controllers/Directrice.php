@@ -65,16 +65,17 @@ class Directrice {
         $email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
         
         // Récupérer la classe depuis l'URL si elle est spécifiée
-        $classe = isset($_GET['classe']) ? $_GET['classe'] : '';
+        $classe_id = isset($_GET['classe_id']) ? (int)$_GET['classe_id'] : '';
         
         // Construire la requête SQL en fonction de la présence ou non d'une classe spécifique
-        $query = "SELECT e.*, o.nom AS option_nom 
+        $query = "SELECT e.*, o.nom AS option_nom, c.nom AS classe_nom
                   FROM eleves e 
                   LEFT JOIN options o ON e.option_id = o.id 
+                  LEFT JOIN classes c ON e.classe_id = c.id
                   WHERE e.section = 'maternelle'";
         
-        if (!empty($classe)) {
-            $query .= " AND e.classe = '" . $this->db->real_escape_string($classe) . "'";
+        if (!empty($classe_id)) {
+            $query .= " AND e.classe_id = " . $this->db->real_escape_string($classe_id);
         }
         
         $query .= " ORDER BY e.nom, e.post_nom, e.prenom";
@@ -85,8 +86,13 @@ class Directrice {
         // Compter le nombre total d'élèves
         $total_eleves = count($eleves);
         
+        // Récupérer la liste des classes pour le filtre
+        $classes_query = "SELECT id, nom FROM classes WHERE section = 'maternelle' ORDER BY nom";
+        $classes_result = $this->db->query($classes_query);
+        $classes = $classes_result->fetch_all(MYSQLI_ASSOC);
+        
         // Journaliser l'action
-        $this->logAction("Consultation de la liste des élèves de maternelle" . (!empty($classe) ? " (classe: $classe)" : ""));
+        $this->logAction("Consultation de la liste des élèves de maternelle" . (!empty($classe_id) ? " (classe ID: $classe_id)" : ""));
         
         require 'views/directrice/eleves.php';
     }
@@ -103,14 +109,16 @@ class Directrice {
         // Récupérer les statistiques par classe
         $query = "
             SELECT 
-                classe, 
-                COUNT(*) as total,
-                SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as garcons,
-                SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as filles
-            FROM eleves 
-            WHERE section = 'maternelle' 
-            GROUP BY classe 
-            ORDER BY classe
+                c.id as classe_id,
+                c.nom as classe_nom, 
+                COUNT(e.id) as total,
+                SUM(CASE WHEN e.sexe = 'M' THEN 1 ELSE 0 END) as garcons,
+                SUM(CASE WHEN e.sexe = 'F' THEN 1 ELSE 0 END) as filles
+            FROM classes c
+            LEFT JOIN eleves e ON c.id = e.classe_id AND e.section = 'maternelle'
+            WHERE c.section = 'maternelle'
+            GROUP BY c.id, c.nom
+            ORDER BY c.nom
         ";
         
         $result = $this->db->query($query);
@@ -157,17 +165,18 @@ class Directrice {
         // Répartition par classe
         $result = $this->db->query("
             SELECT 
-                classe, 
-                COUNT(*) as total 
-            FROM eleves 
-            WHERE section = 'maternelle' 
-            GROUP BY classe 
-            ORDER BY classe
+                c.nom as classe_nom, 
+                COUNT(e.id) as total 
+            FROM classes c
+            LEFT JOIN eleves e ON c.id = e.classe_id AND e.section = 'maternelle'
+            WHERE c.section = 'maternelle'
+            GROUP BY c.id, c.nom
+            ORDER BY c.nom
         ");
         
         $stats['classes'] = [];
         while ($row = $result->fetch_assoc()) {
-            $stats['classes'][$row['classe']] = $row['total'];
+            $stats['classes'][$row['classe_nom']] = $row['total'];
         }
         
         // Journaliser l'action
@@ -529,12 +538,12 @@ class Directrice {
             }
             
             // Préparer la requête d'insertion
-            $query = "INSERT INTO evenements_scolaires (titre, type, description, date_debut, date_fin, lieu, couleur, createur) 
+            $query = "INSERT INTO evenements_scolaires (titre, type, description, date_debut, date_fin, lieu, couleur, responsable) 
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $mysqli->prepare($query);
-            $createur = $_SESSION['username'];
-            $stmt->bind_param("ssssssss", $titre, $type, $description, $date_debut, $date_fin, $lieu, $couleur, $createur);
+            $responsable = $_SESSION['username']; // Define the responsable variable
+            $stmt->bind_param("ssssssss", $titre, $type, $description, $date_debut, $date_fin, $lieu, $couleur, $responsable);
             
             // Exécuter la requête
             if ($stmt->execute()) {
@@ -579,7 +588,7 @@ class Directrice {
         }
         
         // Récupérer les détails de l'événement
-        $query = "SELECT * FROM evenements WHERE id = ?";
+        $query = "SELECT * FROM evenements_scolaires WHERE id = ?";
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param("i", $id);
         $stmt->execute();

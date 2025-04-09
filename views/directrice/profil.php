@@ -208,7 +208,7 @@ $success_message = isset($_GET['success']) ? urldecode($_GET['success']) : '';
             </ul>
             <div class="tab-content">
               <div class="active tab-pane" id="settings">
-                <form class="form-horizontal" method="post" action="<?php echo BASE_URL; ?>index.php?controller=Auth&action=updateProfile" enctype="multipart/form-data">
+                <form class="form-horizontal" method="post" action="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=updateProfile" enctype="multipart/form-data">
                   <div class="form-group">
                     <label for="inputName" class="col-sm-2 control-label">Nom</label>
                     <div class="col-sm-10">

@@ -9,8 +9,9 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur'
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
 
-// Récupérer la classe depuis l'URL si elle est spécifiée
-$classe = isset($_GET['classe']) ? $_GET['classe'] : '';
+// Récupérer la classe_id depuis l'URL si elle est spécifiée
+$classe_id = isset($_GET['classe_id']) ? (int)$_GET['classe_id'] : '';
+$classe_nom = '';
 
 // Récupérer les messages d'erreur ou de succès
 $error_message = isset($_GET['message']) && isset($_GET['error']) ? urldecode($_GET['message']) : '';
@@ -143,15 +144,15 @@ $success_message = isset($_GET['message']) && isset($_GET['success']) ? urldecod
     <section class="content-header">
       <h1>
         Élèves de la Section Maternelle
-        <?php if (!empty($classe)): ?>
-        <small>Classe: <?php echo $classe; ?></small>
+        <?php if (!empty($classe_nom)): ?>
+        <small>Classe: <?php echo $classe_nom; ?></small>
         <?php endif; ?>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Élèves Maternelle</li>
-        <?php if (!empty($classe)): ?>
-        <li class="active"><?php echo $classe; ?></li>
+        <?php if (!empty($classe_nom)): ?>
+        <li class="active"><?php echo $classe_nom; ?></li>
         <?php endif; ?>
       </ol>
     </section>
@@ -177,7 +178,7 @@ $success_message = isset($_GET['message']) && isset($_GET['success']) ? urldecod
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Liste des élèves de maternelle<?php echo !empty($classe) ? ' - Classe ' . $classe : ''; ?></h3>
+              <h3 class="box-title">Liste des élèves de maternelle<?php echo !empty($classe_nom) ? ' - Classe ' . $classe_nom : ''; ?></h3>
               <div class="box-tools">
                 <div class="input-group input-group-sm" style="width: 250px;">
                   <div class="input-group-btn">
@@ -197,14 +198,18 @@ $success_message = isset($_GET['message']) && isset($_GET['success']) ? urldecod
                       
                       // Récupérer les classes disponibles
                       $result_classes = $mysqli->query("
-                          SELECT DISTINCT classe 
-                          FROM eleves 
+                          SELECT id, nom 
+                          FROM classes 
                           WHERE section = 'maternelle' 
-                          ORDER BY classe
+                          ORDER BY nom
                       ");
                       
                       while ($row = $result_classes->fetch_assoc()) {
-                          echo '<li><a href="' . BASE_URL . 'index.php?controller=directrice&action=eleves&classe=' . urlencode($row['classe']) . '">' . $row['classe'] . '</a></li>';
+                          echo '<li><a href="' . BASE_URL . 'index.php?controller=directrice&action=eleves&classe_id=' . $row['id'] . '">' . $row['nom'] . '</a></li>';
+                          // Si la classe_id correspond, on stocke le nom de la classe
+                          if ($classe_id == $row['id']) {
+                              $classe_nom = $row['nom'];
+                          }
                       }
                       ?>
                     </ul>
@@ -232,32 +237,18 @@ $success_message = isset($_GET['message']) && isset($_GET['success']) ? urldecod
                 </thead>
                 <tbody>
                   <?php
-                  // Construire la requête SQL en fonction de la présence ou non d'une classe spécifique
-                  $query = "SELECT e.*, o.nom AS option_nom 
-                            FROM eleves e 
-                            LEFT JOIN options o ON e.option_id = o.id 
-                            WHERE e.section = 'maternelle'";
-                  
-                  if (!empty($classe)) {
-                      $query .= " AND e.classe = '" . $mysqli->real_escape_string($classe) . "'";
-                  }
-                  
-                  $query .= " ORDER BY e.nom, e.post_nom, e.prenom";
-                  
-                  $result = $mysqli->query($query);
-                  
-                  if ($result) {
-                      while ($eleve = $result->fetch_assoc()) {
+                  // Utiliser les élèves passés par le contrôleur
+                  if (isset($eleves) && is_array($eleves)) {
+                      foreach ($eleves as $eleve) {
                   ?>
                   <tr>
                     <td><?php echo $eleve['id']; ?></td>
                     <td><?php echo $eleve['nom']; ?></td>
                     <td><?php echo $eleve['post_nom']; ?></td>
                     <td><?php echo $eleve['prenom']; ?></td>
-                    <td><?php echo $eleve['classe']; ?></td>
+                    <td><?php echo $eleve['classe_nom'] ?? 'Non assigné'; ?></td>
                     <td><?php echo $eleve['sexe'] == 'M' ? 'Garçon' : 'Fille'; ?></td>
                     <td><?php echo !empty($eleve['date_naissance']) ? date('d/m/Y', strtotime($eleve['date_naissance'])) : 'Non renseigné'; ?></td>
-                    <!-- In the actions column of the students table -->
                     <td>
                       <a href="<?php echo BASE_URL; ?>index.php?controller=directrice&action=viewStudent&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs">
                         <i class="fa fa-eye"></i> Détails
@@ -269,6 +260,8 @@ $success_message = isset($_GET['message']) && isset($_GET['success']) ? urldecod
                   </tr>
                   <?php
                       }
+                  } else {
+                      echo '<tr><td colspan="8" class="text-center">Aucun élève trouvé</td></tr>';
                   }
                   
                   // Fermer la connexion à la base de données

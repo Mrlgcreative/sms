@@ -18,26 +18,34 @@ $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Administrateur';
 $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 
+// Récupérer les professeurs pour le champ titulaire
+$professeurs = [];
+$query_prof = "SELECT id, nom, prenom FROM professeurs ORDER BY nom, prenom";
+$result_prof = $mysqli->query($query_prof);
+if ($result_prof) {
+    while ($row = $result_prof->fetch_assoc()) {
+        $professeurs[] = $row;
+    }
+    $result_prof->free();
+}
+
 // Traitement du formulaire d'ajout de classe
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $libelle = $mysqli->real_escape_string($_POST['libelle']);
+    $nom = $mysqli->real_escape_string($_POST['nom']);
     $niveau = $mysqli->real_escape_string($_POST['niveau']);
-    $capacite = intval($_POST['capacite']);
     $section = $mysqli->real_escape_string($_POST['section']);
+    $titulaire = $mysqli->real_escape_string($_POST['titulaire']);
+
     
     // Validation des données
     $errors = [];
     
-    if (empty($libelle)) {
-        $errors[] = "Le libellé de la classe est requis.";
+    if (empty($nom)) {
+        $errors[] = "Le nom de la classe est requis.";
     }
     
     if (empty($niveau)) {
         $errors[] = "Le niveau est requis.";
-    }
-    
-    if ($capacite <= 0) {
-        $errors[] = "La capacité doit être un nombre positif.";
     }
     
     if (empty($section)) {
@@ -46,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Si pas d'erreurs, insérer dans la base de données
     if (empty($errors)) {
-        $query = "INSERT INTO classes (libelle, niveau, capacite, section) VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO classes (nom, niveau, section, titulaire, prof_id) VALUES (?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param("ssis", $libelle, $niveau, $capacite, $section);
+        $stmt->bind_param("ssssi", $nom, $niveau, $section, $titulaire, $prof_id);
         
         if ($stmt->execute()) {
             $_SESSION['message'] = "Classe ajoutée avec succès.";
@@ -298,16 +306,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form role="form" method="POST" action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addclasse" class="form-horizontal">
               <div class="box-body">
                 <div class="form-group">
-                  <label for="nom" class="col-sm-2 control-label">Libellé</label>
+                  <label for="nom" class="col-sm-2 control-label">Nom de la classe</label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" id="nom" name="nom" placeholder="Libellé de la classe" value="<?php echo isset($_POST['libelle']) ? htmlspecialchars($_POST['libelle']) : ''; ?>" required>
+                    <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom de la classe" value="<?php echo isset($_POST['nom']) ? htmlspecialchars($_POST['nom']) : ''; ?>" required>
                     <p class="help-block">Exemple: 6ème A, CM2, Terminale S, etc.</p>
                   </div>
                 </div>
                 
-             
+                <div class="form-group">
+                  <label for="niveau" class="col-sm-2 control-label">Niveau</label>
+                  <div class="col-sm-10">
+                    <select class="form-control" id="niveau" name="niveau" required>
+                      <option value="">Sélectionnez un niveau</option>
+                      <option value="8eme">8eme</option>
+                      <option value="7eme">7eme</option>
+                      <option value="6ème">6ème</option>
+                      <option value="5ème">5ème</option>
+                      <option value="4ème">4ème</option>
+                      <option value="3ème">3ème</option>
+                      <option value="2eme">2eme</option>
+                      <option value="1ère">1ère</option>
+                      <option value="Terminale">Terminale</option>
+                    </select>
+                  </div>
+                </div>
                 
-               
+                <div class="form-group">
+                  <label for="titulaire" class="col-sm-2 control-label">Professeur titulaire</label>
+                  <div class="col-sm-10">
+                    <select class="form-control" id="titulaire" name="titulaire">
+                      <option value="">Sélectionnez un professeur</option>
+                      <?php foreach ($professeurs as $prof): ?>
+                        <option value="<?php echo htmlspecialchars($prof['nom'] . ' ' . $prof['prenom']); ?>" data-prof-id="<?php echo $prof['id']; ?>">
+                          <?php echo htmlspecialchars($prof['nom'] . ' ' . $prof['prenom']); ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                    <input type="hidden" name="prof_id" id="prof_id" value="">
+                  </div>
+                </div>
                 
                 <div class="form-group">
                   <label for="section" class="col-sm-2 control-label">Section</label>
@@ -371,27 +408,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $('#section').val(section);
     });
     
+    // Capture professor ID when selecting a professor
+    $('#titulaire').on('change', function() {
+      var selectedOption = $(this).find('option:selected');
+      var profId = selectedOption.data('prof-id');
+      $('#prof_id').val(profId);
+    });
+    
     // Validation du formulaire
     $('form').submit(function(e) {
-      var libelle = $('#libelle').val();
+      var nom = $('#nom').val();
       var niveau = $('#niveau').val();
-      var capacite = $('#capacite').val();
       var section = $('#section').val();
       
-      if (libelle.trim() === '') {
-        alert('Veuillez entrer un libellé pour la classe');
+      if (nom.trim() === '') {
+        alert('Veuillez entrer un nom pour la classe');
         e.preventDefault();
         return false;
       }
       
       if (niveau === '') {
         alert('Veuillez sélectionner un niveau');
-        e.preventDefault();
-        return false;
-      }
-      
-      if (capacite <= 0) {
-        alert('La capacité doit être un nombre positif');
         e.preventDefault();
         return false;
       }

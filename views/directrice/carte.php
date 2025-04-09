@@ -19,6 +19,7 @@ if (!isset($_SESSION['role'])) {
 $username = $_SESSION['username'];
 $email = $_SESSION['email'];
 $role = $_SESSION['role'];
+$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 
 // Récupérer l'ID de l'élève depuis l'URL
 $eleve_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -36,7 +37,10 @@ if ($mysqli->connect_error) {
 }
 
 // Récupérer les informations de l'élève
-$eleve_query = $mysqli->prepare("SELECT * FROM eleves WHERE id = ?");
+$eleve_query = $mysqli->prepare("SELECT e.*, c.nom as classe_nom 
+                                FROM eleves e
+                                LEFT JOIN classes c ON e.classe_id = c.id
+                                WHERE e.id = ?");
 $eleve_query->bind_param("i", $eleve_id);
 $eleve_query->execute();
 $eleve_result = $eleve_query->get_result();
@@ -360,7 +364,7 @@ $code_carte = isset($eleve['matricule']) ? $eleve['matricule'] : 'MAT-' . str_pa
                         <p><strong>Nom:</strong> <?php echo $eleve['nom']; ?></p>
                         <p><strong>Post-nom:</strong> <?php echo $eleve['post_nom']; ?></p>
                         <p><strong>Prénom:</strong> <?php echo $eleve['prenom']; ?></p>
-                        <p><strong>Classe:</strong> <?php echo $eleve['classe']; ?></p>
+                        <p><strong>Classe:</strong> <?php echo isset($eleve['classe_id']) ? $eleve['classe_nom'] : 'Non assigné'; ?></p>
                         <p><strong>Section:</strong> <?php echo $eleve['section']; ?></p>
                         <p><strong>ID:</strong> <?php echo isset($eleve['matricule']) ? $eleve['matricule'] : 'N/A'; ?></p>
                       </div>

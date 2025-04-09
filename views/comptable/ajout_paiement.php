@@ -219,9 +219,9 @@ $today = date('Y-m-d');
                     </div>
 
                     <div class="form-group">
-                      <label for="classe" class="col-sm-4 control-label">Classe</label>
+                      <label for="classe_id" class="col-sm-4 control-label">Classe</label>
                       <div class="col-sm-8">
-                        <input type="text" class="form-control" id="classe" name="classe" readonly>
+                        <input type="text" class="form-control" id="classe_id" name="classe_id" readonly>
                       </div>
                     </div>
 
@@ -385,7 +385,7 @@ $today = date('Y-m-d');
           if (response.includes(";")) {
             // Découpe la réponse pour obtenir les détails
             var details = response.split(";");
-            $("#classe").val(details[1]);   // Nom de la classe
+            $("#classe_id").val(details[1]);   // Nom de la classe
             $("#option_id").val(details[2]); // Nom de l'option
             $("#section").val(details[3]);   // Nom de la section
           } else {
@@ -398,7 +398,7 @@ $today = date('Y-m-d');
       });
     } else {
       // Réinitialiser les champs si aucun élève n'est sélectionné
-      $("#classe").val("");
+      $("#classe_id").val("");
       $("#option_id").val("");
       $("#section").val("");
     }
