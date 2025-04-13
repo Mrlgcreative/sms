@@ -40,6 +40,8 @@ $action = isset($_GET['action']) ? $_GET['action'] : 'login';
 // Inclusion du contrôleur approprié
 $controllerFile = 'controllers/' . $controller . '.php';
 if (file_exists($controllerFile)) {
+    // Add near the top of the file, before any controller is loaded
+    define('ROOT_PATH', __DIR__ . '/');
     require $controllerFile;
     $controllerClass = new $controller();
     if (method_exists($controllerClass, $action)) {

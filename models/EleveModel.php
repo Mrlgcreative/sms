@@ -177,6 +177,17 @@ class EleveModel {
             throw $e;
         }
     }
+    
+    /**
+     * Compte le nombre total d'élèves
+     * @return int Nombre total d'élèves
+     */
+    public function countAll() {
+        $query = "SELECT COUNT(*) as total FROM eleves";
+        $result = $this->db->query($query);
+        $row = $result->fetch_assoc();
+        return $row['total'];
+    }
 }
 ?>
 

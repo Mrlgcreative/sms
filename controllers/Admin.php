@@ -170,6 +170,147 @@ public function unblockIP() {
         header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil&unblock_error=1');
     }
     exit;
+
+}
+
+/**
+ * Affiche et traite le formulaire de modification d'un élève
+ */
+public function editeleve() {
+    // Vérifier si l'ID est fourni
+    if (!isset($_GET['id']) || empty($_GET['id'])) {
+        $_SESSION['error'] = "ID de l'élève non spécifié";
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=eleves');
+        exit;
+    }
+    
+    $id = $_GET['id'];
+    
+    // Si le formulaire est soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $nom = $this->db->real_escape_string($_POST['nom']);
+        $post_nom = $this->db->real_escape_string($_POST['post_nom']);
+        $prenom = $this->db->real_escape_string($_POST['prenom']);
+        $date_naissance = $this->db->real_escape_string($_POST['date_naissance']);
+        $lieu_naissance = $this->db->real_escape_string($_POST['lieu_naissance']);
+        $section = $this->db->real_escape_string($_POST['section']);
+        $option_id = $this->db->real_escape_string($_POST['option_id']);
+        $classe_id = $this->db->real_escape_string($_POST['classe_id']);
+        $adresse = $this->db->real_escape_string($_POST['adresse']);
+        $telephone = $this->db->real_escape_string($_POST['telephone'] ?? '');
+        $email = $this->db->real_escape_string($_POST['email'] ?? '');
+        $nom_parent = $this->db->real_escape_string($_POST['nom_parent'] ?? '');
+        $telephone_parent = $this->db->real_escape_string($_POST['telephone_parent'] ?? '');
+        
+        // Traitement de l'image si elle est fournie
+        $photo = '';
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = 'uploads/eleves/';
+            
+            // Créer le répertoire s'il n'existe pas
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            
+            $temp_name = $_FILES['photo']['tmp_name'];
+            $file_name = time() . '_' . $_FILES['photo']['name'];
+            $file_path = $upload_dir . $file_name;
+            
+            if (move_uploaded_file($temp_name, $file_path)) {
+                $photo = $file_path;
+                
+                // Supprimer l'ancienne photo si elle existe
+                $query = "SELECT photo FROM eleves WHERE id = $id";
+                $result = $this->db->query($query);
+                if ($result && $result->num_rows > 0) {
+                    $old_photo = $result->fetch_assoc()['photo'];
+                    if (!empty($old_photo) && file_exists($old_photo) && $old_photo != 'uploads/eleves/default.jpg') {
+                        unlink($old_photo);
+                    }
+                }
+            }
+        }
+        
+        // Mettre à jour les données de l'élève
+        $query = "UPDATE eleves SET 
+                  nom = '$nom', 
+                  post_nom = '$post_nom', 
+                  prenom = '$prenom', 
+                  date_naissance = '$date_naissance', 
+                  lieu_naissance = '$lieu_naissance', 
+                  section = '$section', 
+                  option_id = '$option_id', 
+                  classe_id = '$classe_id', 
+                  adresse = '$adresse'";
+        
+        if (!empty($telephone)) {
+            $query .= ", telephone = '$telephone'";
+        }
+        
+        if (!empty($email)) {
+            $query .= ", email = '$email'";
+        }
+        
+        if (!empty($nom_parent)) {
+            $query .= ", nom_parent = '$nom_parent'";
+        }
+        
+        if (!empty($telephone_parent)) {
+            $query .= ", telephone_parent = '$telephone_parent'";
+        }
+        
+        if (!empty($photo)) {
+            $query .= ", photo = '$photo'";
+        }
+        
+        $query .= " WHERE id = $id";
+        
+        if ($this->db->query($query)) {
+            // Enregistrer l'action dans les logs
+            $user_id = $_SESSION['user_id'];
+            $action = "Modification de l'élève ID: $id";
+            $this->logAction($user_id, $action);
+            
+            $_SESSION['success'] = "L'élève a été modifié avec succès";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la modification de l'élève: " . $this->db->error;
+        }
+        
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=eleves');
+        exit;
+    }
+    
+    // Récupérer les données de l'élève
+    $query = "SELECT * FROM eleves WHERE id = $id";
+    $result = $this->db->query($query);
+    
+    if ($result->num_rows === 0) {
+        $_SESSION['error'] = "Élève non trouvé";
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=eleves');
+        exit;
+    }
+    
+    $eleve = $result->fetch_assoc();
+    
+    // Récupérer les options
+    $query = "SELECT * FROM options ORDER BY nom";
+    $result = $this->db->query($query);
+    $options = [];
+    while ($row = $result->fetch_assoc()) {
+        $options[] = $row;
+    }
+    
+    // Récupérer les classes
+    $query = "SELECT * FROM classes ORDER BY nom";
+    $result = $this->db->query($query);
+    $classes = [];
+    while ($row = $result->fetch_assoc()) {
+        $classes[] = $row;
+    }
+    
+    // Charger la vue
+    require_once 'views/admin/editeleve.php';
 }
    
 

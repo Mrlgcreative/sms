@@ -41,6 +41,17 @@ class ProfesseurModel {
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+
+    /**
+     * Compte le nombre total de professeurs
+     * @return int Nombre total de professeurs
+     */
+    public function countAll() {
+        $query = "SELECT COUNT(*) as total FROM professeurs";
+        $result = $this->db->query($query);
+        $row = $result->fetch_assoc();
+        return $row['total'];
+    }
 }
 ?>
 

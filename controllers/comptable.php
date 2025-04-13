@@ -613,7 +613,7 @@ public function exportPaiementsPDF() {
         echo '<tr>
             <td>' . $paiement['id'] . '</td>
             <td>' . htmlspecialchars($paiement['eleve_nom']) . '</td>
-            <td>' . htmlspecialchars($paiement['classe']) . '</td>
+            <td>' . htmlspecialchars($paiement['classe_nom']) . '</td>
             <td>' . htmlspecialchars(isset($paiement['option_nom']) ? $paiement['option_nom'] : 'Non défini') . '</td>
             <td>' . htmlspecialchars($paiement['section']) . '</td>
             <td>' . htmlspecialchars($paiement['frais_description']) . '</td>

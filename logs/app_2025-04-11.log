@@ -1,0 +1,12 @@
+[2025-04-11 11:14:27] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-11 11:14:27] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-11 11:16:23] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Daniel","ip":"::1"}
+[2025-04-11 11:19:03] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"Daniel","role":"comptable"}
+[2025-04-11 11:19:48] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-11 11:19:48] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-11 21:14:15] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-11 21:14:15] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-11 21:39:10] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-11 21:39:11] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-11 22:04:43] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-11 22:04:43] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}

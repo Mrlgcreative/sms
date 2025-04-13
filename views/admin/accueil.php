@@ -484,97 +484,102 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
       </div>
 
       
-      <!-- ... existing code ... -->
-
-<div class="row">
-  <div class="col-md-6">
-    <div class="box box-danger">
-      <div class="box-header with-border">
-        <h3 class="box-title"><i class="fa fa-unlock"></i> Débloquer une adresse IP</h3>
-      </div>
-      <div class="box-body">
-        <p>Utilisez ce formulaire pour débloquer une adresse IP qui a été bloquée suite à trop de tentatives de connexion échouées.</p>
-        
-        <?php if (isset($_GET['unblock_success'])): ?>
-          <div class="alert alert-success">
-            L'adresse IP a été débloquée avec succès.
-          </div>
-        <?php endif; ?>
-        
-        <?php if (isset($_GET['unblock_error'])): ?>
-          <div class="alert alert-danger">
-            Erreur lors du déblocage de l'adresse IP. Veuillez vérifier que l'adresse est correcte.
-          </div>
-        <?php endif; ?>
-        
-        <form action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=unblockIP" method="post" class="form-horizontal">
-          <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
-          
-          <div class="form-group">
-            <label for="ip_address" class="col-sm-3 control-label">Adresse IP</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" id="ip_address" name="ip_address" placeholder="Exemple: 192.168.1.1" required>
+      <!-- Graphique des statistiques détaillées -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title"><i class="fa fa-bar-chart"></i> Statistiques détaillées du système</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="chart">
+                    <canvas id="statsDetailChart" style="height:250px"></canvas>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="pad">
+                    <div class="description-block">
+                      <h5 class="description-header"><?php echo $total_eleves; ?></h5>
+                      <span class="description-text">ÉLÈVES TOTAUX</span>
+                    </div>
+                    <?php
+                    // Récupérer le nombre d'élèves à jour avec les frais
+                    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                    
+                    // Modifié pour utiliser la structure correcte de la table paiements_frais
+                    // Nous supposons qu'un élève est à jour s'il a au moins un paiement
+                    $eleves_a_jour = $mysqli->query("SELECT COUNT(DISTINCT e.id) as total FROM eleves e 
+                                                    JOIN paiements_frais pf ON e.id = pf.eleve_id 
+                                                    WHERE pf.amount_paid > 0")->fetch_assoc()['total'] ?? 0;
+                    
+                    // Récupérer les statistiques d'actions
+                    $stats_actions = $mysqli->query("SELECT 
+                                                    SUM(CASE WHEN action LIKE '%ajout%' THEN 1 ELSE 0 END) as ajouts,
+                                                    SUM(CASE WHEN action LIKE '%modif%' THEN 1 ELSE 0 END) as modifications,
+                                                    SUM(CASE WHEN action LIKE '%ban%' OR action LIKE '%block%' THEN 1 ELSE 0 END) as bannissements,
+                                                    SUM(CASE WHEN action LIKE '%paie%' THEN 1 ELSE 0 END) as paiements,
+                                                    COUNT(*) as total_actions
+                                                    FROM historique")->fetch_assoc();
+                    
+                    // Récupérer le nombre total d'utilisateurs
+                    $total_users = $mysqli->query("SELECT COUNT(*) as total FROM users")->fetch_assoc()['total'] ?? 0;
+                    
+                    $mysqli->close();
+                    ?>
+                    <div class="description-block">
+                      <h5 class="description-header"><?php echo $eleves_a_jour; ?></h5>
+                      <span class="description-text">ÉLÈVES À JOUR AVEC LES FRAIS</span>
+                    </div>
+                    <div class="description-block">
+                      <h5 class="description-header"><?php echo $total_users; ?></h5>
+                      <span class="description-text">UTILISATEURS TOTAUX</span>
+                    </div>
+                    <div class="description-block">
+                      <h5 class="description-header"><?php echo $stats_actions['total_actions'] ?? 0; ?></h5>
+                      <span class="description-text">ACTIONS TOTALES</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <span class="description-percentage text-green"><i class="fa fa-plus"></i> <?php echo $stats_actions['ajouts'] ?? 0; ?></span>
+                    <h5 class="description-header">Ajouts</h5>
+                  </div>
+                </div>
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <span class="description-percentage text-yellow"><i class="fa fa-edit"></i> <?php echo $stats_actions['modifications'] ?? 0; ?></span>
+                    <h5 class="description-header">Modifications</h5>
+                  </div>
+                </div>
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <span class="description-percentage text-red"><i class="fa fa-ban"></i> <?php echo $stats_actions['bannissements'] ?? 0; ?></span>
+                    <h5 class="description-header">Bannissements</h5>
+                  </div>
+                </div>
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block">
+                    <span class="description-percentage text-blue"><i class="fa fa-money"></i> <?php echo $stats_actions['paiements'] ?? 0; ?></span>
+                    <h5 class="description-header">Paiements</h5>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          
-          <div class="form-group">
-            <div class="col-sm-offset-3 col-sm-9">
-              <button type="submit" class="btn btn-danger">Débloquer cette IP</button>
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
-  </div>
-  
-  <div class="col-md-6">
-    <div class="box box-info">
-      <div class="box-header with-border">
-        <h3 class="box-title"><i class="fa fa-ban"></i> Adresses IP bloquées récemment</h3>
-      </div>
-      <div class="box-body">
-        <?php 
-        $blocked_ips = getBlockedIPs(5, 0); 
-        if (count($blocked_ips) > 0):
-        ?>
-          <table class="table table-bordered table-striped">
-            <thead>
-              <tr>
-                <th>Adresse IP</th>
-                <th>Raison</th>
-                <th>Date de blocage</th>
-                <th>Expiration</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($blocked_ips as $ip): ?>
-                <tr>
-                  <td><?php echo htmlspecialchars($ip['ip_address']); ?></td>
-                  <td><?php echo htmlspecialchars($ip['reason']); ?></td>
-                  <td><?php echo htmlspecialchars($ip['block_date']); ?></td>
-                  <td><?php echo $ip['expiry_date'] ? htmlspecialchars($ip['expiry_date']) : 'Permanent'; ?></td>
-                  <td>
-                    <form action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=unblockIP" method="post">
-                      <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
-                      <input type="hidden" name="ip_address" value="<?php echo htmlspecialchars($ip['ip_address']); ?>">
-                      <button type="submit" class="btn btn-xs btn-danger">Débloquer</button>
-                    </form>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        <?php else: ?>
-          <p>Aucune adresse IP n'est actuellement bloquée.</p>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- ... existing code ... -->
-      <!-- Nouveau graphique pour les actions des utilisateurs -->
+      <!-- Actions par utilisateur (code existant) -->
       <div class="row">
         <div class="col-md-12">
           <div class="box box-info">
@@ -627,104 +632,123 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 <script src="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="<?php echo BASE_URL; ?>bower_components/chart.js/Chart.js"></script>
 <script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
-
+<script src="<?php echo BASE_URL; ?>bower_components/chart.js/Chart.js"></script>
 <script>
 $(function () {
-  // Graphique du personnel
-  var ctx = document.getElementById('personnelChart').getContext('2d');
-  var personnelChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Professeurs', 'Directeurs', 'Directrices', 'Préfets', 'Comptables'],
-      datasets: [{
-        label: 'Nombre',
-        data: [
-          <?php echo $total_professeurs; ?>, 
-          <?php echo $total_directeurs; ?>, 
-          <?php echo $total_directrices; ?>, 
-          <?php echo $total_prefets; ?>, 
-          <?php echo $total_comptables; ?>
-        ],
-        backgroundColor: [
-          'rgba(0, 166, 90, 0.8)',
-          'rgba(60, 141, 188, 0.8)',
-          'rgba(243, 156, 18, 0.8)',
-          'rgba(0, 192, 239, 0.8)',
-          'rgba(221, 75, 57, 0.8)'
-        ],
-        borderColor: [
-          'rgba(0, 166, 90, 1)',
-          'rgba(60, 141, 188, 1)',
-          'rgba(243, 156, 18, 1)',
-          'rgba(0, 192, 239, 1)',
-          'rgba(221, 75, 57, 1)'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
+  // Suppression de la référence au graphique personnelChart qui n'existe pas
+  
+  // Graphique des statistiques détaillées
+  var statsCtx = document.getElementById('statsDetailChart');
+  if (statsCtx) {
+    var statsDetailChart = new Chart(statsCtx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Ajouts', 'Modifications', 'Bannissements', 'Paiements', 'Élèves Totaux', 'Élèves à jour', 'Utilisateurs'],
+        datasets: [{
+          label: 'Statistiques du système',
+          data: [
+            <?php echo $stats_actions['ajouts'] ?? 0; ?>,
+            <?php echo $stats_actions['modifications'] ?? 0; ?>,
+            <?php echo $stats_actions['bannissements'] ?? 0; ?>,
+            <?php echo $stats_actions['paiements'] ?? 0; ?>,
+            <?php echo $total_eleves; ?>,
+            <?php echo $eleves_a_jour; ?>,
+            <?php echo $total_users; ?>
+          ],
+          backgroundColor: [
+            'rgba(0, 166, 90, 0.8)',   // Vert - Ajouts
+            'rgba(243, 156, 18, 0.8)',  // Jaune - Modifications
+            'rgba(221, 75, 57, 0.8)',   // Rouge - Bannissements
+            'rgba(60, 141, 188, 0.8)',  // Bleu - Paiements
+            'rgba(0, 192, 239, 0.8)',   // Bleu clair - Élèves totaux
+            'rgba(0, 166, 90, 0.8)',    // Vert - Élèves à jour
+            'rgba(96, 92, 168, 0.8)'    // Violet - Utilisateurs
+          ],
+          borderColor: [
+            'rgba(0, 166, 90, 1)',
+            'rgba(243, 156, 18, 1)',
+            'rgba(221, 75, 57, 1)',
+            'rgba(60, 141, 188, 1)',
+            'rgba(0, 192, 239, 1)',
+            'rgba(0, 166, 90, 1)',
+            'rgba(96, 92, 168, 1)'
+          ],
+          borderWidth: 1
         }]
+      },
+      options: {
+        responsive: true,
+        legend: {
+          position: 'top',
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
       }
-    }
-  });
+    });
+  } else {
+    console.error("Canvas element 'statsDetailChart' not found");
+  }
   
   // Nouveau graphique pour les actions des utilisateurs
   <?php if (!empty($actions_labels) && !(count($actions_labels) == 1 && $actions_labels[0] == 'Aucune donnée')): ?>
-  var actionsCtx = document.getElementById('actionsChart').getContext('2d');
-  var actionsChart = new Chart(actionsCtx, {
-    type: 'horizontalBar',
-    data: {
-      labels: <?php echo json_encode($actions_labels); ?>,
-      datasets: [{
-        label: 'Nombre d\'actions',
-        data: <?php echo json_encode($actions_values); ?>,
-        backgroundColor: [
-          'rgba(60, 141, 188, 0.8)',
-          'rgba(0, 166, 90, 0.8)',
-          'rgba(243, 156, 18, 0.8)',
-          'rgba(221, 75, 57, 0.8)',
-          'rgba(0, 192, 239, 0.8)',
-          'rgba(210, 214, 222, 0.8)',
-          'rgba(216, 27, 96, 0.8)',
-          'rgba(156, 39, 176, 0.8)',
-          'rgba(63, 81, 181, 0.8)',
-          'rgba(0, 150, 136, 0.8)'
-        ],
-        borderColor: [
-          'rgba(60, 141, 188, 1)',
-          'rgba(0, 166, 90, 1)',
-          'rgba(243, 156, 18, 1)',
-          'rgba(221, 75, 57, 1)',
-          'rgba(0, 192, 239, 1)',
-          'rgba(210, 214, 222, 1)',
-          'rgba(216, 27, 96, 1)',
-          'rgba(156, 39, 176, 1)',
-          'rgba(63, 81, 181, 1)',
-          'rgba(0, 150, 136, 1)'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      legend: {
-        position: 'top',
-      },
-      scales: {
-        xAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
+  var actionsCtx = document.getElementById('actionsChart');
+  if (actionsCtx) {
+    var actionsChart = new Chart(actionsCtx.getContext('2d'), {
+      type: 'horizontalBar',
+      data: {
+        labels: <?php echo json_encode($actions_labels); ?>,
+        datasets: [{
+          label: 'Nombre d\'actions',
+          data: <?php echo json_encode($actions_values); ?>,
+          backgroundColor: [
+            'rgba(60, 141, 188, 0.8)',
+            'rgba(0, 166, 90, 0.8)',
+            'rgba(243, 156, 18, 0.8)',
+            'rgba(221, 75, 57, 0.8)',
+            'rgba(0, 192, 239, 0.8)',
+            'rgba(210, 214, 222, 0.8)',
+            'rgba(216, 27, 96, 0.8)',
+            'rgba(156, 39, 176, 0.8)',
+            'rgba(63, 81, 181, 0.8)',
+            'rgba(0, 150, 136, 0.8)'
+          ],
+          borderColor: [
+            'rgba(60, 141, 188, 1)',
+            'rgba(0, 166, 90, 1)',
+            'rgba(243, 156, 18, 1)',
+            'rgba(221, 75, 57, 1)',
+            'rgba(0, 192, 239, 1)',
+            'rgba(210, 214, 222, 1)',
+            'rgba(216, 27, 96, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(0, 150, 136, 1)'
+          ],
+          borderWidth: 1
         }]
+      },
+      options: {
+        responsive: true,
+        legend: {
+          position: 'top',
+        },
+        scales: {
+          xAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
       }
-    }
-  });
+    });
+  } else {
+    console.error("Canvas element 'actionsChart' not found");
+  }
   <?php endif; ?>
 });
 </script>

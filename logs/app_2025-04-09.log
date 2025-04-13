@@ -72,3 +72,7 @@
 [2025-04-09 21:33:58] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
 [2025-04-09 21:34:08] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
 [2025-04-09 21:34:08] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-09 22:43:39] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-09 22:43:39] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-09 23:07:02] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-09 23:07:02] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
