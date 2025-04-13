@@ -1,0 +1,9 @@
+[2025-04-12 16:30:32] [INFO] [::1] [Ciella] User role for redirection {"role":"admin"}
+[2025-04-12 16:30:32] [INFO] [::1] [Ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-12 16:34:20] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"hermine","role":"prefet"}
+[2025-04-12 16:34:29] [INFO] [::1] [hermine] User role for redirection {"role":"prefet"}
+[2025-04-12 16:34:29] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-12 16:34:29] [INFO] [::1] [hermine] User role for redirection {"role":"prefet"}
+[2025-04-12 16:34:29] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-12 19:56:42] [INFO] [::1] [hermine] User role for redirection {"role":"prefet"}
+[2025-04-12 19:56:42] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
