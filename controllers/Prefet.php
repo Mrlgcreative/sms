@@ -339,5 +339,460 @@ class Prefet {
         // Charger la vue du profil de l'élève
         require 'views/prefet/voirEleve.php';
     }
+    
+    /**
+     * Ajoute une nouvelle absence d'élève
+     */
+    public function ajouterAbsence() {
+        // Vérifier si l'utilisateur est connecté et a les droits
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'prefet') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer et valider les données du formulaire
+            $eleve_id = isset($_POST['eleve_id']) ? intval($_POST['eleve_id']) : 0;
+            $date_absence = isset($_POST['date_absence']) ? $_POST['date_absence'] : '';
+            $motif = isset($_POST['motif']) ? $_POST['motif'] : '';
+            $justifiee = isset($_POST['justifiee']) ? 1 : 0;
+            
+            // Validation des données
+            $errors = [];
+            
+            if ($eleve_id <= 0) {
+                $errors[] = "Veuillez sélectionner un élève valide.";
+            }
+            
+            if (empty($date_absence)) {
+                $errors[] = "La date d'absence est requise.";
+            } else {
+                // Convertir la date du format français (dd/mm/yyyy) au format MySQL (yyyy-mm-dd)
+                $date_parts = explode('/', $date_absence);
+                if (count($date_parts) === 3) {
+                    $date_absence = $date_parts[2] . '-' . $date_parts[1] . '-' . $date_parts[0];
+                } else {
+                    $errors[] = "Format de date invalide.";
+                }
+            }
+            
+            // Si pas d'erreurs, insérer l'absence dans la base de données
+            if (empty($errors)) {
+                $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                
+                if ($mysqli->connect_error) {
+                    die("Connection failed: " . $mysqli->connect_error);
+                }
+                
+                // Préparer la requête d'insertion
+                $query = "INSERT INTO absences (eleve_id, date_absence, motif, justifiee) VALUES (?, ?, ?, ?)";
+                $stmt = $mysqli->prepare($query);
+                
+                if ($stmt) {
+                    $stmt->bind_param("issi", $eleve_id, $date_absence, $motif, $justifiee);
+                    
+                    if ($stmt->execute()) {
+                        // Rediriger avec un message de succès
+                        $_SESSION['flash_message'] = "L'absence a été ajoutée avec succès.";
+                        $_SESSION['flash_type'] = "success";
+                    } else {
+                        // Erreur lors de l'insertion
+                        $_SESSION['flash_message'] = "Erreur lors de l'ajout de l'absence: " . $stmt->error;
+                        $_SESSION['flash_type'] = "danger";
+                    }
+                    
+                    $stmt->close();
+                } else {
+                    $_SESSION['flash_message'] = "Erreur de préparation de la requête: " . $mysqli->error;
+                    $_SESSION['flash_type'] = "danger";
+                }
+                
+                $mysqli->close();
+            } else {
+                // Stocker les erreurs dans la session
+                $_SESSION['flash_message'] = implode("<br>", $errors);
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            // Rediriger vers la page des absences
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+            exit;
+        } else {
+            // Si la méthode n'est pas POST, rediriger vers la page des absences
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+            exit;
+        }
+    }
+    
+    /**
+     * Modifie une absence existante
+     */
+    public function modifierAbsence() {
+        // Vérifier si l'utilisateur est connecté et a les droits
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'prefet') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer et valider les données du formulaire
+            $absence_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+            $motif = isset($_POST['motif']) ? $_POST['motif'] : '';
+            $justifiee = isset($_POST['justifiee']) ? 1 : 0;
+            
+            // Validation des données
+            if ($absence_id <= 0) {
+                $_SESSION['flash_message'] = "ID d'absence invalide.";
+                $_SESSION['flash_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+                exit;
+            }
+            
+            // Mettre à jour l'absence dans la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['flash_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['flash_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+                exit;
+            }
+            
+            // Préparer la requête de mise à jour
+            $query = "UPDATE absences SET motif = ?, justifiee = ? WHERE id = ?";
+            $stmt = $mysqli->prepare($query);
+            
+            if ($stmt) {
+                $stmt->bind_param("sii", $motif, $justifiee, $absence_id);
+                
+                if ($stmt->execute()) {
+                    // Rediriger avec un message de succès
+                    $_SESSION['flash_message'] = "L'absence a été modifiée avec succès.";
+                    $_SESSION['flash_type'] = "success";
+                } else {
+                    // Erreur lors de la mise à jour
+                    $_SESSION['flash_message'] = "Erreur lors de la modification de l'absence: " . $stmt->error;
+                    $_SESSION['flash_type'] = "danger";
+                }
+                
+                $stmt->close();
+            } else {
+                $_SESSION['flash_message'] = "Erreur de préparation de la requête: " . $mysqli->error;
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            $mysqli->close();
+            
+            // Rediriger vers la page des absences
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+            exit;
+        } else {
+            // Si la méthode n'est pas POST, rediriger vers la page des absences
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+            exit;
+        }
+    }
+    
+    /**
+     * Supprime une absence
+     */
+    public function supprimerAbsence() {
+        // Vérifier si l'utilisateur est connecté et a les droits
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'prefet') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer et valider l'ID de l'absence
+            $absence_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+            
+            // Validation des données
+            if ($absence_id <= 0) {
+                $_SESSION['flash_message'] = "ID d'absence invalide.";
+                $_SESSION['flash_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+                exit;
+            }
+            
+            // Supprimer l'absence de la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['flash_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['flash_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+                exit;
+            }
+            
+            // Préparer la requête de suppression
+            $query = "DELETE FROM absences WHERE id = ?";
+            $stmt = $mysqli->prepare($query);
+            
+            if ($stmt) {
+                $stmt->bind_param("i", $absence_id);
+                
+                if ($stmt->execute()) {
+                    // Rediriger avec un message de succès
+                    $_SESSION['flash_message'] = "L'absence a été supprimée avec succès.";
+                    $_SESSION['flash_type'] = "success";
+                } else {
+                    // Erreur lors de la suppression
+                    $_SESSION['flash_message'] = "Erreur lors de la suppression de l'absence: " . $stmt->error;
+                    $_SESSION['flash_type'] = "danger";
+                }
+                
+                $stmt->close();
+            } else {
+                $_SESSION['flash_message'] = "Erreur de préparation de la requête: " . $mysqli->error;
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            $mysqli->close();
+            
+            // Rediriger vers la page des absences
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+            exit;
+        } else {
+            // Si la méthode n'est pas POST, rediriger vers la page des absences
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+            exit;
+        }
+    }
+    
+    public function ajouterIncident() {
+        // Vérifier si l'utilisateur est connecté et a les droits
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'prefet') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer et valider les données du formulaire
+            $eleve_id = isset($_POST['eleve_id']) ? intval($_POST['eleve_id']) : 0;
+            $date_incident = isset($_POST['date_incident']) ? $_POST['date_incident'] : '';
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $sanction = isset($_POST['sanction']) ? $_POST['sanction'] : '';
+            $statut = isset($_POST['statut']) ? $_POST['statut'] : 'En cours';
+            
+            // Convertir la date au format MySQL (YYYY-MM-DD)
+            $date_formattee = date('Y-m-d', strtotime(str_replace('/', '-', $date_incident)));
+            
+            // Validation des données
+            $erreurs = [];
+            
+            if (empty($eleve_id)) {
+                $erreurs[] = "L'élève est obligatoire";
+            }
+            
+            if (empty($date_incident)) {
+                $erreurs[] = "La date de l'incident est obligatoire";
+            }
+            
+            if (empty($description)) {
+                $erreurs[] = "La description est obligatoire";
+            }
+            
+            // Si pas d'erreurs, insérer dans la base de données
+            if (empty($erreurs)) {
+                // Connexion à la base de données
+                $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                
+                if ($mysqli->connect_error) {
+                    die("Connection failed: " . $mysqli->connect_error);
+                }
+                
+                // Préparer la requête d'insertion
+                $query = "INSERT INTO incidents_disciplinaires (eleve_id, date_incident, description, sanction, statut) 
+                          VALUES (?, ?, ?, ?, ?)";
+                
+                $stmt = $mysqli->prepare($query);
+                
+                if ($stmt) {
+                    $stmt->bind_param("issss", $eleve_id, $date_formattee, $description, $sanction, $statut);
+                    
+                    if ($stmt->execute()) {
+                        // Succès
+                        $_SESSION['flash_message'] = "L'incident disciplinaire a été ajouté avec succès.";
+                        $_SESSION['flash_type'] = "success";
+                    } else {
+                        // Erreur
+                        $_SESSION['flash_message'] = "Erreur lors de l'ajout de l'incident: " . $stmt->error;
+                        $_SESSION['flash_type'] = "danger";
+                    }
+                    
+                    $stmt->close();
+                } else {
+                    // Erreur de préparation de la requête
+                    $_SESSION['flash_message'] = "Erreur de préparation de la requête: " . $mysqli->error;
+                    $_SESSION['flash_type'] = "danger";
+                }
+                
+                $mysqli->close();
+            } else {
+                // Afficher les erreurs
+                $_SESSION['flash_message'] = "Erreurs dans le formulaire: " . implode(", ", $erreurs);
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            // Rediriger vers la page de discipline
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+            exit;
+        } else {
+            // Si la méthode n'est pas POST, rediriger vers la page de discipline
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+            exit;
+        }
+    }
+    
+    public function modifierIncident() {
+        // Vérifier si l'utilisateur est connecté et a les droits
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'prefet') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer et valider les données du formulaire
+            $incident_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $sanction = isset($_POST['sanction']) ? $_POST['sanction'] : '';
+            $statut = isset($_POST['statut']) ? $_POST['statut'] : 'En cours';
+            
+            // Validation des données
+            $erreurs = [];
+            
+            if (empty($incident_id)) {
+                $erreurs[] = "ID d'incident invalide";
+            }
+            
+            if (empty($description)) {
+                $erreurs[] = "La description est obligatoire";
+            }
+            
+            // Si pas d'erreurs, mettre à jour dans la base de données
+            if (empty($erreurs)) {
+                // Connexion à la base de données
+                $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                
+                if ($mysqli->connect_error) {
+                    die("Connection failed: " . $mysqli->connect_error);
+                }
+                
+                // Préparer la requête de mise à jour
+                $query = "UPDATE incidents_disciplinaires 
+                          SET description = ?, sanction = ?, statut = ? 
+                          WHERE id = ?";
+                
+                $stmt = $mysqli->prepare($query);
+                
+                if ($stmt) {
+                    $stmt->bind_param("sssi", $description, $sanction, $statut, $incident_id);
+                    
+                    if ($stmt->execute()) {
+                        // Succès
+                        $_SESSION['flash_message'] = "L'incident disciplinaire a été modifié avec succès.";
+                        $_SESSION['flash_type'] = "success";
+                    } else {
+                        // Erreur
+                        $_SESSION['flash_message'] = "Erreur lors de la modification de l'incident: " . $stmt->error;
+                        $_SESSION['flash_type'] = "danger";
+                    }
+                    
+                    $stmt->close();
+                } else {
+                    // Erreur de préparation de la requête
+                    $_SESSION['flash_message'] = "Erreur de préparation de la requête: " . $mysqli->error;
+                    $_SESSION['flash_type'] = "danger";
+                }
+                
+                $mysqli->close();
+            } else {
+                // Afficher les erreurs
+                $_SESSION['flash_message'] = "Erreurs dans le formulaire: " . implode(", ", $erreurs);
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            // Rediriger vers la page de discipline
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+            exit;
+        } else {
+            // Si la méthode n'est pas POST, rediriger vers la page de discipline
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+            exit;
+        }
+    }
+    
+    public function supprimerIncident() {
+        // Vérifier si l'utilisateur est connecté et a les droits
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'prefet') {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer et valider l'ID de l'incident
+            $incident_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+            
+            // Validation des données
+            if (empty($incident_id)) {
+                $_SESSION['flash_message'] = "ID d'incident invalide.";
+                $_SESSION['flash_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+                exit;
+            }
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['flash_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['flash_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+                exit;
+            }
+            
+            // Préparer la requête de suppression
+            $query = "DELETE FROM incidents_disciplinaires WHERE id = ?";
+            
+            $stmt = $mysqli->prepare($query);
+            
+            if ($stmt) {
+                $stmt->bind_param("i", $incident_id);
+                
+                if ($stmt->execute()) {
+                    // Succès
+                    $_SESSION['flash_message'] = "L'incident disciplinaire a été supprimé avec succès.";
+                    $_SESSION['flash_type'] = "success";
+                } else {
+                    // Erreur
+                    $_SESSION['flash_message'] = "Erreur lors de la suppression de l'incident: " . $stmt->error;
+                    $_SESSION['flash_type'] = "danger";
+                }
+                
+                $stmt->close();
+            } else {
+                // Erreur de préparation de la requête
+                $_SESSION['flash_message'] = "Erreur de préparation de la requête: " . $mysqli->error;
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            $mysqli->close();
+            
+            // Rediriger vers la page de discipline
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+            exit;
+        } else {
+            // Si la méthode n'est pas POST, rediriger vers la page de discipline
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
+            exit;
+        }
+    }
 }
 ?>
