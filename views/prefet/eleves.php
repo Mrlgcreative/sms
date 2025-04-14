@@ -249,6 +249,7 @@ $mysqli->close();
                       <td><?php echo $eleve['adresse']; ?></td>
                       <td>
                         <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Voir</a>
+                        <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=carteEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-primary btn-xs"><i class="fa fa-id-card"></i> Carte</a>
                       </td>
                     </tr>
                   <?php endforeach; ?>
@@ -283,14 +284,9 @@ $mysqli->close();
                 <span class="info-value"><?php echo date('d/m/Y', strtotime($eleve['date_naissance'])); ?></span>
               </div>
               
-              <div class="info-row">
-                <span class="info-label">Sexe:</span> 
-                <span class="info-value"><?php echo $eleve['sexe'] == 'M' ? 'Masculin' : 'Féminin'; ?></span>
-              </div>
-              
-              <div class="text-center" style="margin-top: 15px;">
-                <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-primary">
-                  <i class="fa fa-eye"></i> Voir profil
+              <div class="text-center" style="margin-top: 10px;">
+                <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=carteEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-primary btn-sm">
+                  <i class="fa fa-id-card"></i> Carte
                 </a>
               </div>
             </div>

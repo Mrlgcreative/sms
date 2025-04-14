@@ -123,13 +123,13 @@ class Prefet {
             }
             
             // Préparer la requête SQL
-            $query = "INSERT INTO evenements_scolaires (titre, type, date_debut, date_fin, classe, lieu, description) 
+            $query = "INSERT INTO evenements_scolaires (titre, type, date_debut, date_fin, classe_id, lieu, description) 
                       VALUES (?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $mysqli->prepare($query);
             
             if ($stmt) {
-                $stmt->bind_param("sssssss", $titre, $type, $date_debut, $date_fin, $classe, $lieu, $description);
+                $stmt->bind_param("sssssss", $titre, $type, $date_debut, $date_fin, $classe_id, $lieu, $description);
                 
                 if ($stmt->execute()) {
                     $_SESSION['success_message'] = "L'événement a été ajouté avec succès.";
@@ -793,6 +793,19 @@ class Prefet {
             header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=discipline');
             exit;
         }
+    }
+    
+    // Afficher la carte d'élève
+    public function carteEleve() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue de la carte d'élève
+        require_once 'views/prefet/carte_eleve.php';
     }
 }
 ?>

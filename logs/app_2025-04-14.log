@@ -1,0 +1,4 @@
+[2025-04-14 11:29:22] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-14 11:29:22] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
+[2025-04-14 13:39:06] [INFO] [::1] [rapha] User role for redirection {"role":"prefet"}
+[2025-04-14 13:39:06] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}
