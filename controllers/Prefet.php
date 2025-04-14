@@ -794,6 +794,7 @@ class Prefet {
             exit;
         }
     }
+<<<<<<< HEAD
     
     // Afficher la carte d'élève
     public function carteEleve() {
@@ -807,5 +808,7 @@ class Prefet {
         // Charger la vue de la carte d'élève
         require_once 'views/prefet/carte_eleve.php';
     }
+=======
+>>>>>>> 3eb18a0aea7c531df99f3cbfa7f4450c00c12225
 }
 ?>
