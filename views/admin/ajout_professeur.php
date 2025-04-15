@@ -372,7 +372,7 @@ if ($result) {
                       <select class="form-control" id="cours_id" name="cours_id" required>
                         <option value="">Sélectionnez un cours</option>
                         <?php foreach ($cours as $cour): ?>
-                          <option value="<?php echo $cour['id']; ?>"><?php echo $cour['nom']; ?></option>
+                          <option value="<?php echo $cour['id']; ?>"><?php echo $cour['titre']; ?></option>
                         <?php endforeach; ?>
                       </select>
                     </div>

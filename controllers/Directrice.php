@@ -89,7 +89,7 @@ public function ajouterAbsence() {
             $check_stmt->close();
             
             // Vérifier si une absence existe déjà pour cet élève à cette date
-            $check_absence_query = "SELECT id FROM absences WHERE eleve_id = ? AND date_absence = ?";
+            $check_absence_query = "SELECT id FROM absences_m WHERE eleve_id = ? AND date_absence = ?";
             $check_absence_stmt = $mysqli->prepare($check_absence_query);
             $check_absence_stmt->bind_param("is", $eleve_id, $date_absence);
             $check_absence_stmt->execute();
@@ -105,7 +105,7 @@ public function ajouterAbsence() {
             $check_absence_stmt->close();
             
             // Préparer et exécuter la requête d'insertion
-            $insert_query = "INSERT INTO absences (eleve_id, date_absence, motif, justifiee, date_creation) 
+            $insert_query = "INSERT INTO absences_m (eleve_id, date_absence, motif, justifiee, created_at) 
                             VALUES (?, ?, ?, ?, NOW())";
             $stmt = $mysqli->prepare($insert_query);
             $stmt->bind_param("issi", $eleve_id, $date_absence, $motif, $justifiee);
@@ -284,7 +284,7 @@ public function modifierAbsence() {
         }
         
         // Vérifier que l'absence existe et appartient à un élève de la section maternelle
-        $check_query = "SELECT a.id FROM absences a 
+        $check_query = "SELECT a.id FROM absences_m a 
                         JOIN eleves e ON a.eleve_id = e.id 
                         WHERE a.id = ? AND e.section = 'maternelle'";
         $check_stmt = $mysqli->prepare($check_query);
@@ -302,7 +302,7 @@ public function modifierAbsence() {
         $check_stmt->close();
         
         // Préparer et exécuter la requête de mise à jour
-        $update_query = "UPDATE absences SET motif = ?, justifiee = ? WHERE id = ?";
+        $update_query = "UPDATE absences_m SET motif = ?, justifiee = ? WHERE id = ?";
         $stmt = $mysqli->prepare($update_query);
         $stmt->bind_param("sii", $motif, $justifiee, $absence_id);
         
@@ -356,7 +356,7 @@ public function supprimerAbsence() {
         }
         
         // Vérifier que l'absence existe et appartient à un élève de la section maternelle
-        $check_query = "SELECT a.id FROM absences a 
+        $check_query = "SELECT a.id FROM absences_m a 
                         JOIN eleves e ON a.eleve_id = e.id 
                         WHERE a.id = ? AND e.section = 'maternelle'";
         $check_stmt = $mysqli->prepare($check_query);
@@ -374,7 +374,7 @@ public function supprimerAbsence() {
         $check_stmt->close();
         
         // Préparer et exécuter la requête de suppression
-        $delete_query = "DELETE FROM absences WHERE id = ?";
+        $delete_query = "DELETE FROM absences_m WHERE id = ?";
         $stmt = $mysqli->prepare($delete_query);
         $stmt->bind_param("i", $absence_id);
         
@@ -666,6 +666,887 @@ public function voirEleves() {
     // Charger la vue des élèves de la classe
     require_once 'views/directrice/eleves_classe.php';
 }
+
+/**
+ * Affiche le profil détaillé d'un élève
+ */
+public function voirEleve() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si l'ID de l'élève est fourni
+    if (!isset($_GET['id']) || empty($_GET['id'])) {
+        $_SESSION['message'] = "ID de l'élève non spécifié.";
+        $_SESSION['message_type'] = 'danger';
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=eleves');
+        exit;
+    }
+    
+    $eleve_id = intval($_GET['id']);
+    
+    // Connexion à la base de données
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    if ($mysqli->connect_error) {
+        $_SESSION['message'] = 'Erreur de connexion à la base de données: ' . $mysqli->connect_error;
+        $_SESSION['message_type'] = 'danger';
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=eleves');
+        exit;
+    }
+    
+    // Vérifier que l'élève existe et appartient à la section maternelle
+    $check_query = "SELECT id FROM eleves WHERE id = ? AND section = 'maternelle'";
+    $check_stmt = $mysqli->prepare($check_query);
+    $check_stmt->bind_param("i", $eleve_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+    
+    if ($check_result->num_rows === 0) {
+        $_SESSION['message'] = "L'élève sélectionné n'existe pas ou n'appartient pas à la section maternelle.";
+        $_SESSION['message_type'] = 'danger';
+        $check_stmt->close();
+        $mysqli->close();
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=eleves');
+        exit;
+    }
+    $check_stmt->close();
+    $mysqli->close();
+    
+    // Charger la vue du profil de l'élève
+    require_once 'views/directrice/voirEleve.php';
+}
+
+
+
+/**
+ * Affiche la carte d'identité d'un élève
+ */
+public function carteEleve() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si l'ID de l'élève est fourni
+    if (!isset($_GET['id']) || empty($_GET['id'])) {
+        $_SESSION['message'] = "ID de l'élève non spécifié.";
+        $_SESSION['message_type'] = 'danger';
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=eleves');
+        exit;
+    }
+    
+    $eleve_id = intval($_GET['id']);
+    
+    // Connexion à la base de données
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    if ($mysqli->connect_error) {
+        $_SESSION['message'] = 'Erreur de connexion à la base de données: ' . $mysqli->connect_error;
+        $_SESSION['message_type'] = 'danger';
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=eleves');
+        exit;
+    }
+    
+    // Vérifier que l'élève existe et appartient à la section maternelle
+    $check_query = "SELECT id FROM eleves WHERE id = ? AND section = 'maternelle'";
+    $check_stmt = $mysqli->prepare($check_query);
+    $check_stmt->bind_param("i", $eleve_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+    
+    if ($check_result->num_rows === 0) {
+        $_SESSION['message'] = "L'élève sélectionné n'existe pas ou n'appartient pas à la section maternelle.";
+        $_SESSION['message_type'] = 'danger';
+        $check_stmt->close();
+        $mysqli->close();
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=eleves');
+        exit;
+    }
+    $check_stmt->close();
+    $mysqli->close();
+    
+    // Charger la vue de la carte d'élève
+    require_once 'views/directrice/carte_eleve.php';
+}
+
+/**
+ * Ajoute un nouvel incident disciplinaire
+ */
+public function ajouterIncident() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $eleve_id = isset($_POST['eleve_id']) ? intval($_POST['eleve_id']) : 0;
+        $date_incident = isset($_POST['date_incident']) ? $_POST['date_incident'] : '';
+        $description = isset($_POST['description']) ? $_POST['description'] : '';
+        $sanction = isset($_POST['sanction']) ? $_POST['sanction'] : '';
+        $statut = isset($_POST['statut']) ? $_POST['statut'] : 'En cours';
+        
+        // Convertir le format de date si nécessaire (dd/mm/yyyy -> yyyy-mm-dd)
+        if (strpos($date_incident, '/') !== false) {
+            $date_parts = explode('/', $date_incident);
+            if (count($date_parts) === 3) {
+                $date_incident = $date_parts[2] . '-' . $date_parts[1] . '-' . $date_parts[0];
+            }
+        }
+        
+        // Validation des données
+        $errors = [];
+        if ($eleve_id <= 0) {
+            $errors[] = "Veuillez sélectionner un élève.";
+        }
+        if (empty($date_incident)) {
+            $errors[] = "La date de l'incident est requise.";
+        }
+        if (empty($description)) {
+            $errors[] = "La description de l'incident est requise.";
+        }
+        
+        // Si pas d'erreurs, insérer l'incident dans la base de données
+        if (empty($errors)) {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['message_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            
+            // Vérifier que l'élève existe et appartient à la section maternelle
+            $check_query = "SELECT id FROM eleves WHERE id = ? AND section = 'maternelle'";
+            $check_stmt = $mysqli->prepare($check_query);
+            $check_stmt->bind_param("i", $eleve_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows === 0) {
+                $_SESSION['message'] = "L'élève sélectionné n'existe pas ou n'appartient pas à la section maternelle.";
+                $_SESSION['message_type'] = "danger";
+                $check_stmt->close();
+                $mysqli->close();
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            $check_stmt->close();
+            
+            // Insérer l'incident
+            $insert_query = "INSERT INTO incidents_disciplinaires_m (eleve_id, date_incident, description, sanction, statut, date_creation) 
+                           VALUES (?, ?, ?, ?, ?, NOW())";
+            $insert_stmt = $mysqli->prepare($insert_query);
+            $insert_stmt->bind_param("issss", $eleve_id, $date_incident, $description, $sanction, $statut);
+            
+            if ($insert_stmt->execute()) {
+                $_SESSION['message'] = "L'incident disciplinaire a été ajouté avec succès.";
+                $_SESSION['message_type'] = "success";
+            } else {
+                $_SESSION['message'] = "Erreur lors de l'ajout de l'incident: " . $mysqli->error;
+                $_SESSION['message_type'] = "danger";
+            }
+            
+            $insert_stmt->close();
+            $mysqli->close();
+        } else {
+            // Afficher les erreurs
+            $_SESSION['message'] = "Erreurs: " . implode(" ", $errors);
+            $_SESSION['message_type'] = "danger";
+        }
+        
+        // Rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    }
+}
+
+/**
+ * Modifie un incident disciplinaire existant
+ */
+public function modifierIncident() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $incident_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+        $description = isset($_POST['description']) ? $_POST['description'] : '';
+        $sanction = isset($_POST['sanction']) ? $_POST['sanction'] : '';
+        $statut = isset($_POST['statut']) ? $_POST['statut'] : 'En cours';
+        
+        // Validation des données
+        $errors = [];
+        if ($incident_id <= 0) {
+            $errors[] = "ID d'incident invalide.";
+        }
+        if (empty($description)) {
+            $errors[] = "La description de l'incident est requise.";
+        }
+        
+        // Si pas d'erreurs, mettre à jour l'incident dans la base de données
+        if (empty($errors)) {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['message_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            
+            // Vérifier que l'incident existe
+            $check_query = "SELECT i.id FROM incidents_disciplinaires_m i 
+                           JOIN eleves e ON i.eleve_id = e.id 
+                           WHERE i.id = ?";
+            $check_stmt = $mysqli->prepare($check_query);
+            $check_stmt->bind_param("i", $incident_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows === 0) {
+                $_SESSION['message'] = "L'incident sélectionné n'existe pas.";
+                $_SESSION['message_type'] = "danger";
+                $check_stmt->close();
+                $mysqli->close();
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            $check_stmt->close();
+            
+            // Mettre à jour l'incident
+            $update_query = "UPDATE incidents_disciplinaires_m 
+                           SET description = ?, sanction = ?, statut = ?, date_modification = NOW() 
+                           WHERE id = ?";
+            $update_stmt = $mysqli->prepare($update_query);
+            $update_stmt->bind_param("sssi", $description, $sanction, $statut, $incident_id);
+            
+            if ($update_stmt->execute()) {
+                $_SESSION['message'] = "L'incident disciplinaire a été modifié avec succès.";
+                $_SESSION['message_type'] = "success";
+            } else {
+                $_SESSION['message'] = "Erreur lors de la modification de l'incident: " . $mysqli->error;
+                $_SESSION['message_type'] = "danger";
+            }
+            
+            $update_stmt->close();
+            $mysqli->close();
+        } else {
+            // Afficher les erreurs
+            $_SESSION['message'] = "Erreurs: " . implode(" ", $errors);
+            $_SESSION['message_type'] = "danger";
+        }
+        
+        // Rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    }
+}
+
+/**
+ * Ajoute un nouvel incident disciplinaire pour la section maternelle
+ */
+public function ajouterIncidentM() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $eleve_id = isset($_POST['eleve_id']) ? intval($_POST['eleve_id']) : 0;
+        $classe_id = isset($_POST['classe_id']) ? intval($_POST['classe_id']) : null;
+        $date_incident = isset($_POST['date_incident']) ? $_POST['date_incident'] : '';
+        $description = isset($_POST['description']) ? $_POST['description'] : '';
+        $sanction = isset($_POST['sanction']) ? $_POST['sanction'] : '';
+        $statut = isset($_POST['statut']) ? $_POST['statut'] : 'En cours';
+        
+        // Convertir le format de date si nécessaire (dd/mm/yyyy -> yyyy-mm-dd)
+        if (strpos($date_incident, '/') !== false) {
+            $date_parts = explode('/', $date_incident);
+            if (count($date_parts) === 3) {
+                $date_incident = $date_parts[2] . '-' . $date_parts[1] . '-' . $date_parts[0];
+            }
+        }
+        
+        // Validation des données
+        $errors = [];
+        if ($eleve_id <= 0) {
+            $errors[] = "Veuillez sélectionner un élève.";
+        }
+        if (empty($date_incident)) {
+            $errors[] = "La date de l'incident est requise.";
+        }
+        if (empty($description)) {
+            $errors[] = "La description de l'incident est requise.";
+        }
+        
+        // Si pas d'erreurs, insérer l'incident dans la base de données
+        if (empty($errors)) {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['message_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            
+            // Vérifier que l'élève existe et appartient à la section maternelle
+            $check_query = "SELECT id FROM eleves WHERE id = ? AND section = 'maternelle'";
+            $check_stmt = $mysqli->prepare($check_query);
+            $check_stmt->bind_param("i", $eleve_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows === 0) {
+                $_SESSION['message'] = "L'élève sélectionné n'existe pas ou n'appartient pas à la section maternelle.";
+                $_SESSION['message_type'] = "danger";
+                $check_stmt->close();
+                $mysqli->close();
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            $check_stmt->close();
+            
+            // Insérer l'incident
+            $insert_query = "INSERT INTO incidents_disciplinaires_m (eleve_id, classe_id, date_incident, description, sanction, statut, date_creation) 
+                           VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            $insert_stmt = $mysqli->prepare($insert_query);
+            $insert_stmt->bind_param("iissss", $eleve_id, $classe_id, $date_incident, $description, $sanction, $statut);
+            
+            if ($insert_stmt->execute()) {
+                $_SESSION['message'] = "L'incident disciplinaire a été ajouté avec succès.";
+                $_SESSION['message_type'] = "success";
+            } else {
+                $_SESSION['message'] = "Erreur lors de l'ajout de l'incident: " . $mysqli->error;
+                $_SESSION['message_type'] = "danger";
+            }
+            
+            $insert_stmt->close();
+            $mysqli->close();
+        } else {
+            // Afficher les erreurs
+            $_SESSION['message'] = "Erreurs: " . implode(" ", $errors);
+            $_SESSION['message_type'] = "danger";
+        }
+        
+        // Rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    }
+}
+
+/**
+ * Modifie un incident disciplinaire existant pour la section maternelle
+ */
+public function modifierIncidentM() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $incident_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+        $description = isset($_POST['description']) ? $_POST['description'] : '';
+        $sanction = isset($_POST['sanction']) ? $_POST['sanction'] : '';
+        $statut = isset($_POST['statut']) ? $_POST['statut'] : 'En cours';
+        
+        // Validation des données
+        $errors = [];
+        if ($incident_id <= 0) {
+            $errors[] = "ID d'incident invalide.";
+        }
+        if (empty($description)) {
+            $errors[] = "La description de l'incident est requise.";
+        }
+        
+        // Si pas d'erreurs, mettre à jour l'incident dans la base de données
+        if (empty($errors)) {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['message_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            
+            // Vérifier que l'incident existe
+            $check_query = "SELECT i.id FROM incidents_disciplinaires_m i 
+                           JOIN eleves e ON i.eleve_id = e.id 
+                           WHERE i.id = ?";
+            $check_stmt = $mysqli->prepare($check_query);
+            $check_stmt->bind_param("i", $incident_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows === 0) {
+                $_SESSION['message'] = "L'incident sélectionné n'existe pas.";
+                $_SESSION['message_type'] = "danger";
+                $check_stmt->close();
+                $mysqli->close();
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+                exit;
+            }
+            $check_stmt->close();
+            
+            // Mettre à jour l'incident
+            $update_query = "UPDATE incidents_disciplinaires_m 
+                           SET description = ?, sanction = ?, statut = ?, date_modification = NOW() 
+                           WHERE id = ?";
+            $update_stmt = $mysqli->prepare($update_query);
+            $update_stmt->bind_param("sssi", $description, $sanction, $statut, $incident_id);
+            
+            if ($update_stmt->execute()) {
+                $_SESSION['message'] = "L'incident disciplinaire a été modifié avec succès.";
+                $_SESSION['message_type'] = "success";
+            } else {
+                $_SESSION['message'] = "Erreur lors de la modification de l'incident: " . $mysqli->error;
+                $_SESSION['message_type'] = "danger";
+            }
+            
+            $update_stmt->close();
+            $mysqli->close();
+        } else {
+            // Afficher les erreurs
+            $_SESSION['message'] = "Erreurs: " . implode(" ", $errors);
+            $_SESSION['message_type'] = "danger";
+        }
+        
+        // Rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page de discipline
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    }
+}
+
+/**
+ * Supprime un incident disciplinaire pour la section maternelle
+ /**
+ * Supprime un incident disciplinaire pour la section maternelle
+ */
+public function supprimerIncidentMaternelle() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $incident_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+        
+        // Validation des données
+        if ($incident_id <= 0) {
+            $_SESSION['flash_message'] = "ID d'incident invalide.";
+            $_SESSION['flash_type'] = 'danger';
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=disciplineMaternelle');
+            exit;
+        }
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            $_SESSION['flash_message'] = 'Erreur de connexion à la base de données: ' . $mysqli->connect_error;
+            $_SESSION['flash_type'] = 'danger';
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=disciplineMaternelle');
+            exit;
+        }
+        
+        // Vérifier que l'incident existe
+        $check_query = "SELECT i.id FROM incidents_disciplinaires_m i 
+                       JOIN eleves e ON i.eleve_id = e.id 
+                       WHERE i.id = ?";
+        $check_stmt = $mysqli->prepare($check_query);
+        $check_stmt->bind_param("i", $incident_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows === 0) {
+            $_SESSION['flash_message'] = "L'incident sélectionné n'existe pas.";
+            $_SESSION['flash_type'] = 'danger';
+            $check_stmt->close();
+            $mysqli->close();
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=disciplineMaternelle');
+            exit;
+        }
+        $check_stmt->close();
+        
+        // Supprimer l'incident
+        $delete_query = "DELETE FROM incidents_disciplinaires_m WHERE id = ?";
+        $delete_stmt = $mysqli->prepare($delete_query);
+        $delete_stmt->bind_param("i", $incident_id);
+        
+        if ($delete_stmt->execute()) {
+            $_SESSION['flash_message'] = "L'incident disciplinaire a été supprimé avec succès.";
+            $_SESSION['flash_type'] = 'success';
+        } else {
+            $_SESSION['flash_message'] = "Erreur lors de la suppression de l'incident: " . $mysqli->error;
+            $_SESSION['flash_type'] = 'danger';
+        }
+        
+        $delete_stmt->close();
+        $mysqli->close();
+        
+        // Rediriger vers la page de discipline maternelle
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page de discipline maternelle
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=discipline');
+        exit;
+    }
+}
+/**
+ * Affiche et gère le profil de la directrice
+ */
+public function profil() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    $user_id = $_SESSION['user_id'];
+    $message = '';
+    $message_type = '';
+    
+    // Si le formulaire est soumis pour mettre à jour le profil
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $nom = isset($_POST['nom']) ? trim($_POST['nom']) : '';
+        $prenom = isset($_POST['prenom']) ? trim($_POST['prenom']) : '';
+        $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+        $telephone = isset($_POST['telephone']) ? trim($_POST['telephone']) : '';
+        $current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
+        $new_password = isset($_POST['new_password']) ? $_POST['new_password'] : '';
+        $confirm_password = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
+        
+        // Validation des données
+        $errors = [];
+        if (empty($nom)) $errors[] = "Le nom est requis.";
+        if (empty($prenom)) $errors[] = "Le prénom est requis.";
+        if (empty($email)) $errors[] = "L'email est requis.";
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Format d'email invalide.";
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            $_SESSION['flash_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+            $_SESSION['flash_type'] = "danger";
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+            exit;
+        }
+        
+        // Vérifier si l'email existe déjà pour un autre utilisateur
+        $check_email_query = "SELECT id FROM utilisateurs WHERE email = ? AND id != ?";
+        $check_email_stmt = $mysqli->prepare($check_email_query);
+        $check_email_stmt->bind_param("si", $email, $user_id);
+        $check_email_stmt->execute();
+        $check_email_result = $check_email_stmt->get_result();
+        
+        if ($check_email_result->num_rows > 0) {
+            $errors[] = "Cet email est déjà utilisé par un autre compte.";
+        }
+        $check_email_stmt->close();
+        
+        // Si l'utilisateur souhaite changer son mot de passe
+        if (!empty($current_password) || !empty($new_password) || !empty($confirm_password)) {
+            // Vérifier que tous les champs de mot de passe sont remplis
+            if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+                $errors[] = "Tous les champs de mot de passe doivent être remplis pour changer le mot de passe.";
+            } elseif ($new_password !== $confirm_password) {
+                $errors[] = "Le nouveau mot de passe et sa confirmation ne correspondent pas.";
+            } elseif (strlen($new_password) < 8) {
+                $errors[] = "Le nouveau mot de passe doit contenir au moins 8 caractères.";
+            } else {
+                // Vérifier le mot de passe actuel
+                $check_password_query = "SELECT mot_de_passe FROM utilisateurs WHERE id = ?";
+                $check_password_stmt = $mysqli->prepare($check_password_query);
+                $check_password_stmt->bind_param("i", $user_id);
+                $check_password_stmt->execute();
+                $check_password_result = $check_password_stmt->get_result();
+                $user_data = $check_password_result->fetch_assoc();
+                $check_password_stmt->close();
+                
+                if (!password_verify($current_password, $user_data['mot_de_passe'])) {
+                    $errors[] = "Le mot de passe actuel est incorrect.";
+                }
+            }
+        }
+        
+        // Si pas d'erreurs, mettre à jour le profil
+        if (empty($errors)) {
+            // Préparer la requête de mise à jour
+            if (!empty($new_password)) {
+                // Mettre à jour avec le nouveau mot de passe
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                $update_query = "UPDATE utilisateurs SET nom = ?, prenom = ?, email = ?, telephone = ?, mot_de_passe = ? WHERE id = ?";
+                $update_stmt = $mysqli->prepare($update_query);
+                $update_stmt->bind_param("sssssi", $nom, $prenom, $email, $telephone, $hashed_password, $user_id);
+            } else {
+                // Mettre à jour sans changer le mot de passe
+                $update_query = "UPDATE utilisateurs SET nom = ?, prenom = ?, email = ?, telephone = ? WHERE id = ?";
+                $update_stmt = $mysqli->prepare($update_query);
+                $update_stmt->bind_param("ssssi", $nom, $prenom, $email, $telephone, $user_id);
+            }
+            
+            if ($update_stmt->execute()) {
+                $_SESSION['flash_message'] = "Votre profil a été mis à jour avec succès.";
+                $_SESSION['flash_type'] = "success";
+                
+                // Mettre à jour les informations de session
+                $_SESSION['nom'] = $nom;
+                $_SESSION['prenom'] = $prenom;
+                $_SESSION['email'] = $email;
+            } else {
+                $_SESSION['flash_message'] = "Erreur lors de la mise à jour du profil: " . $mysqli->error;
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            $update_stmt->close();
+        } else {
+            $_SESSION['flash_message'] = "Erreurs: " . implode(" ", $errors);
+            $_SESSION['flash_type'] = "danger";
+        }
+        
+        $mysqli->close();
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+        exit;
+    }
+    
+    // Charger la vue du profil
+    require_once 'views/directrice/profil.php';
+}
+
+/**
+ * Met à jour la photo de profil de la directrice
+ */
+public function updateAvatar() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $user_id = $_SESSION['user_id'];
+        
+        // Vérifier si un fichier a été téléchargé
+        if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] === UPLOAD_ERR_NO_FILE) {
+            $_SESSION['flash_message'] = "Aucun fichier n'a été téléchargé.";
+            $_SESSION['flash_type'] = "danger";
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+            exit;
+        }
+        
+        $file = $_FILES['avatar'];
+        
+        // Vérifier les erreurs de téléchargement
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $error_messages = [
+                UPLOAD_ERR_INI_SIZE => "Le fichier téléchargé dépasse la taille maximale autorisée par PHP.",
+                UPLOAD_ERR_FORM_SIZE => "Le fichier téléchargé dépasse la taille maximale autorisée par le formulaire.",
+                UPLOAD_ERR_PARTIAL => "Le fichier n'a été que partiellement téléchargé.",
+                UPLOAD_ERR_NO_TMP_DIR => "Dossier temporaire manquant.",
+                UPLOAD_ERR_CANT_WRITE => "Échec de l'écriture du fichier sur le disque.",
+                UPLOAD_ERR_EXTENSION => "Une extension PHP a arrêté le téléchargement du fichier."
+            ];
+            
+            $error_message = isset($error_messages[$file['error']]) ? $error_messages[$file['error']] : "Erreur inconnue lors du téléchargement.";
+            
+            $_SESSION['flash_message'] = $error_message;
+            $_SESSION['flash_type'] = "danger";
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+            exit;
+        }
+        
+        // Vérifier le type de fichier
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!in_array($file['type'], $allowed_types)) {
+            $_SESSION['flash_message'] = "Type de fichier non autorisé. Seuls les formats JPG, PNG et GIF sont acceptés.";
+            $_SESSION['flash_type'] = "danger";
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+            exit;
+        }
+        
+        // Vérifier la taille du fichier (max 2MB)
+        $max_size = 2 * 1024 * 1024; // 2MB en octets
+        if ($file['size'] > $max_size) {
+            $_SESSION['flash_message'] = "Le fichier est trop volumineux. La taille maximale autorisée est de 2MB.";
+            $_SESSION['flash_type'] = "danger";
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+            exit;
+        }
+        
+        // Créer le dossier d'upload s'il n'existe pas
+        $upload_dir = 'uploads/avatars/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        
+        // Générer un nom de fichier unique
+        $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $new_filename = 'directrice_' . $user_id . '_' . time() . '.' . $file_extension;
+        $upload_path = $upload_dir . $new_filename;
+        
+        // Déplacer le fichier téléchargé vers le dossier de destination
+        if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['flash_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['flash_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+                exit;
+            }
+            
+            // Récupérer l'ancienne image pour la supprimer plus tard
+            $get_old_image_query = "SELECT image FROM users WHERE id = ?";
+            $get_old_image_stmt = $mysqli->prepare($get_old_image_query);
+            $get_old_image_stmt->bind_param("i", $user_id);
+            $get_old_image_stmt->execute();
+            $get_old_image_result = $get_old_image_stmt->get_result();
+            $old_image = $get_old_image_result->fetch_assoc()['image'];
+            $get_old_image_stmt->close();
+            
+            // Mettre à jour l'image de profil dans la base de données
+            $update_query = "UPDATE users SET image = ? WHERE id = ?";
+            $update_stmt = $mysqli->prepare($update_query);
+            $update_stmt->bind_param("si", $upload_path, $user_id);
+            
+            if ($update_stmt->execute()) {
+                // Supprimer l'ancienne image si elle existe et n'est pas l'image par défaut
+                if (!empty($old_image) && $old_image !== 'dist/img/user2-160x160.jpg' && file_exists($old_image)) {
+                    unlink($old_image);
+                }
+                
+                // Mettre à jour la session
+                $_SESSION['image'] = $upload_path;
+                
+                $_SESSION['flash_message'] = "Votre photo de profil a été mise à jour avec succès.";
+                $_SESSION['flash_type'] = "success";
+            } else {
+                $_SESSION['flash_message'] = "Erreur lors de la mise à jour de la photo de profil: " . $mysqli->error;
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            $update_stmt->close();
+            $mysqli->close();
+        } else {
+            $_SESSION['flash_message'] = "Erreur lors du téléchargement du fichier.";
+            $_SESSION['flash_type'] = "danger";
+        }
+        
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page de profil
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=profil');
+        exit;
+    }
+}
+/**
+ * Affiche le profil détaillé d'un professeur
+ */
+public function voirProfesseur() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si l'ID du professeur est fourni
+    if (!isset($_GET['id']) || empty($_GET['id'])) {
+        $_SESSION['message'] = "ID du professeur non spécifié.";
+        $_SESSION['message_type'] = 'danger';
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+        exit;
+    }
+    
+    $prof_id = intval($_GET['id']);
+    
+    // Connexion à la base de données
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    if ($mysqli->connect_error) {
+        $_SESSION['message'] = 'Erreur de connexion à la base de données: ' . $mysqli->connect_error;
+        $_SESSION['message_type'] = 'danger';
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+        exit;
+    }
+    
+    // Vérifier que le professeur existe et appartient à la section maternelle
+    $check_query = "SELECT id FROM professeurs WHERE id = ? AND section = 'maternelle'";
+    $check_stmt = $mysqli->prepare($check_query);
+    $check_stmt->bind_param("i", $prof_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+    
+    if ($check_result->num_rows === 0) {
+        $_SESSION['message'] = "Le professeur sélectionné n'existe pas ou n'appartient pas à la section maternelle.";
+        $_SESSION['message_type'] = 'danger';
+        $check_stmt->close();
+        $mysqli->close();
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+        exit;
+    }
+    $check_stmt->close();
+    $mysqli->close();
+    
+    // Charger la vue du profil du professeur
+    require_once 'views/directrice/voirProfesseur.php';
+}
+
 }
 
 

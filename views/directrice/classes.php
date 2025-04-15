@@ -168,18 +168,6 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
             <i class="fa fa-gavel"></i> <span>Discipline</span>
           </a>
         </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=finances">
-            <i class="fa fa-money"></i> <span>Finances</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=rapports">
-            <i class="fa fa-file-text-o"></i> <span>Rapports</span>
-          </a>
-        </li>
       </ul>
     </section>
   </aside>
@@ -264,23 +252,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                                 data-eleves="<?php echo $classe['total_eleves']; ?>">
                           <i class="fa fa-eye"></i>
                         </button>
-                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-modifier-classe"
-                                data-id="<?php echo $classe['id']; ?>" 
-                                data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
-                                data-niveau="<?php echo htmlspecialchars($classe['niveau']); ?>"
-                                data-titulaire="<?php echo htmlspecialchars($classe['titulaire']); ?>"
-                                data-prof-id="<?php echo $classe['prof_id']; ?>">
-                          <i class="fa fa-edit"></i>
-                        </button>
-                        <a href="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=voirEleves&classe=<?php echo urlencode($classe['nom']); ?>" class="btn btn-success btn-sm">
-                          <i class="fa fa-users"></i>
-                        </a>
-                        <button type="button" class="btn btn-danger btn-sm btn-delete-classe" 
-                                data-id="<?php echo $classe['id']; ?>"
-                                data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
-                                data-eleves="<?php echo $classe['total_eleves']; ?>">
-                          <i class="fa fa-trash"></i>
-                        </button>
+                       
                       </div>
                     </td>
                   </tr>

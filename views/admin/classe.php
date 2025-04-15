@@ -38,7 +38,7 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     
     // Vérifier si la classe est utilisée par des élèves
-    $check_query = "SELECT COUNT(*) as count FROM eleves WHERE classe = ?";
+    $check_query = "SELECT COUNT(*) as count FROM eleves WHERE classe_id = ?";
     $stmt = $mysqli->prepare($check_query);
     $stmt->bind_param("i", $delete_id);
     $stmt->execute();

@@ -190,18 +190,6 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
             <i class="fa fa-gavel"></i> <span>Discipline</span>
           </a>
         </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=finances">
-            <i class="fa fa-money"></i> <span>Finances</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=rapports">
-            <i class="fa fa-file-text-o"></i> <span>Rapports</span>
-          </a>
-        </li>
       </ul>
     </section>
   </aside>
