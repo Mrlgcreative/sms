@@ -246,7 +246,7 @@ if (!isset($eleve) || empty($eleve)) {
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">
-                  <b>Classe</b> <a class="pull-right"><?php echo $eleve['classe']; ?></a>
+                  <b>Classe</b> <a class="pull-right"><?php echo $eleve['classe_nom']; ?></a>
                 </li>
                 <li class="list-group-item">
                   <b>Section</b> <a class="pull-right"><?php echo $eleve['section']; ?></a>
@@ -340,7 +340,7 @@ if (!isset($eleve) || empty($eleve)) {
                             </tr>
                             <tr>
                               <th>Classe</th>
-                              <td><?php echo $eleve['classe']; ?></td>
+                              <td><?php echo $eleve['classe_nom']; ?></td>
                             </tr>
                             <tr>
                               <th>Section</th>

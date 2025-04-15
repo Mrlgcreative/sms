@@ -9,10 +9,10 @@ if (!isset($_SESSION['username'])) {
   $_SESSION['username'] = 'username';
 }
 if (!isset($_SESSION['email'])) {
-  $_SESSION['email'] = ['email'];
+  $_SESSION['email'] = 'email';
 }
 if (!isset($_SESSION['role'])) {
-  $_SESSION['role'] = ['role'];
+  $_SESSION['role'] = 'role';
 }
 
 // Récupérer les valeurs des clés
@@ -22,6 +22,18 @@ $role = $_SESSION['role'];
 
 // Déterminer quelle section afficher
 $section = isset($_GET['section']) ? $_GET['section'] : '';
+
+// Récupérer le message d'erreur s'il existe
+$error_message = isset($_SESSION['error']) ? $_SESSION['error'] : '';
+if (isset($_SESSION['error'])) {
+  unset($_SESSION['error']);
+}
+
+// Récupérer le message de succès s'il existe
+$success_message = isset($_SESSION['success']) ? $_SESSION['success'] : '';
+if (isset($_SESSION['success'])) {
+  unset($_SESSION['success']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -29,7 +41,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>St sofie | Inscription</title>
+  <title>St Sofie | Inscription</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -130,9 +142,9 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
     <!-- Logo -->
     <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=accueil" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>St</b>Henry</span>
+      <span class="logo-mini"><b>St</b>S</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b> <?php echo ($role); ?></b></span>
+      <span class="logo-lg"><b><?php echo $role; ?></b></span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
@@ -146,7 +158,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
+              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
               <span class="hidden-xs"><?php echo $username; ?></span>
             </a>
             <ul class="dropdown-menu">
@@ -162,7 +174,6 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                   <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
                 </div>
               </li>
-              <!-- Reste du menu déroulant -->
             </ul>
           </li>
         </ul>
@@ -177,26 +188,25 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
       <!-- Sidebar user panel -->
       <div class="user-panel">
         <div class="pull-left image">
-        <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
+          <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
         </div>
         <div class="pull-left info">
           <p><?php echo $username; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
         </div>
       </div>
       <!-- search form -->
       <form action="#" method="get" class="sidebar-form">
         <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Search...">
+          <input type="text" name="q" class="form-control" placeholder="Rechercher...">
           <span class="input-group-btn">
-                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
-                </button>
-              </span>
+            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
+          </span>
         </div>
       </form>
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">MAIN NAVIGATION</li>
+        <li class="header">NAVIGATION PRINCIPALE</li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
@@ -204,7 +214,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-child"></i> <span>Eleves</span>
+            <i class="fa fa-child"></i> <span>Élèves</span>
           </a>
         </li>
         <li class="active">
@@ -219,7 +229,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-list"></i> <span>Eleves en ordres</span>
+            <i class="fa fa-list"></i> <span>Élèves en ordre</span>
           </a>
         </li>
         <li>
@@ -245,7 +255,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
         <?php endif; ?>
       </h1>
       <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Accueil</a></li>
+        <li><a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Inscription</li>
         <?php if ($section): ?>
           <li class="active"><?php echo ucfirst($section); ?></li>
@@ -255,6 +265,22 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
 
     <!-- Main content -->
     <section class="content">
+      <?php if ($error_message): ?>
+        <div class="alert alert-danger alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-ban"></i> Erreur!</h4>
+          <?php echo $error_message; ?>
+        </div>
+      <?php endif; ?>
+      
+      <?php if ($success_message): ?>
+        <div class="alert alert-success alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-check"></i> Succès!</h4>
+          <?php echo $success_message; ?>
+        </div>
+      <?php endif; ?>
+      
       <?php if (!$section): ?>
       <!-- Affichage des boutons de section -->
       <div class="row">
@@ -297,6 +323,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
             <!-- form start -->
             <form role="form" method="POST" action="<?php echo BASE_URL; ?>index.php?controller=comptable&action=enregistrerEleve" enctype="multipart/form-data">
               <input type="hidden" name="section" value="maternelle">
+              <input type="hidden" name="session_scolaire_id" value="<?php echo isset($sessions_scolaires[0]['id']) ? $sessions_scolaires[0]['id'] : ''; ?>">
               <div class="box-body">
                 <div class="row">
                   <div class="col-md-6">
@@ -336,12 +363,12 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                     </div>
                   </div>
                   <div class="col-md-6">
-                  <div class="form-group">
-                      <label for="photo-secondaire">Photo de l'élève</label>
-                      <input type="file" id="photo-secondaire" name="photo" accept="image/*">
+                    <div class="form-group">
+                      <label for="photo">Photo de l'élève</label>
+                      <input type="file" id="photo" name="photo" accept="image/*">
                       <p class="help-block">Format recommandé: JPG, PNG. Taille max: 2MB</p>
                       <div class="photo-preview" style="margin-top: 10px; max-width: 150px; max-height: 150px; border: 1px solid #ddd; padding: 3px;">
-                        <img id="photo-preview-secondaire" src="dist/img/default-student.png" alt="Aperçu de la photo" style="width: 100%; height: auto;">
+                        <img id="photo-preview" src="dist/img/default-student.png" alt="Aperçu de la photo" style="width: 100%; height: auto;">
                       </div>
                     </div>
                     <div class="form-group">
@@ -349,16 +376,15 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                       <select class="form-control" id="classe_id" name="classe_id" required>
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes as $classe) : ?>
-                          <option value="<?php echo $classe['nom']; ?>"><?php echo $classe['id']; ?></option>
+                          <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
                         <?php endforeach; ?>
                       </select>
                     </div>
                     <div class="form-group">
                       <label for="sexe">Sexe</label>
-                      <select class="form-control" name="sexe" id="sexe">
-                        <option value="">-- Sélectionner un sexe --</option>
+                      <select class="form-control" name="sexe" id="sexe" required>
                         <option value="M">Masculin</option>
-                        <option value="F">Feminin</option>
+                        <option value="F">Féminin</option>
                       </select>
                     </div>
                     <div class="form-group">
@@ -401,17 +427,18 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            <form role="form" method="POST" action="<?php echo BASE_URL; ?>index.php?controller=comptable&action=enregistrerEleve">
+            <form role="form" method="POST" action="<?php echo BASE_URL; ?>index.php?controller=comptable&action=enregistrerEleve" enctype="multipart/form-data">
               <input type="hidden" name="section" value="primaire">
+              <input type="hidden" name="session_scolaire_id" value="<?php echo isset($sessions_scolaires[0]['id']) ? $sessions_scolaires[0]['id'] : ''; ?>">
               <div class="box-body">
                 <div class="row">
                   <div class="col-md-6">
-                  <div class="form-group">
+                    <div class="form-group">
                       <label for="matricule">Matricule</label>
                       <div class="input-group">
                         <input type="text" class="form-control" id="matricule" name="matricule" value="<?php echo 'SGS-'.date('Y').'-'.str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT); ?>" readonly>
                         <span class="input-group-btn">
-                          <button type="button" class="btn btn-default" id="regenerate-matricule-secondaire"><i class="fa fa-refresh"></i></button>
+                          <button type="button" class="btn btn-default" id="regenerate-matricule-primaire"><i class="fa fa-refresh"></i></button>
                         </span>
                       </div>
                       <small class="text-muted">Matricule généré automatiquement</small>
@@ -442,21 +469,28 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                     </div>
                   </div>
                   <div class="col-md-6">
-                  <div class="form-group">
-                      <label for="photo-secondaire">Photo de l'élève</label>
-                      <input type="file" id="photo-secondaire" name="photo" accept="image/*">
+                    <div class="form-group">
+                      <label for="photo-primaire">Photo de l'élève</label>
+                      <input type="file" id="photo-primaire" name="photo" accept="image/*">
                       <p class="help-block">Format recommandé: JPG, PNG. Taille max: 2MB</p>
                       <div class="photo-preview" style="margin-top: 10px; max-width: 150px; max-height: 150px; border: 1px solid #ddd; padding: 3px;">
-                        <img id="photo-preview-secondaire" src="dist/img/default-student.png" alt="Aperçu de la photo" style="width: 100%; height: auto;">
+                        <img id="photo-preview-primaire" src="dist/img/default-student.png" alt="Aperçu de la photo" style="width: 100%; height: auto;">
                       </div>
                     </div>
                     <div class="form-group">
-                      <label for="classe">Classe</label>
-                      <select class="form-control" id="classe" name="classe" required>
+                      <label for="classe_id">Classe</label>
+                      <select class="form-control" id="classe_id" name="classe_id" required>
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes as $classe) : ?>
-                          <option value="<?php echo $classe['nom']; ?>"><?php echo $classe['id']; ?></option>
+                          <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
                         <?php endforeach; ?>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="sexe">Sexe</label>
+                      <select class="form-control" name="sexe" id="sexe" required>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
                       </select>
                     </div>
                     <div class="form-group">
@@ -501,6 +535,7 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
             <!-- form start -->
             <form role="form" method="POST" action="<?php echo BASE_URL; ?>index.php?controller=comptable&action=enregistrerEleve" enctype="multipart/form-data">
               <input type="hidden" name="section" value="secondaire">
+              <input type="hidden" name="session_scolaire_id" value="<?php echo isset($sessions_scolaires[0]['id']) ? $sessions_scolaires[0]['id'] : ''; ?>">
               <div class="box-body">
                 <div class="row">
                   <div class="col-md-6">
@@ -548,12 +583,13 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                         <img id="photo-preview-secondaire" src="dist/img/default-student.png" alt="Aperçu de la photo" style="width: 100%; height: auto;">
                       </div>
                     </div>
+                    
                     <div class="form-group">
-                      <label for="classe">Classe</label>
-                      <select class="form-control" id="classe" name="classe" required>
+                      <label for="classe_id">Classe</label>
+                      <select class="form-control" id="classe_id" name="classe_id" required>
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes as $classe) : ?>
-                          <option value="<?php echo $classe['nom']; ?>"><?php echo $classe['id']; ?></option>
+                          <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
                         <?php endforeach; ?>
                       </select>
                     </div>
@@ -564,6 +600,13 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
                         <?php foreach ($options as $option) : ?>
                           <option value="<?php echo $option['id']; ?>"><?php echo $option['nom']; ?></option>
                         <?php endforeach; ?>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="sexe">Sexe</label>
+                      <select class="form-control" name="sexe" id="sexe" required>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
                       </select>
                     </div>
                     <div class="form-group">
@@ -611,12 +654,6 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
 </div>
 <!-- ./wrapper -->
 
-<!-- jQuery 3 -->
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- AdminLTE App -->
-<script src="dist/js/adminlte.min.js"></script>
 <!-- jQuery 3 -->
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
 <!-- Bootstrap 3.3.7 -->
@@ -682,6 +719,31 @@ $section = isset($_GET['section']) ? $_GET['section'] : '';
       var paddedRandom = random.toString().padStart(4, '0');
       $("#matricule").val('SGS-' + year + '-' + paddedRandom);
     });
+    
+    // Afficher les notifications toast
+    function showToast(message, type) {
+      var toast = $('<div class="toast toast-' + type + '"><span class="toast-close">&times;</span>' + message + '</div>');
+      $('#toast-container').append(toast);
+      
+      // Fermer le toast au clic sur le bouton de fermeture
+      toast.find('.toast-close').on('click', function() {
+        toast.remove();
+      });
+      
+      // Supprimer automatiquement le toast après 5 secondes
+      setTimeout(function() {
+        toast.remove();
+      }, 5000);
+    }
+    
+    // Afficher les messages d'erreur ou de succès sous forme de toast
+    <?php if ($error_message): ?>
+      showToast('<?php echo $error_message; ?>', 'error');
+    <?php endif; ?>
+    
+    <?php if ($success_message): ?>
+      showToast('<?php echo $success_message; ?>', 'success');
+    <?php endif; ?>
   });
 </script>
 </body>

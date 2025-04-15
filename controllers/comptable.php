@@ -292,6 +292,7 @@ if(!$option){
 
   
 
+ 
     
     public function inscriptions() {
         // Vérification des informations de session pour la vue
@@ -325,7 +326,7 @@ if(!$option){
             $date_naissance = $_POST['date_naissance'];
             $lieu_naissance = $_POST['lieu_naissance'];
             $adresse = $_POST['adresse'];
-            $classe = $_POST['classe_id'];
+            $classe_id = $_POST['classe_id'];
             $section = $_POST['section'];
             $option_id = isset($_POST['option_id']) ? $_POST['option_id'] : null;
             $sexe = isset($_POST['sexe']) ? $_POST['sexe'] : 'M';
@@ -380,7 +381,7 @@ if(!$option){
                 $date_naissance, 
                 $lieu_naissance, 
                 $adresse, 
-                $classe, 
+                $classe_id, 
                 $section, 
                 $option_id, 
                 $sexe, 
@@ -408,7 +409,7 @@ if(!$option){
             }
         }
     }
-    
+   
    
     public function recu() {
         if (isset($_GET['paiement_id'])) {
@@ -644,61 +645,96 @@ public function exportPaiementsPDF() {
     
     exit();
 }
-
+/**
+ * Met à jour la photo de profil de l'utilisateur
+ */
 public function updateProfilePhoto() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    
+    // Vérifier si l'utilisateur est connecté
     if (!isset($_SESSION['user_id'])) {
         header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
         exit;
     }
     
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img'])) {
-        $user_id = $_SESSION['user_id'];
-        $upload_dir = 'dist/img/';
-        
-        // Créer le répertoire s'il n'existe pas
-        if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-        
-        $file_extension = pathinfo($_FILES['img']['name'], PATHINFO_EXTENSION);
-        $new_filename = 'user_' . $user_id . '_' . time() . '.' . $file_extension;
-        $target_file = $upload_dir . $new_filename;
-        
-        // Vérifier le type de fichier
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($_FILES['img']['type'], $allowed_types)) {
-            header('Location: ' . $_SERVER['HTTP_REFERER'] . '&error=1&message=' . urlencode('Format de fichier non autorisé. Utilisez JPG, PNG ou GIF.'));
-            exit;
-        }
-        
-        // Vérifier la taille du fichier (2MB max)
-        if ($_FILES['img']['size'] > 2 * 1024 * 1024) {
-            header('Location: ' . $_SERVER['HTTP_REFERER'] . '&error=1&message=' . urlencode('Le fichier est trop volumineux. Taille maximale: 2MB.'));
-            exit;
-        }
-        
-        // Déplacer le fichier téléchargé
-        if (move_uploaded_file($_FILES['img']['tmp_name'], $target_file)) {
-            // Mettre à jour le chemin de la photo dans la base de données
-            $this->userModel->updateProfilePhoto($user_id, $target_file);
-            
-            // Mettre à jour la session
-
-            $_SESSION['image'] = $target_file; // Utiliser 'image' au lieu de 'photo_profil'
-            
-            header('Location: ' . $_SERVER['HTTP_REFERER'] . '&success=1&message=' . urlencode('Photo de profil mise à jour avec succès.'));
-            exit;
-        } else {
-            header('Location: ' . $_SERVER['HTTP_REFERER'] . '&error=1&message=' . urlencode('Erreur lors du téléchargement de la photo.'));
-            exit;
-        }
+    $user_id = $_SESSION['user_id'];
+    
+    // Vérifier si un fichier a été téléchargé
+    if (!isset($_FILES['profile_photo']) || $_FILES['profile_photo']['error'] != 0) {
+        $_SESSION['error'] = "Erreur lors du téléchargement du fichier";
+        header('Location: ' . BASE_URL . 'index.php?controller=Comptable&action=profil');
+        exit;
     }
     
-    header('Location: ' . $_SERVER['HTTP_REFERER']);
+    // Vérifier le type de fichier
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($_FILES['profile_photo']['type'], $allowed_types)) {
+        $_SESSION['error'] = "Type de fichier non autorisé";
+        header('Location: ' . BASE_URL . 'index.php?controller=Comptable&action=profil');
+        exit;
+    }
+    
+    // Vérifier la taille du fichier (2MB max)
+    if ($_FILES['profile_photo']['size'] > 2 * 1024 * 1024) {
+        $_SESSION['error'] = "Le fichier est trop volumineux (max 2MB)";
+        header('Location: ' . BASE_URL . 'index.php?controller=Comptable&action=profil');
+        exit;
+    }
+    
+    // Créer le dossier uploads s'il n'existe pas
+    $upload_dir = 'uploads/avatars/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+    
+    // Générer un nom de fichier unique
+    $file_extension = pathinfo($_FILES['profile_photo']['name'], PATHINFO_EXTENSION);
+    $new_filename = 'avatar_' . $user_id . '_' . time() . '.' . $file_extension;
+    $target_file = $upload_dir . $new_filename;
+    
+    // Déplacer le fichier téléchargé
+    if (move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target_file)) {
+        // Mettre à jour la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            $_SESSION['error'] = "Erreur de connexion à la base de données";
+            header('Location: ' . BASE_URL . 'index.php?controller=Comptable&action=profil');
+            exit;
+        }
+        
+        // Récupérer l'ancienne image pour la supprimer si elle existe
+        $stmt = $mysqli->prepare("SELECT image FROM users WHERE id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $old_image = $row['image'];
+            // Supprimer l'ancienne image si ce n'est pas l'image par défaut
+            if (!empty($old_image) && $old_image != 'dist/img/user2-160x160.jpg' && file_exists($old_image)) {
+                unlink($old_image);
+            }
+        }
+        $stmt->close();
+        
+        // Mettre à jour l'image dans la base de données
+        $stmt = $mysqli->prepare("UPDATE users SET image = ? WHERE id = ?");
+        $stmt->bind_param("si", $target_file, $user_id);
+        
+        if ($stmt->execute()) {
+            // Mettre à jour la session
+            $_SESSION['image'] = $target_file;
+            $_SESSION['success'] = "Photo de profil mise à jour avec succès";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la mise à jour de la base de données";
+        }
+        
+        $stmt->close();
+        $mysqli->close();
+    } else {
+        $_SESSION['error'] = "Erreur lors du déplacement du fichier";
+    }
+    
+    header('Location: ' . BASE_URL . 'index.php?controller=Comptable&action=profil');
     exit;
 }
 

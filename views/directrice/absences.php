@@ -112,7 +112,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
-$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/';
 ?>
 
 <!DOCTYPE html>

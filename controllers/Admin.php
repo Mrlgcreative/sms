@@ -103,8 +103,43 @@ class Admin {
     }
 
     public function eleves() {
-        $eleves = $this->eleveModel->getAll();
-        require 'views/admin/eleve.php';
+        // ... existing authentication checks ...
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            die("Connection failed: " . $mysqli->connect_error);
+        }
+        
+        // Vérifier si un filtre de classe est appliqué
+        $classe_filter = isset($_GET['classe']) ? intval($_GET['classe']) : 0;
+        $where_clause = $classe_filter > 0 ? " WHERE e.classe_id = $classe_filter" : "";
+        
+        // Requête pour récupérer les élèves avec les informations de classe
+        $query = "SELECT e.*, c.nom AS classe_nom, c.id AS classe_id, o.nom AS option_nom 
+                  FROM eleves e 
+                  LEFT JOIN classes c ON e.classe_id = c.id 
+                  LEFT JOIN options o ON e.option_id = o.id
+                  $where_clause
+                  ORDER BY e.nom, e.post_nom, e.prenom";
+        
+        $result = $mysqli->query($query);
+        
+        if (!$result) {
+            die("Query failed: " . $mysqli->error);
+        }
+        
+        $eleves = [];
+        while ($row = $result->fetch_assoc()) {
+            $eleves[] = $row;
+        }
+        
+        $result->free();
+        $mysqli->close();
+        
+        // Charger la vue
+        require_once 'views/admin/eleve.php';
     }
 
       
@@ -340,6 +375,283 @@ public function editeleve() {
         $directeur= $directeurModel->getAll();
         require 'views/admin/directeurs.php';
     }
+
+        /**
+     * Gère l'édition d'un préfet existant
+     */
+    public function editPrefet() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID est fourni
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ID du préfet non spécifié";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=prefets');
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        // Si le formulaire est soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
+            $prenom = isset($_POST['prenom']) ? $_POST['prenom'] : '';
+            $contact = isset($_POST['contact']) ? $_POST['contact'] : '';
+            $email = isset($_POST['email']) ? $_POST['email'] : '';
+            $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
+            $section = isset($_POST['section']) ? $_POST['section'] : '';
+            
+            // Validation des données
+            if (empty($nom) || empty($prenom) || empty($contact) || empty($email) || empty($adresse) || empty($section)) {
+                $_SESSION['error'] = "Tous les champs sont obligatoires";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editPrefet&id=' . $id);
+                exit;
+            }
+            
+            // Mettre à jour les données du préfet
+            $result = $this->prefetModel->update($id, $nom, $prenom, $contact, $email, $adresse, $section);
+            
+            if ($result) {
+                // Enregistrer l'action dans l'historique
+                $this->historiqueModel->add('Modification', 'Préfet', $id);
+                
+                $_SESSION['success'] = "Le préfet a été modifié avec succès";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=prefets');
+            } else {
+                $_SESSION['error'] = "Erreur lors de la modification du préfet";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editPrefet&id=' . $id);
+            }
+            exit;
+        }
+        
+        // Récupérer les données du préfet
+        $prefet = $this->prefetModel->getById($id);
+        
+        if (!$prefet) {
+            $_SESSION['error'] = "Préfet non trouvé";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=prefets');
+            exit;
+        }
+        
+        // Charger la vue d'édition
+        require 'views/admin/edit_prefet.php';
+    }
+
+        /**
+     * Gère l'édition d'un professeur existant
+     */
+    public function editProfesseur() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID est fourni
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ID du professeur non spécifié";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=professeurs');
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        // Si le formulaire est soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
+            $prenom = isset($_POST['prenom']) ? $_POST['prenom'] : '';
+            $contact = isset($_POST['contact']) ? $_POST['contact'] : '';
+            $email = isset($_POST['email']) ? $_POST['email'] : '';
+            $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
+            $classe_id = isset($_POST['classe_id']) ? intval($_POST['classe_id']) : 0;
+            $cours_id = isset($_POST['cours_id']) ? intval($_POST['cours_id']) : 0;
+            $section = isset($_POST['section']) ? $_POST['section'] : '';
+            
+            // Validation des données
+            if (empty($nom) || empty($prenom) || empty($contact) || empty($email) || empty($adresse) || empty($section)) {
+                $_SESSION['error'] = "Tous les champs sont obligatoires";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editProfesseur&id=' . $id);
+                exit;
+            }
+            
+            // Mettre à jour les données du professeur
+            $result = $this->professeurModel->update($id, $nom, $prenom, $contact, $email, $adresse, $classe_id, $cours_id, $section);
+            
+            if ($result) {
+                // Enregistrer l'action dans l'historique
+                $this->historiqueModel->add('Modification', 'Professeur', $id);
+                
+                $_SESSION['success'] = "Le professeur a été modifié avec succès";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=professeurs');
+            } else {
+                $_SESSION['error'] = "Erreur lors de la modification du professeur";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editProfesseur&id=' . $id);
+            }
+            exit;
+        }
+        
+        // Récupérer les données du professeur
+        $professeur = $this->professeurModel->getById($id);
+        
+        if (!$professeur) {
+            $_SESSION['error'] = "Professeur non trouvé";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=professeurs');
+            exit;
+        }
+        
+        // Récupérer la liste des classes pour le formulaire
+        $classes = $this->classeModel->getAllClasses();
+        
+        // Récupérer la liste des cours pour le formulaire
+        $cours = $this->coursModel->getAll();
+        
+        // Charger la vue d'édition
+        require 'views/admin/edit_professeur.php';
+    }
+
+    /**
+     * Gère l'édition d'un frais existant
+     */
+    public function editFrais() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID est fourni
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ID du frais non spécifié";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=frais');
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        // Si le formulaire est soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $montant = isset($_POST['montant']) ? floatval($_POST['montant']) : 0;
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $section = isset($_POST['section']) ? $_POST['section'] : '';
+            
+            // Validation des données
+            if ($montant <= 0) {
+                $_SESSION['error'] = "Le montant doit être supérieur à zéro";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editFrais&id=' . $id);
+                exit;
+            }
+            
+            if (empty($description)) {
+                $_SESSION['error'] = "La description est requise";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editFrais&id=' . $id);
+                exit;
+            }
+            
+            if (empty($section)) {
+                $_SESSION['error'] = "La section est requise";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editFrais&id=' . $id);
+                exit;
+            }
+            
+            // Mettre à jour les données du frais
+            $result = $this->fraisModel->update($id, $montant, $description, $section);
+            
+            if ($result) {
+                // Enregistrer l'action dans l'historique
+                $this->historiqueModel->add('Modification', 'Frais', $id);
+                
+                $_SESSION['success'] = "Le frais a été modifié avec succès";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=frais');
+            } else {
+                $_SESSION['error'] = "Erreur lors de la modification du frais";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editFrais&id=' . $id);
+            }
+            exit;
+        }
+        
+        // Récupérer les données du frais
+        $frais = $this->fraisModel->getById($id);
+        
+        if (!$frais) {
+            $_SESSION['error'] = "Frais non trouvé";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=frais');
+            exit;
+        }
+        
+        // Charger la vue d'édition
+        require 'views/admin/edit_frais.php';
+    }
+    /**
+     * Gère l'édition d'une directrice existante
+     */
+    public function editDirectrice() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID est fourni
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ID de la directrice non spécifié";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=directrices');
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        // Si le formulaire est soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
+            $prenom = isset($_POST['prenom']) ? $_POST['prenom'] : '';
+            $contact = isset($_POST['contact']) ? $_POST['contact'] : '';
+            $email = isset($_POST['email']) ? $_POST['email'] : '';
+            $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
+            $section = isset($_POST['section']) ? $_POST['section'] : '';
+            
+            // Validation des données
+            if (empty($nom) || empty($prenom) || empty($contact) || empty($email) || empty($adresse) || empty($section)) {
+                $_SESSION['error'] = "Tous les champs sont obligatoires";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editDirectrice&id=' . $id);
+                exit;
+            }
+            
+            // Mettre à jour les données de la directrice
+            $result = $this->directriceModel->update($id, $nom, $prenom, $contact, $email, $adresse, $section);
+            
+            if ($result) {
+                // Enregistrer l'action dans l'historique
+                $this->historiqueModel->add('Modification', 'Directrice', $id);
+                
+                $_SESSION['success'] = "La directrice a été modifiée avec succès";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=directrices');
+            } else {
+                $_SESSION['error'] = "Erreur lors de la modification de la directrice";
+                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editDirectrice&id=' . $id);
+            }
+            exit;
+        }
+        
+        // Récupérer les données de la directrice
+        $directrice = $this->directriceModel->getById($id);
+        
+        if (!$directrice) {
+            $_SESSION['error'] = "Directrice non trouvée";
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=directrices');
+            exit;
+        }
+        
+        // Charger la vue d'édition
+        require 'views/admin/edit_directrice.php';
+    }
+   
 
     public function addDirecteur(){
         if ($_SERVER['REQUEST_METHOD']=='POST'){
@@ -847,13 +1159,12 @@ public function updatePassword() {
     exit;
 }
 
+/**
+ * Met à jour la photo de profil de l'utilisateur
+ */
 public function updateAvatar() {
     // Vérifier si l'utilisateur est connecté
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    if (!isset($_SESSION['user_id'])) {
         header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
         exit;
     }
@@ -861,27 +1172,25 @@ public function updateAvatar() {
     $user_id = $_SESSION['user_id'];
     
     // Vérifier si un fichier a été téléchargé
-    if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Erreur lors du téléchargement de l\'image'));
+    if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] != 0) {
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=Erreur lors du téléchargement du fichier');
         exit;
     }
     
     // Vérifier le type de fichier
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-    $file_type = $_FILES['avatar']['type'];
-    
-    if (!in_array($file_type, $allowed_types)) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Type de fichier non autorisé. Utilisez JPG, PNG ou GIF.'));
+    if (!in_array($_FILES['avatar']['type'], $allowed_types)) {
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=Type de fichier non autorisé');
         exit;
     }
     
-    // Vérifier la taille du fichier (max 2MB)
+    // Vérifier la taille du fichier (2MB max)
     if ($_FILES['avatar']['size'] > 2 * 1024 * 1024) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('L\'image est trop grande. Taille maximale: 2MB'));
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=Le fichier est trop volumineux (max 2MB)');
         exit;
     }
     
-    // Créer le dossier d'upload s'il n'existe pas
+    // Créer le dossier uploads s'il n'existe pas
     $upload_dir = 'uploads/avatars/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
@@ -889,37 +1198,53 @@ public function updateAvatar() {
     
     // Générer un nom de fichier unique
     $file_extension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-    $file_name = 'avatar_' . $user_id . '_' . time() . '.' . $file_extension;
-    $file_path = $upload_dir . $file_name;
+    $new_filename = 'avatar_' . $user_id . '_' . time() . '.' . $file_extension;
+    $target_file = $upload_dir . $new_filename;
     
     // Déplacer le fichier téléchargé
-    if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $file_path)) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Erreur lors de l\'enregistrement de l\'image'));
-        exit;
-    }
-    
-    // Mettre à jour le chemin de l'image dans la base de données
-    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    
-    if ($mysqli->connect_error) {
-        die("Connection failed: " . $mysqli->connect_error);
-    }
-    
-    $stmt = $mysqli->prepare("UPDATE users SET image = ? WHERE id = ?");
-    $stmt->bind_param("si", $file_path, $user_id);
-    $result = $stmt->execute();
-    $stmt->close();
-    
-    if ($result) {
-        // Mettre à jour l'image dans la session
-        $_SESSION['image'] = $file_path;
+    if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target_file)) {
+        // Mettre à jour la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
         
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&success=1&message=' . urlencode('Photo de profil mise à jour avec succès'));
+        if ($mysqli->connect_error) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=Erreur de connexion à la base de données');
+            exit;
+        }
+        
+        // Récupérer l'ancienne image pour la supprimer si elle existe
+        $stmt = $mysqli->prepare("SELECT image FROM users WHERE id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $old_image = $row['image'];
+            // Supprimer l'ancienne image si ce n'est pas l'image par défaut
+            if (!empty($old_image) && $old_image != 'dist/img/user2-160x160.jpg' && file_exists($old_image)) {
+                unlink($old_image);
+            }
+        }
+        $stmt->close();
+        
+        // Mettre à jour l'image dans la base de données
+        $stmt = $mysqli->prepare("UPDATE users SET image = ? WHERE id = ?");
+        $stmt->bind_param("si", $target_file, $user_id);
+        
+        if ($stmt->execute()) {
+            // Mettre à jour la session
+            $_SESSION['image'] = $target_file;
+            
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&success=1&message=Photo de profil mise à jour avec succès');
+        } else {
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=Erreur lors de la mise à jour de la base de données');
+        }
+        
+        $stmt->close();
+        $mysqli->close();
     } else {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Erreur lors de la mise à jour de la photo de profil'));
+        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=Erreur lors du déplacement du fichier');
     }
     
-    $mysqli->close();
     exit;
 }
 

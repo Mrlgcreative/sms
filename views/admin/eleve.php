@@ -9,7 +9,7 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Administrateur';
-$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/';
 
 // Connexion à la base de données
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -281,9 +281,7 @@ if ($mysqli->connect_error) {
                       <td><?php echo $eleve['adresse']; ?></td>
                       
                       <td>
-                        <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editeleve&id=<?php echo $eleve['id']; ?>" class="btn btn-warning btn-xs">
-                          <i class="fa fa-edit"></i> Modifier
-                        </a>
+                        
                         <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=deleteEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-danger btn-xs" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élève?');">
                           <i class="fa fa-trash"></i> Supprimer
                         </a>

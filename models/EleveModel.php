@@ -114,7 +114,7 @@ class EleveModel {
         
         // Insérer l'élève avec toutes les informations
         $stmt = $this->db->prepare("INSERT INTO eleves (nom, post_nom, prenom, date_naissance, sexe, lieu_naissance, adresse, section, classe_id, option_id, nom_pere, nom_mere, contact_pere, contact_mere, session_scolaire_id, statut, matricule, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssssssisssssssss", $nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id, $nom_pere, $nom_mere, $contact_pere, $contact_mere, $session_scolaire_id, $statut, $matricule, $photo);
+        $stmt->bind_param("ssssssssiissssssss", $nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id, $nom_pere, $nom_mere, $contact_pere, $contact_mere, $session_scolaire_id, $statut, $matricule, $photo);
         $stmt->execute();
         
         // Retourner l'ID de l'élève inséré
@@ -125,7 +125,7 @@ class EleveModel {
         // Construire la requête en fonction des paramètres fournis
         $query = "UPDATE eleves SET nom = ?, post_nom = ?, prenom = ?, date_naissance = ?, sexe = ?, lieu_naissance = ?, adresse = ?, section = ?, classe_id = ?, option_id = ?, nom_pere = ?, nom_mere = ?, contact_pere = ?, contact_mere = ?";
         $params = [$nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id, $nom_pere, $nom_mere, $contact_pere, $contact_mere];
-        $types = "ssssssssisssss";
+        $types = "ssssssssiissss";
         
         if ($session_scolaire_id !== null) {
             $query .= ", session_scolaire_id = ?";
@@ -176,17 +176,6 @@ class EleveModel {
             $this->db->rollback();
             throw $e;
         }
-    }
-    
-    /**
-     * Compte le nombre total d'élèves
-     * @return int Nombre total d'élèves
-     */
-    public function countAll() {
-        $query = "SELECT COUNT(*) as total FROM eleves";
-        $result = $this->db->query($query);
-        $row = $result->fetch_assoc();
-        return $row['total'];
     }
 }
 ?>

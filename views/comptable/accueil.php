@@ -72,18 +72,42 @@ $logout_count = $total_frais; // Utiliser le total des frais payés ici
 $payment_count = $eleves_payes; // Utiliser le nombre d'élèves qui ont payé
 
 // Fermer la connexion à la base de données
-$mysqli->close();
+
 
 // Vérifier si une session est déjà active
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
-
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+if ($user_id>0) {
+  # code...
+}
 // Initialiser les variables de session
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
 $current_session = isset($current_session) ? $current_session : date('Y') . '-' . (date('Y') + 1);
+if (!$mysqli->connect_error) {
+  $stmt = $mysqli->prepare("SELECT image FROM users WHERE id = ?");
+  $stmt->bind_param("i", $user_id);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  
+  if ($result->num_rows > 0) {
+    $user_data = $result->fetch_assoc();
+    if (!empty($user_data['image'])) {
+      $_SESSION['image'] = $user_data['image'];
+    }
+  }
+  
+  $stmt->close();
+  $mysqli->close();
+}
+
+
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+
 ?>
 
 <!DOCTYPE html>

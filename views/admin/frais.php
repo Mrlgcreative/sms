@@ -34,6 +34,14 @@ if ($mysqli->connect_error) {
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
+
+<style>
+  @media print {
+      .no-print {
+        display: none;
+      }
+    }
+</style>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
@@ -256,7 +264,7 @@ if ($mysqli->connect_error) {
                     <th>Montant</th>
                     <th>Description</th>
                     <th>Section</th>
-                    <th>Actions</th>
+                    <th class="no-print" >Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -266,7 +274,7 @@ if ($mysqli->connect_error) {
                       <td><?php echo $frai['montant']; ?></td>
                       <td><?php echo $frai['description']; ?></td>
                       <td><?php echo $frai['section']; ?></td>
-                      <td>
+                      <td class="no-print">
                         <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editFrais&id=<?php echo $frai['id']; ?>" class="btn btn-warning btn-xs">
                           <i class="fa fa-edit"></i> Modifier
                         </a>
@@ -277,15 +285,7 @@ if ($mysqli->connect_error) {
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
-                <tfoot>
-                  <tr>
-                    <th>ID</th>
-                    <th>Montant</th>
-                    <th>Description</th>
-                    <th>Section</th>
-                    <th>Actions</th>
-                  </tr>
-                </tfoot>
+               
               </table>
             </div>
           </div>

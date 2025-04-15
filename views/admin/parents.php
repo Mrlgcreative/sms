@@ -401,7 +401,7 @@ $role = $_SESSION['role'];
                     <td><?php echo $parent['contact_pere']; ?></td>
                     <td><?php echo $parent['contact_mere']; ?></td>
                     <td><?php echo $parent['nom']; ?></td>
-                    <td><?php echo $parent['classe']; ?></td>
+                    <td><?php echo $parent['classe_nom']; ?></td>
                     <td><?php echo $parent['section']; ?></td>
 
                    

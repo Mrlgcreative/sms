@@ -4,11 +4,39 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
+// Récupérer l'ID de l'utilisateur connecté
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+
 // Initialiser les variables de session
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
-$photo_profil = isset($_SESSION['photo_profil']) ? $_SESSION['photo_profil'] : 'dist/img/user2-160x160.jpg';
+
+// Récupérer l'image de profil depuis la base de données si l'utilisateur est connecté
+if ($user_id > 0) {
+  // Connexion à la base de données
+  $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+  
+  if (!$mysqli->connect_error) {
+    $stmt = $mysqli->prepare("SELECT image FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+      $user_data = $result->fetch_assoc();
+      if (!empty($user_data['image'])) {
+        $_SESSION['image'] = $user_data['image'];
+      }
+    }
+    
+    $stmt->close();
+    $mysqli->close();
+  }
+}
+
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -44,12 +72,12 @@ $photo_profil = isset($_SESSION['photo_profil']) ? $_SESSION['photo_profil'] : '
         <ul class="nav navbar-nav">
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
+              <img src="<?php echo $image; ?>" class="user-image" alt="Image utilisateur">
               <span class="hidden-xs"><?php echo $username; ?></span>
             </a>
             <ul class="dropdown-menu">
               <li class="user-header">
-                <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
+                <img src="<?php echo $image; ?>" class="img-circle" alt="Image utilisateur">
                 <p><?php echo $role; ?></p>
               </li>
               <li class="user-footer">
@@ -73,7 +101,7 @@ $photo_profil = isset($_SESSION['photo_profil']) ? $_SESSION['photo_profil'] : '
     <section class="sidebar">
       <div class="user-panel">
         <div class="pull-left image">
-          <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
+          <img src="<?php echo $image; ?>" class="img-circle" alt="Image utilisateur">
         </div>
         <div class="pull-left info">
           <p><?php echo $username; ?></p>
@@ -145,7 +173,7 @@ $photo_profil = isset($_SESSION['photo_profil']) ? $_SESSION['photo_profil'] : '
           <!-- Boîte de profil -->
           <div class="box box-primary">
             <div class="box-body box-profile">
-              <img class="profile-user-img img-responsive img-circle" src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" alt="Photo de profil">
+              <img class="profile-user-img img-responsive img-circle" src="<?php echo $image; ?>" alt="Photo de profil">
               <h3 class="profile-username text-center"><?php echo $username; ?></h3>
               <p class="text-muted text-center"><?php echo $role; ?></p>
               
@@ -223,53 +251,63 @@ $photo_profil = isset($_SESSION['photo_profil']) ? $_SESSION['photo_profil'] : '
     </section>
   </div>
 
+  <!-- Modal pour changer la photo de profil -->
+  <div class="modal fade" id="changePhotoModal" tabindex="-1" role="dialog" aria-labelledby="changePhotoModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="changePhotoModalLabel">Changer ma photo de profil</h4>
+        </div>
+        <form action="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=updateProfilePhoto" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="profile_photo">Sélectionner une nouvelle photo</label>
+              <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
+              <p class="help-block">Formats acceptés: JPG, PNG, GIF. Taille max: 2MB</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pied de page -->
   <footer class="main-footer">
     <div class="pull-right hidden-xs">
-      <b>Version</b> 1.0.0
+      <b>Version</b> 1.0
     </div>
     <strong>Copyright &copy; <?php echo date('Y'); ?> <a href="#">St Sofie</a>.</strong> Tous droits réservés.
   </footer>
 </div>
 
-<!-- jQuery 3 -->
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- FastClick -->
-<script src="bower_components/fastclick/lib/fastclick.js"></script>
-<!-- AdminLTE App -->
-<script src="dist/js/adminlte.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="dist/js/demo.js"></script>
+<!-- Scripts JS -->
+<script src="<?php echo BASE_URL; ?>bower_components/jquery/dist/jquery.min.js"></script>
+<script src="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
 
-<!-- Modal pour changer la photo de profil -->
-<div class="modal fade" id="changePhotoModal" tabindex="-1" role="dialog" aria-labelledby="changePhotoModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="changePhotoModalLabel">Changer ma photo de profil</h4>
-      </div>
-      <form action="<?php echo BASE_URL; ?>index.php?controller=comptable&action=updateProfilePhoto" method="post" enctype="multipart/form-data">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="profile_photo">Sélectionner une nouvelle photo</label>
-            <input type="file" id="profile_photo" name="profile_photo" class="form-control" accept="image/*" required>
-            <p class="help-block">Formats acceptés: JPG, PNG, GIF. Taille maximale: 2MB</p>
-          </div>
-          <div class="current-photo text-center">
-            <p>Photo actuelle:</p>
-            <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" alt="Photo actuelle" class="img-circle" style="max-width: 150px; max-height: 150px;">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+<!-- Afficher les messages d'alerte -->
+<?php if(isset($_SESSION['success'])): ?>
+<script>
+  $(document).ready(function() {
+    alert('<?php echo $_SESSION['success']; ?>');
+    <?php unset($_SESSION['success']); ?>
+  });
+</script>
+<?php endif; ?>
+
+<?php if(isset($_SESSION['error'])): ?>
+<script>
+  $(document).ready(function() {
+    alert('<?php echo $_SESSION['error']; ?>');
+    <?php unset($_SESSION['error']); ?>
+  });
+</script>
+<?php endif; ?>
 
 </body>
 </html>

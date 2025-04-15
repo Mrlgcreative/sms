@@ -56,18 +56,43 @@ if ($actions_result && $actions_result->num_rows > 0) {
 }
 
 // Fermer la connexion après avoir récupéré toutes les données nécessaires
-$mysqli->close();
+
 
 // Vérification de la session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Récupérer les informations de l'utilisateur
+// Récupérer les informations de l'utilisateur// Récupérer les informations de l'utilisateur
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Administrateur';
 $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+
+$user_details = [];
+if ($user_id > 0) {
+    // Modification de la requête pour récupérer également l'image de profil
+    $stmt = $mysqli->prepare("SELECT telephone, adresse, image FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $user_details = $result->fetch_assoc();
+        // Mettre à jour la variable de session avec l'image de la base de données si elle existe
+        if (!empty($user_details['image'])) {
+            $image = $user_details['image'];
+            $_SESSION['image'] = $image;
+        }
+    }
+    $stmt->close();
+}
+
+$mysqli->close();
+
+// Récupérer les messages de succès ou d'erreur
+$success_message = isset($_GET['success']) && isset($_GET['message']) ? $_GET['message'] : '';
+$error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['message'] : '';
 ?>
 
 <!DOCTYPE html>

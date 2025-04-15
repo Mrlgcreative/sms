@@ -146,7 +146,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
 
               <h3 class="profile-username text-center"><?php echo htmlspecialchars($eleve['nom'] . ' ' . $eleve['post_nom'] . ' ' . $eleve['prenom']); ?></h3>
 
-              <p class="text-muted text-center"><?php echo htmlspecialchars($eleve['classe'] ?? 'Non assigné'); ?></p>
+              <p class="text-muted text-center"><?php echo htmlspecialchars($eleve['classe_nom'] ?? 'Non assigné'); ?></p>
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">

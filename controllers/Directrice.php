@@ -1547,6 +1547,145 @@ public function voirProfesseur() {
     require_once 'views/directrice/voirProfesseur.php';
 }
 
+
+
+/**
+ * Ajoute un nouveau cours
+ */
+public function ajouterCours() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $titre = isset($_POST['titre']) ? trim($_POST['titre']) : '';
+        $description = isset($_POST['description']) ? trim($_POST['description']) : '';
+        $classe_id = isset($_POST['classe_id']) ? intval($_POST['classe_id']) : 0;
+        $professeur_id = isset($_POST['professeur_id']) ? intval($_POST['professeur_id']) : 0;
+        $jour = isset($_POST['jour']) ? trim($_POST['jour']) : '';
+        $heure_debut = isset($_POST['heure_debut']) ? trim($_POST['heure_debut']) : '';
+        $heure_fin = isset($_POST['heure_fin']) ? trim($_POST['heure_fin']) : '';
+        
+        // Validation des données
+        $errors = [];
+        if (empty($titre)) {
+            $errors[] = "Le titre du cours est requis.";
+        }
+        if ($classe_id <= 0) {
+            $errors[] = "Veuillez sélectionner une classe valide.";
+        }
+        if ($professeur_id <= 0) {
+            $errors[] = "Veuillez sélectionner un professeur valide.";
+        }
+        if (empty($jour)) {
+            $errors[] = "Le jour du cours est requis.";
+        }
+        if (empty($heure_debut)) {
+            $errors[] = "L'heure de début est requise.";
+        }
+        if (empty($heure_fin)) {
+            $errors[] = "L'heure de fin est requise.";
+        }
+        
+        // Si pas d'erreurs, insérer le cours dans la base de données
+        if (empty($errors)) {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                $_SESSION['message_type'] = "danger";
+                header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=cours');
+                exit;
+            }
+            
+            // Vérifier que la classe existe et appartient à la section maternelle
+            $check_classe_query = "SELECT id FROM classes WHERE id = ? AND section = 'maternelle'";
+            $check_classe_stmt = $mysqli->prepare($check_classe_query);
+            $check_classe_stmt->bind_param("i", $classe_id);
+            $check_classe_stmt->execute();
+            $check_classe_result = $check_classe_stmt->get_result();
+            
+            if ($check_classe_result->num_rows === 0) {
+                $errors[] = "La classe sélectionnée n'existe pas ou n'appartient pas à la section maternelle.";
+                $check_classe_stmt->close();
+            } else {
+                $check_classe_stmt->close();
+                
+                // Vérifier que le professeur existe et appartient à la section maternelle
+                $check_prof_query = "SELECT id FROM professeurs WHERE id = ? AND section = 'maternelle'";
+                $check_prof_stmt = $mysqli->prepare($check_prof_query);
+                $check_prof_stmt->bind_param("i", $professeur_id);
+                $check_prof_stmt->execute();
+                $check_prof_result = $check_prof_stmt->get_result();
+                
+                if ($check_prof_result->num_rows === 0) {
+                    $errors[] = "Le professeur sélectionné n'existe pas ou n'appartient pas à la section maternelle.";
+                    $check_prof_stmt->close();
+                } else {
+                    $check_prof_stmt->close();
+                    
+                    // Vérifier s'il y a un conflit d'horaire pour le professeur
+                    $check_conflit_query = "SELECT id FROM cours 
+                                          WHERE professeur_id = ? AND jour = ? 
+                                          AND ((heure_debut <= ? AND heure_fin > ?) 
+                                          OR (heure_debut < ? AND heure_fin >= ?) 
+                                          OR (heure_debut >= ? AND heure_fin <= ?))";
+                    $check_conflit_stmt = $mysqli->prepare($check_conflit_query);
+                    $check_conflit_stmt->bind_param("isssssss", $professeur_id, $jour, $heure_fin, $heure_debut, $heure_fin, $heure_debut, $heure_debut, $heure_fin);
+                    $check_conflit_stmt->execute();
+                    $check_conflit_result = $check_conflit_stmt->get_result();
+                    
+                    if ($check_conflit_result->num_rows > 0) {
+                        $errors[] = "Il y a un conflit d'horaire pour ce professeur à ce moment.";
+                    }
+                    $check_conflit_stmt->close();
+                }
+            }
+            
+            // Si toujours pas d'erreurs, insérer le cours
+            if (empty($errors)) {
+                $insert_query = "INSERT INTO cours (titre, description, classe_id, professeur_id, jour, heure_debut, heure_fin, date_creation) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
+                $insert_stmt = $mysqli->prepare($insert_query);
+                $insert_stmt->bind_param("ssiisss", $titre, $description, $classe_id, $professeur_id, $jour, $heure_debut, $heure_fin);
+                
+                if ($insert_stmt->execute()) {
+                    $_SESSION['message'] = "Le cours a été ajouté avec succès.";
+                    $_SESSION['message_type'] = "success";
+                } else {
+                    $_SESSION['message'] = "Erreur lors de l'ajout du cours: " . $mysqli->error;
+                    $_SESSION['message_type'] = "danger";
+                }
+                
+                $insert_stmt->close();
+            }
+            
+            $mysqli->close();
+        }
+        
+        // S'il y a des erreurs, les afficher
+        if (!empty($errors)) {
+            $_SESSION['message'] = "Erreurs: " . implode(" ", $errors);
+            $_SESSION['message_type'] = "danger";
+        }
+        
+        // Rediriger vers la page des cours
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=cours');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page des cours
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=cours');
+        exit;
+    }
+}
+
+
 }
 
 

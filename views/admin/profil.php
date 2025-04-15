@@ -20,13 +20,18 @@ if ($mysqli->connect_error) {
 
 $user_details = [];
 if ($user_id > 0) {
-    // Modification de la requête pour ne récupérer que les colonnes existantes
-    $stmt = $mysqli->prepare("SELECT telephone, adresse FROM users WHERE id = ?");
+    // Modification de la requête pour récupérer également l'image de profil
+    $stmt = $mysqli->prepare("SELECT telephone, adresse, image FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $user_details = $result->fetch_assoc();
+        // Mettre à jour la variable de session avec l'image de la base de données si elle existe
+        if (!empty($user_details['image'])) {
+            $image = $user_details['image'];
+            $_SESSION['image'] = $image;
+        }
     }
     $stmt->close();
 }

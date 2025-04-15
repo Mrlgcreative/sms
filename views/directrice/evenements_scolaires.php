@@ -138,7 +138,7 @@ unset($_SESSION['error_message']);
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=professeurs">
-            <i class="fa fa-graduation-cap"></i> <span>Enseignants</span>
+            <i class="fa fa-graduation-cap"></i> <span>Professeurs</span>
           </a>
         </li>
         

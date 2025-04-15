@@ -174,10 +174,13 @@ class Auth {
         session_regenerate_id(true);
         
         // Enregistrer les informations de session
+        // Inside your login function, after successful authentication:
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = $user['role'];
+        // Add this line to store the image path
+        $_SESSION['image'] = !empty($user['image']) ? $user['image'] : 'dist/img/user2-160x160.jpg';
         $_SESSION['new_login'] = true;
         $_SESSION['last_activity'] = time();
         
@@ -196,12 +199,12 @@ class Auth {
         $this->userModel->logActivity($user['id'], $user['username'], 'Connexion réussie');
         $this->logger->info("Connexion réussie", ['username' => $username, 'ip' => $ip]);
         
-        // Vérifier si le mot de passe doit être changé
-        if ($this->userModel->isPasswordChangeRequired($user['id'])) {
-            $_SESSION['password_change_required'] = true;
-            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=changePassword');
-            exit;
-        }
+        // // Vérifier si le mot de passe doit être changé
+        // if ($this->userModel->isPasswordChangeRequired($user['id'])) {
+        //     $_SESSION['password_change_required'] = true;
+        //     header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=changePassword');
+        //     exit;
+        // }
         
         // Rediriger en fonction du rôle
         $this->redirectBasedOnRole($user['role']);
