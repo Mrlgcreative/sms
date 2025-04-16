@@ -813,23 +813,62 @@ class Prefet {
      * Affiche le profil détaillé d'un professeur
      */
     public function voirProfesseur() {
-        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
-            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
-            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        
+        // Vérifier si l'ID est valide
+        if ($id <= 0) {
+            $_SESSION['message'] = "ID de professeur invalide.";
+            $_SESSION['message_type'] = "error";
+            header("Location: " . BASE_URL . "index.php?controller=Prefet&action=professeurs");
             exit;
         }
         
-        // Vérifier si l'ID du professeur est fourni
-        if (!isset($_GET['id']) || empty($_GET['id'])) {
-            $_SESSION['flash_message'] = "ID du professeur non spécifié.";
-            $_SESSION['flash_type'] = "danger";
-            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=professeurs');
-            exit;
+        // Récupérer les données du professeur
+// Connect to database
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Get professor data
+$query = "SELECT * FROM professeurs WHERE id = ?";
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$professeur = $result->fetch_assoc();
+
+$stmt->close();
+$mysqli->close();
+        
+        // Débogage
+        if (isset($_GET['debug']) && $_GET['debug'] == 1) {
+            echo "<pre>";
+            print_r($professeur);
+            echo "</pre>";
         }
         
-        // Charger la vue du profil du professeur
-        require_once 'views/prefet/voirProfesseur.php';
+        // Récupérer les cours du professeur
+// Connect to database to get professor's courses
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Get courses data
+$query = "SELECT * FROM cours WHERE professeur_id = ?";
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$cours = $result->fetch_all(MYSQLI_ASSOC);
+
+$stmt->close();
+        
+        // Charger la vue
+        require_once('views/prefet/voirProfesseur.php');
     }
 }
 ?>

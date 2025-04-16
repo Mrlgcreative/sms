@@ -1,51 +1,4 @@
 <?php
-// Connexion à la base de données
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-
-// Vérification de l'ID du professeur
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: " . BASE_URL . "index.php?controller=Prefet&action=professeurs");
-    exit;
-}
-
-$professeur_id = $_GET['id'];
-
-// Récupération des informations du professeur
-$query = "SELECT p.*, GROUP_CONCAT(c.titre SEPARATOR ', ') as cours_enseignes 
-          FROM professeurs p 
-          LEFT JOIN cours c ON FIND_IN_SET(c.id, p.cours_id)
-          WHERE p.id = ?
-          GROUP BY p.id";
-
-$stmt = $mysqli->prepare($query);
-$stmt->bind_param("i", $professeur_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    header("Location: " . BASE_URL . "index.php?controller=Prefet&action=professeurs");
-    exit;
-}
-
-$professeur = $result->fetch_assoc();
-
-// Récupération des classes où le professeur enseigne
-$query_classes = "SELECT c.* 
-                 FROM classes c 
-                 JOIN cours co ON FIND_IN_SET(co.id, c.cours_ids)
-                 WHERE FIND_IN_SET(co.id, ?)
-                 GROUP BY c.id
-                 ORDER BY c.niveau, c.nom";
-
-$stmt_classes = $mysqli->prepare($query_classes);
-$stmt_classes->bind_param("s", $professeur['cours_id']);
-$stmt_classes->execute();
-$result_classes = $stmt_classes->get_result();
-
 // Vérification de la session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -57,10 +10,27 @@ $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Préfet';
 $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 
-// Fermer la connexion
-$stmt->close();
-$stmt_classes->close();
-$mysqli->close();
+// Vérifier si les données du professeur sont disponibles
+if (!isset($professeur) || empty($professeur)) {
+    // Au lieu de sortir immédiatement, affichons un message d'erreur et continuons
+    $error_message = "Aucune information disponible pour ce professeur.";
+    // Créons un tableau vide pour éviter les erreurs plus loin
+    $professeur = [
+        'id' => 0,
+        'nom' => 'Non disponible',
+        'prenom' => '',
+        'email' => 'Non disponible',
+        'telephone' => 'Non disponible',
+        'specialite' => 'Non disponible',
+        'date_embauche' => date('Y-m-d'),
+        'adresse' => 'Non disponible',
+        'formation' => 'Non disponible',
+        'notes' => 'Non disponible'
+    ];
+}
+
+// Récupérer les cours du professeur si disponibles
+$cours_professeur = isset($cours) ? $cours : [];
 ?>
 
 <!DOCTYPE html>
@@ -68,7 +38,7 @@ $mysqli->close();
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>SGS | Profil Professeur</title>
+  <title>SGS | Détails du Professeur</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
@@ -169,6 +139,18 @@ $mysqli->close();
             <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
           </a>
         </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=absences">
+            <i class="fa fa-clock-o"></i> <span>Gestion des Absences</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=discipline">
+            <i class="fa fa-gavel"></i> <span>Discipline</span>
+          </a>
+        </li>
       </ul>
     </section>
   </aside>
@@ -176,131 +158,208 @@ $mysqli->close();
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
-        Profil Professeur
-        <small>Informations détaillées</small>
+        Détails du Professeur
+        <small>Informations complètes</small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs">Professeurs</a></li>
-        <li class="active">Profil</li>
+        <li class="active">Détails du Professeur</li>
       </ol>
     </section>
 
     <section class="content">
+      <?php if (isset($error_message)): ?>
+      <div class="alert alert-danger">
+        <h4><i class="icon fa fa-ban"></i> Erreur!</h4>
+        <?php echo $error_message; ?>
+      </div>
+      <?php endif; ?>
+      
+      <!-- Affichage des données de débogage si nécessaire -->
+      <?php if (isset($_GET['debug']) && $_GET['debug'] == 1): ?>
+      <div class="box box-danger">
+        <div class="box-header with-border">
+          <h3 class="box-title">Informations de débogage</h3>
+        </div>
+        <div class="box-body">
+          <pre><?php print_r($professeur); ?></pre>
+        </div>
+      </div>
+      <?php endif; ?>
+
       <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-4">
+          <!-- Profil du professeur -->
           <div class="box box-primary">
             <div class="box-body box-profile">
               <img class="profile-user-img img-responsive img-circle" src="<?php echo BASE_URL; ?>dist/img/teacher-avatar.png" alt="Photo du professeur">
-              <h3 class="profile-username text-center"><?php echo $professeur['prenom'] . ' ' . $professeur['nom']; ?></h3>
+              <h3 class="profile-username text-center"><?php echo htmlspecialchars($professeur['nom'] . ' ' . $professeur['prenom']); ?></h3>
               <p class="text-muted text-center">Professeur</p>
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">
-                  <b>Email</b> <a class="pull-right"><?php echo $professeur['email']; ?></a>
+                  <b>Email</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['email']); ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Téléphone</b> <a class="pull-right"><?php echo isset($professeur['telephone']) ? $professeur['telephone'] : 'Non renseigné'; ?></a>
+                  <b>Téléphone</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['telephone']); ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Date d'embauche</b> <a class="pull-right"><?php echo isset($professeur['date_embauche']) ? date('d/m/Y', strtotime($professeur['date_embauche'])) : 'Non renseigné'; ?></a>
+                  <b>Spécialité</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['specialite']); ?></a>
+                </li>
+                <li class="list-group-item">
+                  <b>Date d'embauche</b> <a class="pull-right"><?php echo date('d/m/Y', strtotime($professeur['date_embauche'])); ?></a>
                 </li>
               </ul>
 
-              <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs" class="btn btn-primary btn-block"><b>Retour à la liste</b></a>
+              <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=modifierProfesseur&id=<?php echo $professeur['id']; ?>" class="btn btn-primary btn-block"><b>Modifier</b></a>
+            </div>
+          </div>
+
+          <!-- Informations supplémentaires -->
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Informations supplémentaires</h3>
+            </div>
+            <div class="box-body">
+              <strong><i class="fa fa-map-marker margin-r-5"></i> Adresse</strong>
+              <p class="text-muted"><?php echo htmlspecialchars($professeur['adresse']); ?></p>
+              <hr>
+
+              <strong><i class="fa fa-graduation-cap margin-r-5"></i> Formation</strong>
+              <p class="text-muted"><?php echo htmlspecialchars($professeur['formation']); ?></p>
+              <hr>
+
+              <strong><i class="fa fa-file-text-o margin-r-5"></i> Notes</strong>
+              <p class="text-muted"><?php echo htmlspecialchars($professeur['notes']); ?></p>
             </div>
           </div>
         </div>
 
-        <div class="col-md-9">
-          <div class="nav-tabs-custom">
-            <ul class="nav nav-tabs">
-              <li class="active"><a href="#informations" data-toggle="tab">Informations</a></li>
-              <li><a href="#cours" data-toggle="tab">Cours enseignés</a></li>
-              <li><a href="#classes" data-toggle="tab">Classes</a></li>
-            </ul>
-            <div class="tab-content">
-              <div class="active tab-pane" id="informations">
-                <div class="box-body">
-                  <strong><i class="fa fa-book margin-r-5"></i> Éducation</strong>
-                  <p class="text-muted">
-                    <?php echo isset($professeur['education']) ? $professeur['education'] : 'Information non disponible'; ?>
-                  </p>
-                  <hr>
-
-                  <strong><i class="fa fa-map-marker margin-r-5"></i> Adresse</strong>
-                  <p class="text-muted">
-                    <?php echo isset($professeur['adresse']) ? $professeur['adresse'] : 'Information non disponible'; ?>
-                  </p>
-                  <hr>
-
-                  <strong><i class="fa fa-pencil margin-r-5"></i> Spécialités</strong>
-                  <p class="text-muted">
-                    <?php echo isset($professeur['specialites']) ? $professeur['specialites'] : 'Information non disponible'; ?>
-                  </p>
-                  <hr>
-
-                  <strong><i class="fa fa-file-text-o margin-r-5"></i> Notes</strong>
-                  <p>
-                    <?php echo isset($professeur['notes']) ? $professeur['notes'] : 'Aucune note disponible'; ?>
-                  </p>
-                </div>
-              </div>
-
-              <div class="tab-pane" id="cours">
-                <div class="box-body">
-                  <h4>Liste des cours enseignés</h4>
-                  <?php if (!empty($professeur['cours_enseignes'])): ?>
-                    <ul class="list-group">
-                      <?php 
-                      $cours_array = explode(', ', $professeur['cours_enseignes']);
-                      foreach ($cours_array as $cours): 
-                      ?>
-                        <li class="list-group-item">
-                          <i class="fa fa-book margin-r-5"></i> <?php echo $cours; ?>
-                        </li>
+        <div class="col-md-8">
+          <!-- Cours enseignés -->
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Cours enseignés</h3>
+            </div>
+            <div class="box-body">
+              <?php if (!empty($cours_professeur)): ?>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-striped">
+                    <thead>
+                      <tr>
+                        <th>Nom du cours</th>
+                        <th>Classe</th>
+                        <th>Horaire</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($cours_professeur as $cours): ?>
+                        <tr>
+                          <td><?php echo htmlspecialchars($cours['titre']); ?></td>
+                          <td><?php echo htmlspecialchars($cours['classe']); ?></td>
+                          <td><?php echo htmlspecialchars($cours['horaire']); ?></td>
+                          <td>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirCours&id=<?php echo $cours['id']; ?>" class="btn btn-xs btn-info">
+                              <i class="fa fa-eye"></i> Voir
+                            </a>
+                          </td>
+                        </tr>
                       <?php endforeach; ?>
-                    </ul>
-                  <?php else: ?>
-                    <p class="text-center">Aucun cours assigné à ce professeur.</p>
-                  <?php endif; ?>
+                    </tbody>
+                  </table>
                 </div>
-              </div>
+              <?php else: ?>
+                <div class="alert alert-info">
+                  <i class="icon fa fa-info"></i> Ce professeur n'enseigne actuellement aucun cours.
+                </div>
+              <?php endif; ?>
+            </div>
+          </div>
 
-              <div class="tab-pane" id="classes">
-                <div class="box-body">
-                  <h4>Classes où le professeur enseigne</h4>
-                  <?php if ($result_classes && $result_classes->num_rows > 0): ?>
-                    <div class="table-responsive">
-                      <table class="table table-bordered table-striped">
-                        <thead>
-                          <tr>
-                            <th>Niveau</th>
-                            <th>Nom de la classe</th>
-                            <th>Année scolaire</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php while ($classe = $result_classes->fetch_assoc()): ?>
-                            <tr>
-                              <td><?php echo $classe['niveau']; ?></td>
-                              <td><?php echo $classe['nom']; ?></td>
-                              <td><?php echo isset($classe['annee_scolaire']) ? $classe['annee_scolaire'] : 'Non définie'; ?></td>
-                              <td>
-                                <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirClasse&id=<?php echo $classe['id']; ?>" class="btn btn-info btn-xs">
-                                  <i class="fa fa-eye"></i> Voir
-                                </a>
-                              </td>
-                            </tr>
-                          <?php endwhile; ?>
-                        </tbody>
-                      </table>
-                    </div>
-                  <?php else: ?>
-                    <p class="text-center">Ce professeur n'enseigne dans aucune classe pour le moment.</p>
-                  <?php endif; ?>
-                </div>
+          <!-- Emploi du temps -->
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Emploi du temps</h3>
+            </div>
+            <div class="box-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Heure</th>
+                      <th>Lundi</th>
+                      <th>Mardi</th>
+                      <th>Mercredi</th>
+                      <th>Jeudi</th>
+                      <th>Vendredi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Ici, vous pouvez ajouter dynamiquement l'emploi du temps du professeur -->
+                    <tr>
+                      <td>08:00 - 09:00</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>09:00 - 10:00</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>10:00 - 11:00</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>11:00 - 12:00</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>12:00 - 13:00</td>
+                      <td colspan="5" class="text-center">Pause déjeuner</td>
+                    </tr>
+                    <tr>
+                      <td>13:00 - 14:00</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>14:00 - 15:00</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>15:00 - 16:00</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
