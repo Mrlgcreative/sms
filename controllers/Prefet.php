@@ -794,7 +794,7 @@ class Prefet {
             exit;
         }
     }
-
+    
     
     // Afficher la carte d'élève
     public function carteEleve() {
@@ -808,6 +808,28 @@ class Prefet {
         // Charger la vue de la carte d'élève
         require_once 'views/prefet/carte_eleve.php';
     }
-
+    
+    /**
+     * Affiche le profil détaillé d'un professeur
+     */
+    public function voirProfesseur() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID du professeur est fourni
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['flash_message'] = "ID du professeur non spécifié.";
+            $_SESSION['flash_type'] = "danger";
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=professeurs');
+            exit;
+        }
+        
+        // Charger la vue du profil du professeur
+        require_once 'views/prefet/voirProfesseur.php';
+    }
 }
 ?>

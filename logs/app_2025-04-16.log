@@ -1,0 +1,3 @@
+[2025-04-16 18:33:15] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"hermine","ip":"::1"}
+[2025-04-16 18:33:21] [INFO] [::1] [hermine] User role for redirection {"role":"prefet"}
+[2025-04-16 18:33:21] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
