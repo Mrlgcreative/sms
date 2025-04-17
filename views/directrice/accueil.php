@@ -1,5 +1,41 @@
 <?php
 // Connexion à la base de données
+
+// Récupérer l'ID de l'utilisateur connecté
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+
+// Initialiser les variables de session
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
+$email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
+
+// Récupérer l'image de profil depuis la base de données si l'utilisateur est connecté
+if ($user_id > 0) {
+  // Connexion à la base de données
+  $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+  
+  if (!$mysqli->connect_error) {
+    $stmt = $mysqli->prepare("SELECT image FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+      $user_data = $result->fetch_assoc();
+      if (!empty($user_data['image'])) {
+        $_SESSION['image'] = $user_data['image'];
+      }
+    }
+    
+    $stmt->close();
+    $mysqli->close();
+  }
+}
+
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+
+
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($mysqli->connect_error) {
@@ -64,11 +100,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Récupérer les informations de l'utilisateur
-$username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
-$email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
-$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
-$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+
 ?>
 
 <!DOCTYPE html>

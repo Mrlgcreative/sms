@@ -152,7 +152,7 @@
                     <option value="">Sélectionner un élève</option>
                     <?php foreach ($eleves as $eleve): ?>
                       <option value="<?php echo $eleve['id']; ?>" <?php echo ($eleve['id'] == $paiement['eleve_nom']) ? 'selected' : ''; ?>>
-                        <?php echo $eleve['nom'] . ' ' . $eleve['prenom'] . ' - ' . $eleve['classe'] . ' ' . $eleve['option_nom'] . ' (' . $eleve['section'] . ')'; ?>
+                        <?php echo $eleve['nom'] . ' ' . $eleve['prenom'] . ' - ' . $eleve['classe_nom'] . ' ' . $eleve['option_nom'] . ' (' . $eleve['section'] . ')'; ?>
                       </option>
                     <?php endforeach; ?>
                   </select>
@@ -163,8 +163,8 @@
                   <select class="form-control" id="frais_id" name="frais_id" required>
                     <option value="">Sélectionner un type de frais</option>
                     <?php foreach ($frais as $f): ?>
-                      <option value="<?php echo $f['id']; ?>" <?php echo ($f['id'] == $paiement['description']) ? 'selected' : ''; ?>>
-                        <?php echo $f['description'] . ' - ' . $f['montant'] . ' ' . $f['devise']; ?>
+                      <option value="<?php echo $f['id']; ?>" <?php echo ($f['id'] == $paiement['id']) ? 'selected' : ''; ?>>
+                        <?php echo $f['description'] . ' - ' . $f['montant'] ; ?>
                       </option>
                     <?php endforeach; ?>
                   </select>

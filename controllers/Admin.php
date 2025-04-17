@@ -30,6 +30,7 @@ class Admin {
     private $prefetModel;
     private $sessionscolaireModel;
     private $employeModel;
+    private $db;
 
     public function __construct() {
         $this->eleveModel = new EleveModel();
@@ -45,6 +46,7 @@ class Admin {
         $this->directriceModel=new DirectriceModel();
         $this->prefetModel=new PrefetModel();
         $this->sessionscolaireModel=new SessionScolaireModel();
+        $this->db = new mysqli("localhost", "root", "", "college1");
      }
 
     public function accueil() {

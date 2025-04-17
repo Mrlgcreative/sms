@@ -575,7 +575,7 @@ $(function () {
       <?php foreach ($evenements as $evenement): ?>
       {
         id: <?php echo $evenement['id']; ?>,
-        title: '<?php echo addslashes($evenement['titre']); ?>',
+        title: '<?php echo addslashes(htmlspecialchars($evenement['titre'])); ?>',
         start: '<?php echo $evenement['date_debut']; ?>',
         end: '<?php echo $evenement['date_fin']; ?>',
         backgroundColor: '<?php 

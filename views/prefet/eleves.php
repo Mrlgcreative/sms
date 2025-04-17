@@ -7,7 +7,7 @@ if ($mysqli->connect_error) {
 }
 
 // Récupération des élèves de la section secondaire avec information de classe
-$query = "SELECT e.*, e.classe_id as classe_nom 
+$query = "SELECT e.*, c.nom as classe_nom 
           FROM eleves e 
           LEFT JOIN classes c ON e.classe_id = e.id
           WHERE e.section = 'secondaire'

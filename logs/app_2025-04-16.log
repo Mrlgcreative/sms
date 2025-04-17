@@ -1,0 +1,19 @@
+[2025-04-16 10:32:00] [INFO] [::1] [rapha] User role for redirection {"role":"prefet"}
+[2025-04-16 10:32:00] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}
+[2025-04-16 10:33:17] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"chris","ip":"::1"}
+[2025-04-16 10:33:36] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"chris","ip":"::1"}
+[2025-04-16 10:34:44] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"chris","ip":"::1"}
+[2025-04-16 10:36:48] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-16 10:36:48] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-16 10:50:14] [INFO] [::1] [rapha] User role for redirection {"role":"prefet"}
+[2025-04-16 10:50:14] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}
+[2025-04-16 12:10:30] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-16 12:10:30] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-16 12:11:57] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-16 12:11:57] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-16 12:15:09] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-16 12:15:09] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-16 12:18:29] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-04-16 12:18:29] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-16 23:24:57] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-16 23:24:57] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

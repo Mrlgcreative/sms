@@ -228,7 +228,8 @@ $today = date('Y-m-d');
                     <div class="form-group">
                       <label for="option_id" class="col-sm-4 control-label">Option</label>
                       <div class="col-sm-8">
-                        <input type="text" class="form-control" id="option_id" name="option_id" readonly>
+                        <input type="hidden" id="option_id_value" name="option_id">
+                        <input type="text" class="form-control" id="option_display" readonly>
                       </div>
                     </div>
 
@@ -386,7 +387,18 @@ $today = date('Y-m-d');
             // Découpe la réponse pour obtenir les détails
             var details = response.split(";");
             $("#classe_id").val(details[1]);   // Nom de la classe
-            $("#option_id").val(details[2]); // Nom de l'option
+            $("#option_display").val(details[2]); // Afficher le nom de l'option
+            
+            // Récupérer l'ID de l'option à partir du nom
+            $.ajax({
+              url: "index.php?controller=comptable&action=getOptionIdByName",
+              method: "POST",
+              data: { option_name: details[2] },
+              success: function(optionId) {
+                $("#option_id_value").val(optionId);
+              }
+            });
+            
             $("#section").val(details[3]);   // Nom de la section
           } else {
             alert("Erreur: " + response);
@@ -399,7 +411,8 @@ $today = date('Y-m-d');
     } else {
       // Réinitialiser les champs si aucun élève n'est sélectionné
       $("#classe_id").val("");
-      $("#option_id").val("");
+      $("#option_display").val("");
+      $("#option_id_value").val("");
       $("#section").val("");
     }
   }

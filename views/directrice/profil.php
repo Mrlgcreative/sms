@@ -1,16 +1,42 @@
 <?php
-// Vérification de la session
+// Vérifier si une session est déjà active
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+  session_start();
 }
 
-// Récupérer les informations de l'utilisateur
+// Récupérer l'ID de l'utilisateur connecté
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
-$nom = isset($_SESSION['nom']) ? $_SESSION['nom'] : 'Utilisateur';
-$prenom = isset($_SESSION['prenom']) ? $_SESSION['prenom'] : '';
+
+// Initialiser les variables de session
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
-$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'directrice';
-$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directrice';
+
+// Récupérer l'image de profil depuis la base de données si l'utilisateur est connecté
+if ($user_id > 0) {
+  // Connexion à la base de données
+  $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+  
+  if (!$mysqli->connect_error) {
+    $stmt = $mysqli->prepare("SELECT image FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+      $user_data = $result->fetch_assoc();
+      if (!empty($user_data['image'])) {
+        $_SESSION['image'] = $user_data['image'];
+      }
+    }
+    
+    $stmt->close();
+    $mysqli->close();
+  }
+}
+
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 
 // Récupérer les informations supplémentaires depuis la base de données
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -21,7 +47,7 @@ if ($mysqli->connect_error) {
 
 $user_details = [];
 if ($user_id > 0) {
-    // Modification de la requête pour ne récupérer que les colonnes existantes
+    // Récupérer plus d'informations sur l'utilisateur
     $stmt = $mysqli->prepare("SELECT telephone, adresse FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -35,12 +61,15 @@ if ($user_id > 0) {
 $mysqli->close();
 
 // Récupérer les messages de succès ou d'erreur
-$success_message = isset($_SESSION['flash_message']) && $_SESSION['flash_type'] == 'success' ? $_SESSION['flash_message'] : '';
-$error_message = isset($_SESSION['flash_message']) && $_SESSION['flash_type'] == 'danger' ? $_SESSION['flash_message'] : '';
+$success_message = isset($_SESSION['success']) ? $_SESSION['success'] : '';
+$error_message = isset($_SESSION['error']) ? $_SESSION['error'] : '';
 
 // Effacer les messages après les avoir récupérés
-if (isset($_SESSION['flash_message'])) {
-    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+if (isset($_SESSION['success'])) {
+    unset($_SESSION['success']);
+}
+if (isset($_SESSION['error'])) {
+    unset($_SESSION['error']);
 }
 ?>
 
@@ -76,13 +105,13 @@ if (isset($_SESSION['flash_message'])) {
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <img src="<?php echo BASE_URL . $image; ?>" class="user-image" alt="User Image">
-              <span class="hidden-xs"><?php echo $prenom . ' ' . $nom; ?></span>
+              <span class="hidden-xs"><?php echo $username; ?></span>
             </a>
             <ul class="dropdown-menu">
               <li class="user-header">
                 <img src="<?php echo BASE_URL . $image; ?>" class="img-circle" alt="User Image">
                 <p>
-                  <?php echo $prenom . ' ' . $nom; ?> - <?php echo $role; ?>
+                  <?php echo $username; ?> - <?php echo $role; ?>
                   <small><?php echo $email; ?></small>
                 </p>
               </li>
@@ -108,7 +137,7 @@ if (isset($_SESSION['flash_message'])) {
           <img src="<?php echo BASE_URL . $image; ?>" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p><?php echo $prenom . ' ' . $nom; ?></p>
+          <p><?php echo $username; ?></p>
           <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
         </div>
       </div>
@@ -209,23 +238,33 @@ if (isset($_SESSION['flash_message'])) {
 
       <div class="row">
         <div class="col-md-3">
+          <!-- Boîte de profil -->
           <div class="box box-primary">
             <div class="box-body box-profile">
               <img class="profile-user-img img-responsive img-circle" src="<?php echo BASE_URL . $image; ?>" alt="Photo de profil">
-              <h3 class="profile-username text-center"><?php echo $prenom . ' ' . $nom; ?></h3>
-              <p class="text-muted text-center">Directrice</p>
+              <h3 class="profile-username text-center"><?php echo $username; ?></h3>
+              <p class="text-muted text-center"><?php echo $role; ?></p>
+              
+              <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#changePhotoModal">
+                <i class="fa fa-camera"></i> Changer ma photo
+              </button>
+            </div>
+          </div>
 
-              <ul class="list-group list-group-unbordered">
-                <li class="list-group-item">
-                  <b>Email</b> <a class="pull-right"><?php echo $email; ?></a>
-                </li>
-                <li class="list-group-item">
-                  <b>Téléphone</b> <a class="pull-right"><?php echo isset($user_details['telephone']) ? $user_details['telephone'] : 'Non renseigné'; ?></a>
-                </li>
-                <li class="list-group-item">
-                  <b>Date d'inscription</b> <a class="pull-right"><?php echo date('d/m/Y'); ?></a>
-                </li>
-              </ul>
+          <!-- À propos de moi -->
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">À propos de moi</h3>
+            </div>
+            <div class="box-body">
+              <strong><i class="fa fa-envelope margin-r-5"></i> Email</strong>
+              <p class="text-muted"><?php echo $email; ?></p>
+              <hr>
+              <strong><i class="fa fa-phone margin-r-5"></i> Téléphone</strong>
+              <p class="text-muted"><?php echo isset($user_details['telephone']) ? $user_details['telephone'] : 'Non renseigné'; ?></p>
+              <hr>
+              <strong><i class="fa fa-map-marker margin-r-5"></i> Adresse</strong>
+              <p class="text-muted"><?php echo isset($user_details['adresse']) ? $user_details['adresse'] : 'Non renseignée'; ?></p>
             </div>
           </div>
         </div>
@@ -235,27 +274,21 @@ if (isset($_SESSION['flash_message'])) {
             <ul class="nav nav-tabs">
               <li class="active"><a href="#settings" data-toggle="tab">Paramètres</a></li>
               <li><a href="#password" data-toggle="tab">Mot de passe</a></li>
-              <li><a href="#avatar" data-toggle="tab">Photo de profil</a></li>
             </ul>
             <div class="tab-content">
               <div class="active tab-pane" id="settings">
                 <form class="form-horizontal" action="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=updateProfile" method="post">
                   <div class="form-group">
-                    <label for="nom" class="col-sm-2 control-label">Nom</label>
+                    <label for="nom" class="col-sm-2 control-label">Nom d'utilisateur</label>
                     <div class="col-sm-10">
-                      <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom" value="<?php echo $nom; ?>">
+                      <input type="text" class="form-control" id="nom" name="username" placeholder="Nom d'utilisateur" value="<?php echo $username; ?>" required>
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label for="prenom" class="col-sm-2 control-label">Prénom</label>
-                    <div class="col-sm-10">
-                      <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Prénom" value="<?php echo $prenom; ?>">
-                    </div>
-                  </div>
+                  
                   <div class="form-group">
                     <label for="email" class="col-sm-2 control-label">Email</label>
                     <div class="col-sm-10">
-                      <input type="email" class="form-control" id="email" name="email" placeholder="Email" value="<?php echo $email; ?>">
+                      <input type="email" class="form-control" id="email" name="email" placeholder="Email" value="<?php echo $email; ?>" required>
                     </div>
                   </div>
                   <div class="form-group">
@@ -267,7 +300,7 @@ if (isset($_SESSION['flash_message'])) {
                   <div class="form-group">
                     <label for="adresse" class="col-sm-2 control-label">Adresse</label>
                     <div class="col-sm-10">
-                      <textarea class="form-control" id="adresse" name="adresse" placeholder="Adresse"><?php echo isset($user_details['adresse']) ? $user_details['adresse'] : ''; ?></textarea>
+                      <textarea class="form-control" id="adresse" name="adresse" placeholder="Adresse" rows="3"><?php echo isset($user_details['adresse']) ? $user_details['adresse'] : ''; ?></textarea>
                     </div>
                   </div>
                   <div class="form-group">
@@ -290,6 +323,7 @@ if (isset($_SESSION['flash_message'])) {
                     <label for="password" class="col-sm-3 control-label">Nouveau mot de passe</label>
                     <div class="col-sm-9">
                       <input type="password" class="form-control" id="password" name="password" placeholder="Nouveau mot de passe" required>
+                      <span class="help-block">Le mot de passe doit contenir au moins 8 caractères</span>
                     </div>
                   </div>
                   <div class="form-group">
@@ -305,28 +339,36 @@ if (isset($_SESSION['flash_message'])) {
                   </div>
                 </form>
               </div>
-
-              <div class="tab-pane" id="avatar">
-                <form class="form-horizontal" action="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=updateAvatar" method="post" enctype="multipart/form-data">
-                  <div class="form-group">
-                    <label for="avatar" class="col-sm-3 control-label">Nouvelle photo</label>
-                    <div class="col-sm-9">
-                      <input type="file" id="avatar" name="avatar" accept="image/*" required>
-                      <p class="help-block">Formats acceptés: JPG, PNG, GIF. Taille max: 2MB</p>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <div class="col-sm-offset-3 col-sm-9">
-                      <button type="submit" class="btn btn-primary">Changer photo</button>
-                    </div>
-                  </div>
-                </form>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+  </div>
+
+  <!-- Modal pour changer la photo de profil -->
+  <div class="modal fade" id="changePhotoModal" tabindex="-1" role="dialog" aria-labelledby="changePhotoModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="changePhotoModalLabel">Changer ma photo de profil</h4>
+        </div>
+        <form action="<?php echo BASE_URL; ?>index.php?controller=Directrice&action=updateProfilePhoto" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="profile_photo">Sélectionner une nouvelle photo</label>
+              <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
+              <p class="help-block">Formats acceptés: JPG, PNG, GIF. Taille max: 2MB</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <footer class="main-footer">
@@ -340,6 +382,8 @@ if (isset($_SESSION['flash_message'])) {
 <script src="<?php echo BASE_URL; ?>bower_components/jquery/dist/jquery.min.js"></script>
 <script src="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
+
+<!-- Afficher les messages d'alerte -->
 <script>
   $(document).ready(function() {
     // Masquer les alertes après 5 secondes
@@ -355,6 +399,12 @@ if (isset($_SESSION['flash_message'])) {
       if (password && confirm && password !== confirm) {
         e.preventDefault();
         alert('Les mots de passe ne correspondent pas!');
+      }
+      
+      // Vérifier la longueur du mot de passe
+      if (password && password.length < 8) {
+        e.preventDefault();
+        alert('Le mot de passe doit contenir au moins 8 caractères!');
       }
     });
   });

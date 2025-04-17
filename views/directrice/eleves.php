@@ -11,7 +11,7 @@ $query = "SELECT e.*, c.nom as classe_nom
           FROM eleves e 
           LEFT JOIN classes c ON e.classe_id = c.id
           WHERE e.section = 'maternelle'
-          ORDER BY e.nom, e.prenom";
+          ORDER BY e.nom, e.prenom ";
 $result = $mysqli->query($query);
 
 $eleves = [];
