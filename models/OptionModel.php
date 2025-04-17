@@ -23,14 +23,6 @@ class OptionModel {
         return $result->fetch_assoc();
     }
 
-    public function getByName($name) {
-        $stmt = $this->db->prepare("SELECT * FROM options WHERE nom = ?");
-        $stmt->bind_param("s", $name);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_assoc();
-    }
-
     public function add($nom, $description) {
         $stmt = $this->db->prepare("INSERT INTO options (nom, description) VALUES (?, ?)");
         $stmt->bind_param("ss", $nom, $description);

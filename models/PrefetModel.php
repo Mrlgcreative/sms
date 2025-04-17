@@ -26,18 +26,6 @@ class PrefetModel {
         $stmt->bind_param("ssssss", $nom, $prenom, $contact, $email, $adresse, $section);
         $stmt->execute();
     }
-    
-    public function update($id, $nom, $prenom, $contact, $email, $adresse, $section) {
-        $stmt = $this->db->prepare("UPDATE prefet SET nom = ?, prenom = ?, contact = ?, email = ?, adresse = ?, section = ? WHERE id = ?");
-        if (!$stmt) {
-            die("Erreur lors de la préparation de la requête : " . $this->db->error);
-        }
-        $stmt->bind_param("ssssssi", $nom, $prenom, $contact, $email, $adresse, $section, $id);
-        if (!$stmt->execute()) {
-            die("Échec de la mise à jour : " . $stmt->error);
-        }
-        return $stmt->affected_rows > 0;
-    }
 
     public function delete($id) {
         $sql = "DELETE FROM prefets WHERE id = ?";

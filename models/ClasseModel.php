@@ -86,24 +86,6 @@ class ClasseModel {
         
         return $result->fetch_all(MYSQLI_ASSOC);
     }
-
-    /**
-     * Récupère une classe par son nom
-     * @param string $nom Le nom de la classe
-     * @return array|null La classe trouvée ou null
-     */
-    public function getByNom($nom) {
-        $stmt = $this->db->prepare("SELECT * FROM classes WHERE nom = ?");
-        $stmt->bind_param("s", $nom);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows > 0) {
-            return $result->fetch_assoc();
-        }
-        
-        return null;
-    }
 }
 ?>
 

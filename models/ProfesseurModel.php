@@ -36,20 +36,6 @@ class ProfesseurModel {
     }
 
     public function delete($id) {
-        // First check if the professor is referenced in the classes table
-        $check_query = "SELECT COUNT(*) as count FROM classes WHERE prof_id = ?";
-        $check_stmt = $this->db->prepare($check_query);
-        $check_stmt->bind_param("i", $id);
-        $check_stmt->execute();
-        $result = $check_stmt->get_result();
-        $row = $result->fetch_assoc();
-        
-        if ($row['count'] > 0) {
-            // Professor is referenced in classes, return false or throw an exception
-            return false; // Or you could throw a custom exception
-        }
-        
-        // If no references exist, proceed with deletion
         $sql = "DELETE FROM professeurs WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("i", $id);

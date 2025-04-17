@@ -380,22 +380,129 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
       <!-- Statistiques des absences -->
       <div class="row">
         <div class="col-md-6">
-          <div class="box box-warning">
+          <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Absences par classe</h3>
+              <h3 class="box-title">Répartition des absences par classe</h3>
             </div>
             <div class="box-body">
-              <canvas id="absencesParClasse" style="height:250px"></canvas>
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>Classe</th>
+                      <th>Total absences</th>
+                      <th>Justifiées</th>
+                      <th>Non justifiées</th>
+                      <th>Taux de justification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                    // Connexion à la base de données
+                    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                    
+                    // Requête pour obtenir les statistiques d'absences par classe
+                    $absences_classes_query = "SELECT 
+                        c.nom AS classe_nom,
+                        COUNT(a.id) AS total_absences,
+                        SUM(CASE WHEN a.justifiee = 1 THEN 1 ELSE 0 END) AS absences_justifiees,
+                        SUM(CASE WHEN a.justifiee = 0 OR a.justifiee IS NULL THEN 1 ELSE 0 END) AS absences_non_justifiees
+                      FROM classes c
+                      LEFT JOIN eleves e ON e.classe_id = c.id
+                      LEFT JOIN absences a ON a.eleve_id = e.id
+                      WHERE c.section = 'secondaire' AND a.id IS NOT NULL
+                      GROUP BY c.id, c.nom
+                      ORDER BY c.nom";
+                    
+                    $absences_classes_result = $mysqli->query($absences_classes_query);
+                    
+                    if ($absences_classes_result && $absences_classes_result->num_rows > 0) {
+                      while ($row = $absences_classes_result->fetch_assoc()) {
+                        $total = $row['total_absences'];
+                        $justifiees = $row['absences_justifiees'];
+                        $non_justifiees = $row['absences_non_justifiees'];
+                        $taux = $total > 0 ? round(($justifiees / $total) * 100) : 0;
+                        
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($row['classe_nom']) . "</td>";
+                        echo "<td>" . $total . "</td>";
+                        echo "<td>" . $justifiees . "</td>";
+                        echo "<td>" . $non_justifiees . "</td>";
+                        echo "<td>";
+                        echo "<div class='progress progress-xs'>";
+                        echo "<div class='progress-bar progress-bar-success' style='width: {$taux}%'></div>";
+                        echo "</div>";
+                        echo "<span class='badge bg-green'>{$taux}%</span>";
+                        echo "</td>";
+                        echo "</tr>";
+                      }
+                    } else {
+                      echo "<tr><td colspan='5' class='text-center'>Aucune donnée disponible</td></tr>";
+                    }
+                    
+                    $mysqli->close();
+                    ?>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
         <div class="col-md-6">
-          <div class="box box-danger">
+          <div class="box box-success">
             <div class="box-header with-border">
-              <h3 class="box-title">Absences justifiées vs non justifiées</h3>
+              <h3 class="box-title">Statistiques des absences</h3>
             </div>
             <div class="box-body">
-              <canvas id="absencesJustification" style="height:250px"></canvas>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="info-box bg-green">
+                    <span class="info-box-icon"><i class="fa fa-check"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Absences justifiées</span>
+                      <span class="info-box-number"><?php echo $absences_justifiees ?? 0; ?></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="info-box bg-red">
+                    <span class="info-box-icon"><i class="fa fa-times"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Absences non justifiées</span>
+                      <span class="info-box-number"><?php echo $absences_non_justifiees ?? 0; ?></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="progress-group">
+                    <span class="progress-text">Taux de justification</span>
+                    <?php 
+                      $total = ($absences_justifiees ?? 0) + ($absences_non_justifiees ?? 0);
+                      $percentage = $total > 0 ? round(($absences_justifiees / $total) * 100) : 0;
+                    ?>
+                    <span class="progress-number"><b><?php echo $percentage; ?>%</b></span>
+                    <div class="progress sm">
+                      <div class="progress-bar progress-bar-green" style="width: <?php echo $percentage; ?>%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Absences par mois -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Absences par mois</h3>
+            </div>
+            <div class="box-body">
+              <canvas id="absencesParMois" style="height:250px"></canvas>
             </div>
           </div>
         </div>

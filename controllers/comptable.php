@@ -99,10 +99,10 @@ if(!$option){
         $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
         
         // Récupérer les données pour les filtres
-        $classe = $this->classeModel->getAllClasses();
+        $classes = $this->classeModel->getAllClasses();
         $mois = $this->moisModel->getAll();
         $frais = $this->fraismodel->getAll();
-        $options=$this->optionModel->getAll();        
+        
         // Calculer le nombre total de paiements
         $total_paiements = count($paiements);
     
@@ -110,24 +110,6 @@ if(!$option){
         require 'views/comptable/paiement.php';
     }
 
-
-    public function getOptionIdByName() {
-        if (isset($_POST['option_name'])) {
-            $option_name = $_POST['option_name'];
-            
-            // Get option ID from name
-            $option = $this->optionModel->getByName($option_name);
-            
-            if ($option) {
-                echo $option['id'];
-            } else {
-                echo "0"; // Return 0 if option not found
-            }
-        } else {
-            echo "0";
-        }
-        exit;
-    }
     public function ajoutPaiement() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $eleve_id = $_POST['eleve_id'];
@@ -140,29 +122,14 @@ if(!$option){
             $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? $_POST['option_id'] : null;
             $section = $_POST['section'];
             
-            // Vérifier si classe_id est une chaîne (comme "1er") et non un ID numérique
-            if (!is_numeric($classe_id)) {
-                // Utiliser la méthode getByNom pour obtenir l'ID de la classe
-                $classeObj = $this->classeModel->getByNom($classe_id);
-                
-                if ($classeObj) {
-                    $classe_id = $classeObj['id']; // Utiliser l'ID numérique de la classe
-                } else {
-                    // Si la classe n'existe pas, afficher un message d'erreur
-                    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement&error=1&message=' . urlencode('La classe spécifiée n\'existe pas dans la base de données!'));
-                    exit();
+            // Vérifier si l'option_id
+            if (empty($option_id)) {
+                // Récupérer l'option de l'élève si elle n'est pas spécifiée
+                $eleve = $this->eleveModel->getById($eleve_id);
+                if ($eleve && isset($eleve['option_id']) && !empty($eleve['option_id'])) {
+                    $option_id = $eleve['option_id'];
                 }
             }
-            
-            // Vérifier et récupérer l'option_id si nécessaire
-                   // Traitement des options pour chaque paiement
-        $option = null;
-        if ($option_id) {
-            $option = $this->optionModel->getById($option_id); // Use getById instead of getAll
-            if (!$option) {
-                die("Option non définie");
-            }
-        }
             
             // Vérifier si l'option existe
             if (!empty($option_id)) {
@@ -173,35 +140,31 @@ if(!$option){
             }
                    
             // Ajout du paiement via le modèle
-            $paiement_id = $this->paiementModel->add(
+            $this->paiementModel->add(
                 $eleve_id, $frai_id, $amount_paid, 
                 $payment_date, $created_at, $moi_id, 
                 $classe_id, $option_id, $section
             );
     
-            // Vérifier si l'ajout a réussi
-            if ($paiement_id) {
-                // Enregistrer l'action dans les logs
-                $this->logActivity('add', 'Ajout d\'un nouveau paiement ID: ' . $paiement_id);
-                
-                // Redirection avec message de succès
-                $_SESSION['success'] = 'Le paiement a été ajouté avec succès!';
-                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=paiements');
-                exit();
-            } else {
-                // Redirection avec message d'erreur
-                $_SESSION['error'] = 'Erreur lors de l\'ajout du paiement!';
-                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutPaiement');
-                exit();
-            }
+            // Récupérer l'ID du dernier paiement inséré
+            $paiement_id = $this->paiementModel->getLastInsertedId();
+    
+            // Redirection avec message de succès
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=paiements&success=1&message=' . urlencode('Le paiement a été ajouté avec succès!'));
+            exit();
         } else {
             // Charge la vue pour ajouter un paiement
-            $eleves = $this->eleveModel->getAll();
-            $frais = $this->fraismodel->getAll();
-            $mois = $this->moisModel->getAll();
+            $eleveModel = new EleveModel();
+            $eleves = $eleveModel->getAll();
+            
+            $fraismodel = new FraisModel();
+            $frais = $fraismodel->getAll();
+            $moisModel = new MoisModel();
+            $mois = $moisModel->getAll();
             
             // Récupérer les options pour le formulaire
-            $options = $this->optionModel->getAll();
+            $optionModel = new OptionModel();
+            $options = $optionModel->getAll();
             
             require 'views/comptable/ajout_paiement.php';
         }

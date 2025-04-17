@@ -8,28 +8,16 @@ if ($mysqli->connect_error) {
 
 // Récupération des professeurs qui enseignent dans la section maternelle
 $query = "SELECT p.id, p.nom, p.prenom, p.email, cl.nom as classe,
-          GROUP_CONCAT(DISTINCT c.titre SEPARATOR ', ') as cours_enseignes,
-          IFNULL(COUNT(DISTINCT c.id), 0) as total_cours 
+          GROUP_CONCAT(c.titre SEPARATOR ', ') as cours_enseignes,
+          COUNT(c.id) as total_cours 
           FROM professeurs p 
           LEFT JOIN classes cl ON p.classe_id = cl.id
-          LEFT JOIN cours c ON p.cours_id = c.id 
+          LEFT JOIN cours c ON p.id = c.professeur_id 
           WHERE p.section='maternelle'
           GROUP BY p.id 
           ORDER BY p.nom, p.prenom";
 $result = $mysqli->query($query);
 
-// Stocker les données pour le graphique avant de fermer la connexion
-$chartData = [];
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $chartData[] = [
-            'nom' => $row['nom'] . ' ' . $row['prenom'],
-            'total_cours' => (int)$row['total_cours']
-        ];
-    }
-    // Réinitialiser le pointeur de résultat pour l'affichage du tableau
-    $result->data_seek(0);
-}
 
 // Vérification de la session
 if (session_status() === PHP_SESSION_NONE) {
@@ -310,47 +298,36 @@ $mysqli->close();
     ];
     
     <?php
-    // Debug - print chart data to console
-    echo "console.log('Chart Data:', " . json_encode($chartData) . ");\n";
-    
-    foreach ($chartData as $data) {
-        echo "profLabels.push('" . addslashes($data['nom']) . "');\n";
-        echo "profData.push(" . $data['total_cours'] . ");\n";
+    if ($result && $result->num_rows > 0) {
+      $result->data_seek(0);
+      while ($row = $result->fetch_assoc()) {
+        $cours_count = $row['cours_enseignes'] ? count(explode(',', $row['cours_enseignes'])) : 0;
+        echo "profLabels.push('" . addslashes($row['nom'] . ' ' . $row['prenom']) . "');\n";
+        echo "profData.push(" . $cours_count . ");\n";
+      }
     }
     ?>
     
-    // Debug - print arrays to console
-    console.log('Labels:', profLabels);
-    console.log('Data:', profData);
-    
-    // Only create chart if we have data
-    if (profData.length > 0 && profData.some(value => value > 0)) {
-        // Créer le graphique
-        var ctx = document.getElementById('coursParProfesseurChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: profLabels,
-            datasets: [{
-              data: profData,
-              backgroundColor: backgroundColors,
-              borderColor: backgroundColors.map(color => color.replace('0.8', '1')),
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            legend: {
-              position: 'right',
-            }
-          }
-        });
-    } else {
-        // Display a message if no data
-        document.getElementById('coursParProfesseurChart').parentNode.innerHTML = 
-            '<div class="alert alert-info">Aucune donnée de cours disponible pour les professeurs de maternelle. ' +
-            'Veuillez assigner des cours aux professeurs pour voir la répartition.</div>';
-    }
+    // Créer le graphique
+    var ctx = document.getElementById('coursParProfesseurChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: profLabels,
+        datasets: [{
+          data: profData,
+          backgroundColor: backgroundColors,
+          borderColor: backgroundColors.map(color => color.replace('0.8', '1')),
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        legend: {
+          position: 'right',
+        }
+      }
+    });
   });
 </script>
 </body>

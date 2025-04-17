@@ -794,7 +794,7 @@ class Prefet {
             exit;
         }
     }
-
+    
     
     // Afficher la carte d'élève
     public function carteEleve() {
@@ -808,6 +808,67 @@ class Prefet {
         // Charger la vue de la carte d'élève
         require_once 'views/prefet/carte_eleve.php';
     }
+    
+    /**
+     * Affiche le profil détaillé d'un professeur
+     */
+    public function voirProfesseur() {
+        $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        
+        // Vérifier si l'ID est valide
+        if ($id <= 0) {
+            $_SESSION['message'] = "ID de professeur invalide.";
+            $_SESSION['message_type'] = "error";
+            header("Location: " . BASE_URL . "index.php?controller=Prefet&action=professeurs");
+            exit;
+        }
+        
+        // Récupérer les données du professeur
+// Connect to database
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Get professor data
+$query = "SELECT * FROM professeurs WHERE id = ?";
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$professeur = $result->fetch_assoc();
+
+$stmt->close();
+$mysqli->close();
+        
+        // Débogage
+        if (isset($_GET['debug']) && $_GET['debug'] == 1) {
+            echo "<pre>";
+            print_r($professeur);
+            echo "</pre>";
+        }
+        
+        // Récupérer les cours du professeur
+// Connect to database to get professor's courses
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Get courses data
+$query = "SELECT * FROM cours WHERE professeur_id = ?";
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$cours = $result->fetch_all(MYSQLI_ASSOC);
+
+$stmt->close();
+        
+        // Charger la vue
+        require_once('views/prefet/voirProfesseur.php');
+    }
 }
 ?>
