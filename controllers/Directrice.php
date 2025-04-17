@@ -1548,6 +1548,342 @@ public function voirProfesseur() {
 }
 
 
+/**
+ * Marque un professeur comme présent via checkbox
+ */
+public function marquerPresenceProfesseur() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        echo json_encode(['success' => false, 'message' => 'Non autorisé']);
+        exit;
+    }
+    
+    // Vérifier si la requête est AJAX
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $professeur_id = isset($_POST['professeur_id']) ? intval($_POST['professeur_id']) : 0;
+        $date_presence = isset($_POST['date_presence']) ? $_POST['date_presence'] : date('Y-m-d');
+        $heure_arrivee = isset($_POST['heure_arrivee']) ? $_POST['heure_arrivee'] : date('H:i:s');
+        
+        if ($professeur_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID de professeur invalide']);
+            exit;
+        }
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données']);
+            exit;
+        }
+        
+        // Vérifier si une présence existe déjà pour ce professeur à cette date
+        $check_query = "SELECT id FROM presences WHERE professeur_id = ? AND date_presence = ?";
+        $check_stmt = $mysqli->prepare($check_query);
+        $check_stmt->bind_param("is", $professeur_id, $date_presence);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            // Une présence existe déjà, renvoyer un succès sans rien faire
+            echo json_encode(['success' => true, 'message' => 'Présence déjà enregistrée']);
+            $check_stmt->close();
+            $mysqli->close();
+            exit;
+        }
+        $check_stmt->close();
+        
+        // Insérer la nouvelle présence
+        $query = "INSERT INTO presences (professeur_id, date_presence, heure_arrivee, created_at, updated_at) 
+                 VALUES (?, ?, ?, NOW(), NOW())";
+        
+        $stmt = $mysqli->prepare($query);
+        
+        if ($stmt) {
+            $stmt->bind_param("iss", $professeur_id, $date_presence, $heure_arrivee);
+            
+            if ($stmt->execute()) {
+                $presence_id = $mysqli->insert_id;
+                echo json_encode(['success' => true, 'message' => 'Présence enregistrée avec succès', 'presence_id' => $presence_id]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'enregistrement de la présence: ' . $stmt->error]);
+            }
+            
+            $stmt->close();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erreur de préparation de la requête: ' . $mysqli->error]);
+        }
+        
+        $mysqli->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+    }
+    exit;
+}
+
+
+
+
+/**
+ * Recherche les présences des professeurs pour une période donnée
+ */
+public function rechercherPresencesProfesseurs() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        echo json_encode(['success' => false, 'message' => 'Non autorisé']);
+        exit;
+    }
+    
+    // Vérifier si la requête est AJAX
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $professeur_id = isset($_POST['professeur_id']) ? intval($_POST['professeur_id']) : 0;
+        $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : date('Y-m-d', strtotime('-30 days'));
+        $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : date('Y-m-d');
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données']);
+            exit;
+        }
+        
+        // Construire la requête en fonction des paramètres
+        $query = "SELECT p.id, p.professeur_id, p.date_presence, p.heure_arrivee, p.heure_depart, 
+                 pr.nom, pr.prenom
+                 FROM presences p
+                 JOIN professeurs pr ON p.professeur_id = pr.id
+                 WHERE p.date_presence BETWEEN ? AND ?";
+        
+        $params = [$date_debut, $date_fin];
+        $types = "ss";
+        
+        if ($professeur_id > 0) {
+            $query .= " AND p.professeur_id = ?";
+            $params[] = $professeur_id;
+            $types .= "i";
+        }
+        
+        $query .= " ORDER BY p.date_presence DESC, p.heure_arrivee DESC";
+        
+        $stmt = $mysqli->prepare($query);
+        
+        if ($stmt) {
+            $stmt->bind_param($types, ...$params);
+            
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                $presences = [];
+                
+                while ($row = $result->fetch_assoc()) {
+                    $presences[] = $row;
+                }
+                
+                echo json_encode(['success' => true, 'presences' => $presences]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'exécution de la requête: ' . $stmt->error]);
+            }
+            
+            $stmt->close();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erreur de préparation de la requête: ' . $mysqli->error]);
+        }
+        
+        $mysqli->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+    }
+    exit;
+}
+
+/**
+ * Ajoute une nouvelle présence pour un professeur
+ */
+public function ajouterPresenceProfesseur() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $professeur_id = isset($_POST['professeur_id']) ? intval($_POST['professeur_id']) : 0;
+        $date_presence = isset($_POST['date_presence']) ? $_POST['date_presence'] : date('Y-m-d');
+        $heure_arrivee = isset($_POST['heure_arrivee']) ? $_POST['heure_arrivee'] : date('H:i:s');
+        $heure_depart = !empty($_POST['heure_depart']) ? $_POST['heure_depart'] : null;
+        
+        // Valider les données
+        if ($professeur_id <= 0) {
+            $_SESSION['error'] = "Veuillez sélectionner un professeur valide.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+            exit;
+        }
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            $_SESSION['error'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+            exit;
+        }
+        
+        // Vérifier si une présence existe déjà pour ce professeur à cette date
+        $check_query = "SELECT id FROM presences WHERE professeur_id = ? AND date_presence = ? AND heure_depart IS NULL";
+        $check_stmt = $mysqli->prepare($check_query);
+        $check_stmt->bind_param("is", $professeur_id, $date_presence);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            $_SESSION['error'] = "Ce professeur a déjà une présence en cours pour cette date.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+            $check_stmt->close();
+            $mysqli->close();
+            exit;
+        }
+        $check_stmt->close();
+        
+        // Préparer la requête d'insertion
+        $query = "INSERT INTO presences (professeur_id, date_presence, heure_arrivee, heure_depart, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, NOW(), NOW())";
+        
+        $stmt = $mysqli->prepare($query);
+        
+        if ($stmt) {
+            $stmt->bind_param("isss", $professeur_id, $date_presence, $heure_arrivee, $heure_depart);
+            
+            if ($stmt->execute()) {
+                $_SESSION['success'] = "La présence du professeur a été enregistrée avec succès.";
+            } else {
+                $_SESSION['error'] = "Erreur lors de l'enregistrement de la présence: " . $stmt->error;
+            }
+            
+            $stmt->close();
+        } else {
+            $_SESSION['error'] = "Erreur de préparation de la requête: " . $mysqli->error;
+        }
+        
+        $mysqli->close();
+        
+        // Rediriger vers la page des professeurs
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+        exit;
+    } else {
+        // Si la méthode n'est pas POST, rediriger vers la page des professeurs
+        header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=professeurs');
+        exit;
+    }
+}
+
+/**
+ * Enregistre l'heure de départ d'un professeur
+ */
+public function enregistrerDepartProfesseur() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        echo json_encode(['success' => false, 'message' => 'Non autorisé']);
+        exit;
+    }
+    
+    // Vérifier si la requête est AJAX
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $presence_id = isset($_POST['presence_id']) ? intval($_POST['presence_id']) : 0;
+        $heure_depart = isset($_POST['heure_depart']) ? $_POST['heure_depart'] : date('H:i:s');
+        
+        if ($presence_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID de présence invalide']);
+            exit;
+        }
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données']);
+            exit;
+        }
+        
+        // Mettre à jour l'heure de départ
+        $query = "UPDATE presences SET heure_depart = ?, updated_at = NOW() WHERE id = ?";
+        $stmt = $mysqli->prepare($query);
+        
+        if ($stmt) {
+            $stmt->bind_param("si", $heure_depart, $presence_id);
+            
+            if ($stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Départ enregistré avec succès']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'enregistrement du départ']);
+            }
+            
+            $stmt->close();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erreur de préparation de la requête']);
+        }
+        
+        $mysqli->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+    }
+    exit;
+}
+
+/**
+ * Supprime un enregistrement de présence
+ */
+public function supprimerPresenceProfesseur() {
+    // Vérifier si l'utilisateur est connecté et a le rôle de directrice
+    if (!$this->isLoggedIn() || $_SESSION['role'] !== 'directrice') {
+        echo json_encode(['success' => false, 'message' => 'Non autorisé']);
+        exit;
+    }
+    
+    // Vérifier si la requête est AJAX
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $presence_id = isset($_POST['presence_id']) ? intval($_POST['presence_id']) : 0;
+        
+        if ($presence_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID de présence invalide']);
+            exit;
+        }
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            echo json_encode(['success' => false, 'message' => 'Erreur de connexion à la base de données']);
+            exit;
+        }
+        
+        // Supprimer l'enregistrement
+        $query = "DELETE FROM presences WHERE id = ?";
+        $stmt = $mysqli->prepare($query);
+        
+        if ($stmt) {
+            $stmt->bind_param("i", $presence_id);
+            
+            if ($stmt->execute()) {
+                echo json_encode(['success' => true, 'message' => 'Présence supprimée avec succès']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Erreur lors de la suppression de la présence']);
+            }
+            
+            $stmt->close();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erreur de préparation de la requête']);
+        }
+        
+        $mysqli->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Méthode non autorisée']);
+    }
+    exit;
+}
+
+// ... existing code ...
 
 /**
  * Ajoute un nouveau cours

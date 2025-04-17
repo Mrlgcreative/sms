@@ -34,3 +34,9 @@
 [2025-04-17 14:13:51] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
 [2025-04-17 14:17:03] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
 [2025-04-17 14:17:03] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-04-17 14:28:42] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-17 14:28:43] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-17 14:35:28] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-17 14:35:28] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-17 15:00:04] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-17 15:00:04] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
