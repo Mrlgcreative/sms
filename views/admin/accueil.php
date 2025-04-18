@@ -537,23 +537,46 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
                     // Récupérer le nombre d'élèves à jour avec les frais
                     $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
                     
+                    // S'assurer que la connexion est établie
+                    if ($mysqli->connect_error) {
+                        die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
+                    }
+                    
                     // Modifié pour utiliser la structure correcte de la table paiements_frais
                     // Nous supposons qu'un élève est à jour s'il a au moins un paiement
-                    $eleves_a_jour = $mysqli->query("SELECT COUNT(DISTINCT e.id) as total FROM eleves e 
-                                                    JOIN paiements_frais pf ON e.id = pf.eleve_id 
-                                                    WHERE pf.amount_paid > 0")->fetch_assoc()['total'] ?? 0;
+                    $eleves_a_jour_query = "SELECT COUNT(DISTINCT e.id) as total FROM eleves e 
+                                           JOIN paiements_frais pf ON e.id = pf.eleve_id 
+                                           WHERE pf.amount_paid > 0";
+                    $eleves_a_jour_result = $mysqli->query($eleves_a_jour_query);
+                    $eleves_a_jour = $eleves_a_jour_result ? $eleves_a_jour_result->fetch_assoc()['total'] : 0;
                     
                     // Récupérer les statistiques d'actions
-                    $stats_actions = $mysqli->query("SELECT 
-                                                    SUM(CASE WHEN action LIKE '%ajout%' THEN 1 ELSE 0 END) as ajouts,
-                                                    SUM(CASE WHEN action LIKE '%modif%' THEN 1 ELSE 0 END) as modifications,
-                                                    SUM(CASE WHEN action LIKE '%ban%' OR action LIKE '%block%' THEN 1 ELSE 0 END) as bannissements,
-                                                    SUM(CASE WHEN action LIKE '%paie%' THEN 1 ELSE 0 END) as paiements,
-                                                    COUNT(*) as total_actions
-                                                    FROM historique")->fetch_assoc();
+                    $stats_actions_query = "SELECT 
+                                          SUM(CASE WHEN action LIKE '%ajout%' THEN 1 ELSE 0 END) as ajouts,
+                                          SUM(CASE WHEN action LIKE '%modif%' THEN 1 ELSE 0 END) as modifications,
+                                          SUM(CASE WHEN action LIKE '%ban%' OR action LIKE '%block%' THEN 1 ELSE 0 END) as bannissements,
+                                          SUM(CASE WHEN action LIKE '%paie%' THEN 1 ELSE 0 END) as paiements,
+                                          COUNT(*) as total_actions
+                                          FROM historique";
+                    $stats_actions_result = $mysqli->query($stats_actions_query);
+                    
+                    if ($stats_actions_result) {
+                        $stats_actions = $stats_actions_result->fetch_assoc();
+                    } else {
+                        // Valeurs par défaut si la requête échoue
+                        $stats_actions = [
+                            'ajouts' => 1,
+                            'modifications' => 0,
+                            'bannissements' => 0,
+                            'paiements' => 0,
+                            'total_actions' => 0
+                        ];
+                    }
                     
                     // Récupérer le nombre total d'utilisateurs
-                    $total_users = $mysqli->query("SELECT COUNT(*) as total FROM users")->fetch_assoc()['total'] ?? 0;
+                    $total_users_query = "SELECT COUNT(*) as total FROM users";
+                    $total_users_result = $mysqli->query($total_users_query);
+                    $total_users = $total_users_result ? $total_users_result->fetch_assoc()['total'] : 0;
                     
                     $mysqli->close();
                     ?>
@@ -656,66 +679,77 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
 
 <script src="<?php echo BASE_URL; ?>bower_components/jquery/dist/jquery.min.js"></script>
 <script src="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="<?php echo BASE_URL; ?>bower_components/chart.js/Chart.js"></script>
+<script src="<?php echo BASE_URL; ?>bower_components/chart.js/Chart.min.js"></script>
 <script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
 <script src="<?php echo BASE_URL; ?>bower_components/chart.js/Chart.js"></script>
 <script>
-$(function () {
-  // Suppression de la référence au graphique personnelChart qui n'existe pas
-  
-  // Graphique des statistiques détaillées
+$(document).ready(function() {
+  // Vérifier si l'élément canvas existe
   var statsCtx = document.getElementById('statsDetailChart');
   if (statsCtx) {
-    var statsDetailChart = new Chart(statsCtx.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['Ajouts', 'Modifications', 'Bannissements', 'Paiements', 'Élèves Totaux', 'Élèves à jour', 'Utilisateurs'],
-        datasets: [{
-          label: 'Statistiques du système',
-          data: [
-            <?php echo $stats_actions['ajouts'] ?? 0; ?>,
-            <?php echo $stats_actions['modifications'] ?? 0; ?>,
-            <?php echo $stats_actions['bannissements'] ?? 0; ?>,
-            <?php echo $stats_actions['paiements'] ?? 0; ?>,
-            <?php echo $total_eleves; ?>,
-            <?php echo $eleves_a_jour; ?>,
-            <?php echo $total_users; ?>
-          ],
-          backgroundColor: [
-            'rgba(0, 166, 90, 0.8)',   // Vert - Ajouts
-            'rgba(243, 156, 18, 0.8)',  // Jaune - Modifications
-            'rgba(221, 75, 57, 0.8)',   // Rouge - Bannissements
-            'rgba(60, 141, 188, 0.8)',  // Bleu - Paiements
-            'rgba(0, 192, 239, 0.8)',   // Bleu clair - Élèves totaux
-            'rgba(0, 166, 90, 0.8)',    // Vert - Élèves à jour
-            'rgba(96, 92, 168, 0.8)'    // Violet - Utilisateurs
-          ],
-          borderColor: [
-            'rgba(0, 166, 90, 1)',
-            'rgba(243, 156, 18, 1)',
-            'rgba(221, 75, 57, 1)',
-            'rgba(60, 141, 188, 1)',
-            'rgba(0, 192, 239, 1)',
-            'rgba(0, 166, 90, 1)',
-            'rgba(96, 92, 168, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        legend: {
-          position: 'top',
-        },
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            }
-          }]
+    console.log('Canvas trouvé, initialisation du graphique...');
+    
+    // Définir les données pour le graphique
+    var statsData = {
+      labels: ['Ajouts', 'Modifications', 'Bannissements', 'Paiements', 'Élèves Totaux', 'Élèves à jour', 'Utilisateurs'],
+      datasets: [{
+        label: 'Statistiques du système',
+        data: [
+          <?php echo isset($stats_actions['ajouts']) ? intval($stats_actions['ajouts']) : 0; ?>,
+          <?php echo isset($stats_actions['modifications']) ? intval($stats_actions['modifications']) : 0; ?>,
+          <?php echo isset($stats_actions['bannissements']) ? intval($stats_actions['bannissements']) : 0; ?>,
+          <?php echo isset($stats_actions['paiements']) ? intval($stats_actions['paiements']) : 0; ?>,
+          <?php echo intval($total_eleves); ?>,
+          <?php echo intval($eleves_a_jour); ?>,
+          <?php echo intval($total_users); ?>
+        ],
+        backgroundColor: [
+          'rgba(0, 166, 90, 0.8)',   // Vert - Ajouts
+          'rgba(243, 156, 18, 0.8)',  // Jaune - Modifications
+          'rgba(221, 75, 57, 0.8)',   // Rouge - Bannissements
+          'rgba(60, 141, 188, 0.8)',  // Bleu - Paiements
+          'rgba(0, 192, 239, 0.8)',   // Bleu clair - Élèves totaux
+          'rgba(0, 166, 90, 0.8)',    // Vert - Élèves à jour
+          'rgba(96, 92, 168, 0.8)'    // Violet - Utilisateurs
+        ],
+        borderColor: [
+          'rgba(0, 166, 90, 1)',
+          'rgba(243, 156, 18, 1)',
+          'rgba(221, 75, 57, 1)',
+          'rgba(60, 141, 188, 1)',
+          'rgba(0, 192, 239, 1)',
+          'rgba(0, 166, 90, 1)',
+          'rgba(96, 92, 168, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+    
+    try {
+      // Créer le graphique
+      var statsDetailChart = new Chart(statsCtx, {
+        type: 'bar',
+        data: statsData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: {
+            display: false
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
         }
-      }
-    });
+      });
+      
+      console.log('Graphique des statistiques détaillées initialisé avec succès');
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation du graphique:', error);
+    }
   } else {
     console.error("Canvas element 'statsDetailChart' not found");
   }
@@ -724,54 +758,59 @@ $(function () {
   <?php if (!empty($actions_labels) && !(count($actions_labels) == 1 && $actions_labels[0] == 'Aucune donnée')): ?>
   var actionsCtx = document.getElementById('actionsChart');
   if (actionsCtx) {
-    var actionsChart = new Chart(actionsCtx.getContext('2d'), {
-      type: 'horizontalBar',
-      data: {
-        labels: <?php echo json_encode($actions_labels); ?>,
-        datasets: [{
-          label: 'Nombre d\'actions',
-          data: <?php echo json_encode($actions_values); ?>,
-          backgroundColor: [
-            'rgba(60, 141, 188, 0.8)',
-            'rgba(0, 166, 90, 0.8)',
-            'rgba(243, 156, 18, 0.8)',
-            'rgba(221, 75, 57, 0.8)',
-            'rgba(0, 192, 239, 0.8)',
-            'rgba(210, 214, 222, 0.8)',
-            'rgba(216, 27, 96, 0.8)',
-            'rgba(156, 39, 176, 0.8)',
-            'rgba(63, 81, 181, 0.8)',
-            'rgba(0, 150, 136, 0.8)'
-          ],
-          borderColor: [
-            'rgba(60, 141, 188, 1)',
-            'rgba(0, 166, 90, 1)',
-            'rgba(243, 156, 18, 1)',
-            'rgba(221, 75, 57, 1)',
-            'rgba(0, 192, 239, 1)',
-            'rgba(210, 214, 222, 1)',
-            'rgba(216, 27, 96, 1)',
-            'rgba(156, 39, 176, 1)',
-            'rgba(63, 81, 181, 1)',
-            'rgba(0, 150, 136, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        legend: {
-          position: 'top',
-        },
-        scales: {
-          xAxes: [{
-            ticks: {
-              beginAtZero: true
-            }
+    try {
+      var actionsChart = new Chart(actionsCtx, {
+        type: 'horizontalBar',
+        data: {
+          labels: <?php echo json_encode($actions_labels); ?>,
+          datasets: [{
+            label: 'Nombre d\'actions',
+            data: <?php echo json_encode($actions_values); ?>,
+            backgroundColor: [
+              'rgba(60, 141, 188, 0.8)',
+              'rgba(0, 166, 90, 0.8)',
+              'rgba(243, 156, 18, 0.8)',
+              'rgba(221, 75, 57, 0.8)',
+              'rgba(0, 192, 239, 0.8)',
+              'rgba(210, 214, 222, 0.8)',
+              'rgba(216, 27, 96, 0.8)',
+              'rgba(156, 39, 176, 0.8)',
+              'rgba(63, 81, 181, 0.8)',
+              'rgba(0, 150, 136, 0.8)'
+            ],
+            borderColor: [
+              'rgba(60, 141, 188, 1)',
+              'rgba(0, 166, 90, 1)',
+              'rgba(243, 156, 18, 1)',
+              'rgba(221, 75, 57, 1)',
+              'rgba(0, 192, 239, 1)',
+              'rgba(210, 214, 222, 1)',
+              'rgba(216, 27, 96, 1)',
+              'rgba(156, 39, 176, 1)',
+              'rgba(63, 81, 181, 1)',
+              'rgba(0, 150, 136, 1)'
+            ],
+            borderWidth: 1
           }]
+        },
+        options: {
+          responsive: true,
+          legend: {
+            position: 'top',
+          },
+          scales: {
+            xAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
         }
-      }
-    });
+      });
+      console.log('Graphique des actions initialisé avec succès');
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation du graphique des actions:', error);
+    }
   } else {
     console.error("Canvas element 'actionsChart' not found");
   }

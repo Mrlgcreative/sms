@@ -110,17 +110,58 @@ if(!$option){
         require 'views/comptable/paiement.php';
     }
 
+    public function getOptionIdByName() {
+        if (isset($_POST['option_name'])) {
+            $option_name = $_POST['option_name'];
+            
+            // Get option ID from name
+            $option = $this->optionModel->getByName($option_name);
+            
+            if ($option) {
+                echo $option['id'];
+            } else {
+                echo "0"; // Return 0 if option not found
+            }
+        } else {
+            echo "0";
+        }
+        exit;
+    }
+
     public function ajoutPaiement() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $eleve_id = $_POST['eleve_id'];
             $frai_id = $_POST['frais_id'];
             $amount_paid = $_POST['amount_paid'];
-            $payment_date = $_POST['payment_date'];
-            $created_at = $_POST['created_at'];
+            
+            // Format the dates properly to ensure they're stored correctly
+            $payment_date = !empty($_POST['payment_date']) ? date('Y-m-d', strtotime($_POST['payment_date'])) : date('Y-m-d');
+            $created_at = !empty($_POST['created_at']) ? date('Y-m-d', strtotime($_POST['created_at'])) : date('Y-m-d');
+            
             $moi_id = $_POST['mois'];
             $classe_id = $_POST['classe_id'];
             $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? $_POST['option_id'] : null;
             $section = $_POST['section'];
+            
+            // Debug information - you can remove this after fixing the issue
+            error_log("Payment Date: " . $payment_date);
+            error_log("Created At: " . $created_at);
+            
+            // Vérifier si classe_id est une chaîne (comme "1er") et non un ID numérique
+            if (!is_numeric($classe_id)) {
+                // Utiliser la méthode getByNom pour obtenir l'ID de la classe
+                $classeObj = $this->classeModel->getByNom($classe_id);
+                
+                if ($classeObj) {
+                    $classe_id = $classeObj['id']; // Utiliser l'ID numérique de la classe
+                } else {
+                    // Si la classe n'existe pas, afficher un message d'erreur
+                    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement&error=1&message=' . urlencode('La classe spécifiée n\'existe pas dans la base de données!'));
+                    exit();
+                }
+            }
+            
+            // ... rest of the method remains the same ...
             
             // Vérifier si l'option_id
             if (empty($option_id)) {
@@ -153,6 +194,8 @@ if(!$option){
             header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=paiements&success=1&message=' . urlencode('Le paiement a été ajouté avec succès!'));
             exit();
         } else {
+            // Charge la vue pour ajouter un paiement
+            // ... reste du code inchangé ...
             // Charge la vue pour ajouter un paiement
             $eleveModel = new EleveModel();
             $eleves = $eleveModel->getAll();

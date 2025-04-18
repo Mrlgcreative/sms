@@ -87,33 +87,32 @@ class PaiementModel {
     
     // Add this method to your PaiementModel class
     
-    public function getAll() {
-        $sql = "
-            SELECT p.id, 
-                   e.nom AS eleve_nom, 
-                   c.nom AS classe_nom,
-                   o.nom AS option_nom, 
-                   p.section, 
-                   f.description AS frais_description, 
-                   p.amount_paid, 
-                   p.payment_date, 
-                   m.nom AS mois
-            FROM paiements_frais p
-            LEFT JOIN eleves e ON p.eleve_id = e.id
-            LEFT JOIN classes c ON p.classe_id = c.id
-            LEFT JOIN options o ON p.option_id = o.id
-            LEFT JOIN frais f ON p.frais_id = f.id
-            LEFT JOIN mois m ON p.moi_id = m.id
-            ORDER BY p.payment_date DESC";
-            
-        $result = $this->db->query($sql);
+   // Dans PaiementModel.php
+public function getAll() {
+    // The error is in this query - it's trying to use pf.mois_id which doesn't exist
+    $query = "SELECT pf.*, e.nom as eleve_nom, e.post_nom as eleve_post_nom, e.prenom as eleve_prenom, 
+              c.nom as classe_nom, o.nom as option_nom, f.description as frais_description, 
+              m.nom as mois 
+              FROM paiements_frais pf
+              LEFT JOIN eleves e ON pf.eleve_id = e.id
+              LEFT JOIN classes c ON pf.classe_id = c.id
+              LEFT JOIN options o ON pf.option_id = o.id
+              LEFT JOIN frais f ON pf.frais_id = f.id
+              LEFT JOIN mois m ON pf.moi_id = m.id
+              ORDER BY pf.id DESC";
     
-        if (!$result) {
-            throw new Exception("Erreur lors de la récupération des paiements : " . $this->db->error);
-        }
+    // Replace pf.mois_id with pf.moi_id in the JOIN condition
     
-        return $result->fetch_all(MYSQLI_ASSOC); // Retourne tous les paiements
+    $result = $this->db->query($query);
+    
+    if ($result) {
+        return $result->fetch_all(MYSQLI_ASSOC);
+    } else {
+        // For debugging, you can log the error
+        error_log("SQL Error in PaiementModel->getAll(): " . $this->db->error);
+        return [];
     }
+}
     
     public function getByPaiementId($paiement_id) {
         // Assurez-vous que $paiement_id est un entier pour éviter les injections SQL
