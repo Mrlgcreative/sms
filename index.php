@@ -14,6 +14,9 @@ if (session_status() === PHP_SESSION_NONE) {
 require 'config/config.php';
 require 'config/database.php';
 
+// Add near the top of the file, before any controller is loaded
+define('ROOT_PATH', __DIR__ . '/');
+
 // Vérifier l'expiration de la session
 if (isset($_SESSION['user_id']) && isSessionExpired()) {
     // Journaliser la déconnexion due à l'inactivité
@@ -40,17 +43,19 @@ $action = isset($_GET['action']) ? $_GET['action'] : 'login';
 // Inclusion du contrôleur approprié
 $controllerFile = 'controllers/' . $controller . '.php';
 if (file_exists($controllerFile)) {
-    // Add near the top of the file, before any controller is loaded
-    define('ROOT_PATH', __DIR__ . '/');
     require $controllerFile;
     $controllerClass = new $controller();
     if (method_exists($controllerClass, $action)) {
         $controllerClass->$action();
     } else {
-        echo "L'action demandée n'existe pas.";
+        // Action not found - show 404 page
+        header("HTTP/1.0 404 Not Found");
+        include 'views/errors/404.php';
     }
 } else {
-    echo "Le contrôleur demandé n'existe pas.";
+    // Controller not found - show 404 page
+    header("HTTP/1.0 404 Not Found");
+    include 'views/errors/404.php';
 }
 ?>
 

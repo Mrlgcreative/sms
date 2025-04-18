@@ -21,8 +21,9 @@ $total_employes = $mysqli->query("SELECT COUNT(*) AS total FROM employes")->fetc
 
 // Récupération des élèves par classe
 $eleves_par_classe = [];
-$eleves_par_classe_query = "SELECT e.classe_id, COUNT(e.id) as total 
+$eleves_par_classe_query = "SELECT e.classe_id, COUNT(e.id) as total, c.nom as classe_nom
                            FROM eleves e 
+                           LEFT JOIN classes c ON e.classe_id=c.id
                            GROUP BY e.classe_id 
                            ORDER BY total DESC 
                            LIMIT 5";
@@ -493,7 +494,7 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
                   if (!empty($eleves_par_classe)) {
                     foreach ($eleves_par_classe as $row) {
                       echo "<tr>
-                              <td>{$row['classe_id']}</td>
+                              <td>{$row['classe_nom']}</td>
                               <td>{$row['total']}</td>
                             </tr>";
                     }
