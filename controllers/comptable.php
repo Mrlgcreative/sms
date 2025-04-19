@@ -128,6 +128,115 @@ if(!$option){
         exit;
     }
 
+
+    /**
+ * Récupère les mois non payés par un élève spécifique
+ */
+/**
+ * Récupère les mois non payés par un élève spécifique
+ */
+/**
+ * Récupère les mois non payés par un élève spécifique
+ */
+public function fetchMoisNonPayes() {
+    if (!isset($_POST['eleve_id']) || empty($_POST['eleve_id'])) {
+        header('Content-Type: application/json');
+        echo json_encode([]);
+        exit;
+    }
+    
+    $eleveId = $_POST['eleve_id'];
+    
+    // Connexion à la base de données
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    if ($mysqli->connect_error) {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Erreur de connexion: ' . $mysqli->connect_error]);
+        exit;
+    }
+    
+    // Vérifier le nom correct de la colonne dans la table paiements_frais
+    // Récupérer les mois déjà payés par l'élève (où statut = 'payé' ou équivalent)
+    $query = "SELECT DISTINCT moi_id FROM paiements_frais WHERE eleve_id = ? AND statut = 'payé'";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $eleveId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $moisPayes = [];
+    while ($row = $result->fetch_assoc()) {
+        $moisPayes[] = $row['moi_id'];
+    }
+    
+    // Récupérer tous les mois disponibles qui ne sont pas dans la liste des mois payés
+    $moisNonPayes = [];
+    if (empty($moisPayes)) {
+        // Si aucun mois n'a été payé, récupérer tous les mois
+        $query = "SELECT id, nom FROM mois ORDER BY id";
+    } else {
+        // Sinon, récupérer uniquement les mois non payés
+        $query = "SELECT id, nom FROM mois WHERE id NOT IN (" . implode(',', $moisPayes) . ") ORDER BY id";
+    }
+    
+    $result = $mysqli->query($query);
+    
+    while ($row = $result->fetch_assoc()) {
+        $moisNonPayes[] = [
+            'id' => $row['id'],
+            'nom' => $row['nom']
+        ];
+    }
+    
+    $mysqli->close();
+    
+    // Définir l'en-tête Content-Type pour indiquer que la réponse est du JSON
+    header('Content-Type: application/json');
+    // Envoyer la réponse JSON
+    echo json_encode($moisNonPayes);
+    // Terminer l'exécution du script pour éviter tout contenu supplémentaire
+    exit;
+}
+
+/**
+ * Récupère tous les mois disponibles
+ */
+public function getAllMois() {
+    // Connexion à la base de données
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    if ($mysqli->connect_error) {
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Erreur de connexion: ' . $mysqli->connect_error]);
+        exit;
+    }
+    
+    // Récupérer tous les mois
+    $query = "SELECT id, nom FROM mois ORDER BY id";
+    $result = $mysqli->query($query);
+    
+    $allMois = [];
+    while ($row = $result->fetch_assoc()) {
+        $allMois[] = [
+            'id' => $row['id'],
+            'nom' => $row['nom']
+        ];
+    }
+    
+    $mysqli->close();
+    
+    // Définir l'en-tête Content-Type pour indiquer que la réponse est du JSON
+    header('Content-Type: application/json');
+    // Envoyer la réponse JSON
+    echo json_encode($allMois);
+    // Terminer l'exécution du script pour éviter tout contenu supplémentaire
+    exit;
+}
+
+/**
+ * Récupère tous les mois disponibles
+ */
+
     public function ajoutPaiement() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $eleve_id = $_POST['eleve_id'];
@@ -310,11 +419,7 @@ if(!$option){
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getAllmois() {
-        $result = $this->db->query("SELECT * FROM mois");
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
+   
     public function inscris() {
         $eleves = $this->eleveModel->getAll();
         $classes = $this->getClasses(); 

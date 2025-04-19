@@ -416,6 +416,9 @@ $today = date('Y-m-d');
             });
             
             $("#section").val(details[3]);   // Nom de la section
+            
+            // Récupérer les mois non payés pour cet élève
+            fetchMoisNonPayes(eleveId);
           } else {
             alert("Erreur: " + response);
           }
@@ -430,36 +433,107 @@ $today = date('Y-m-d');
       $("#option_display").val("");
       $("#option_id_value").val("");
       $("#section").val("");
+      
+      // Réinitialiser la liste des mois
+      resetMoisList();
     }
   }
+  
+  // Fonction pour récupérer les mois non payés par l'élève
+function fetchMoisNonPayes(eleveId) {
+    $.ajax({
+        url: "index.php?controller=comptable&action=fetchMoisNonPayes",
+        method: "POST",
+        data: { eleve_id: eleveId },
+        dataType: "json", // Spécifier que la réponse attendue est du JSON
+        success: function(response) {
+            // Vider la liste des mois
+            var moisSelect = $("#mois");
+            moisSelect.empty();
+            moisSelect.append('<option value="">-- Sélectionner un mois --</option>');
+            
+            // Ajouter les mois non payés
+            if (response && response.length > 0) {
+                $.each(response, function(index, mois) {
+                    moisSelect.append('<option value="' + mois.id + '">' + mois.nom + '</option>');
+                });
+            } else {
+                moisSelect.append('<option value="" disabled>Tous les mois ont été payés</option>');
+            }
+            
+            // Rafraîchir Select2 si vous l'utilisez
+            if ($.fn.select2) {
+                moisSelect.trigger('change.select2');
+            } else {
+                moisSelect.trigger('change');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Erreur AJAX:", status, error);
+            alert("Erreur lors de la récupération des mois non payés: " + error);
+        }
+    });
+}
+  
+  // Fonction pour réinitialiser la liste des mois
+  function resetMoisList() {
+    var moisSelect = $("#mois");
+    moisSelect.empty();
+    moisSelect.append('<option value="">-- Sélectionner un mois --</option>');
+    
+    // Récupérer tous les mois disponibles
+    $.ajax({
+      url: "index.php?controller=comptable&action=getAllMois",
+      method: "GET",
+      success: function(response) {
+        try {
+          var allMois = JSON.parse(response);
+          $.each(allMois, function(index, mois) {
+            moisSelect.append('<option value="' + mois.id + '">' + mois.nom + '</option>');
+          });
+          moisSelect.trigger('change');
+        } catch (e) {
+          console.error("Erreur lors du parsing JSON:", e);
+        }
+      }
+    });
+  }
 
-  // Fonction pour récupérer le montant des frais
+  // Fonction pour récupérer le montant du frais sélectionné
   function fetchFraisMontant() {
     var fraisId = document.getElementById("frais_id").value;
-
+    
     if (fraisId) {
       $.ajax({
         url: "index.php?controller=comptable&action=fetchFraisMontant",
         method: "POST",
         data: { frais_id: fraisId },
         success: function(response) {
-          console.log("Réponse du serveur :", response);
-
-          if (!isNaN(response) && response.trim() !== "") {
-            $("#amount_paid").val(response.trim());
+          // Nettoyer la réponse en supprimant les espaces et retours à la ligne
+          var cleanResponse = response.trim();
+          console.log("Réponse brute:", response);
+          console.log("Réponse nettoyée:", cleanResponse);
+          
+          // Vérifier si la réponse nettoyée est un nombre
+          if (!isNaN(cleanResponse)) {
+            $("#amount_paid").val(cleanResponse);
           } else {
-            alert("Erreur: " + response.trim());
+            alert("Erreur: La réponse n'est pas un nombre valide");
+            $("#amount_paid").val("");
           }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+          console.error("Erreur AJAX:", status, error);
           alert("Erreur lors de la communication avec le serveur.");
+          $("#amount_paid").val("");
         }
       });
     } else {
+      // Réinitialiser le champ si aucun frais n'est sélectionné
       $("#amount_paid").val("");
     }
   }
-  
+
   // Fonction pour afficher une alerte stylisée
   function showAlert(message, type) {
     var alertDiv = document.createElement('div');

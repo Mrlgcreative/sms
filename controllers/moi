@@ -1,3 +1,34 @@
 <?php 
-
+    public function ajoutPaiement() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $eleve_id = $_POST['eleve_id'];
+            $frai_id = $_POST['frais_id'];
+            $amount_paid = $_POST['amount_paid'];
+            
+            // Format the dates properly to ensure they're stored correctly
+            $payment_date = !empty($_POST['payment_date']) ? date('Y-m-d', strtotime($_POST['payment_date'])) : date('Y-m-d');
+            $created_at = !empty($_POST['created_at']) ? date('Y-m-d', strtotime($_POST['created_at'])) : date('Y-m-d');
+            
+            $moi_id = $_POST['mois'];
+            $classe_id = $_POST['classe_id'];
+            $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? $_POST['option_id'] : null;
+            $section = $_POST['section'];
+            
+            // Récupérer l'ID de l'année scolaire active
+            $session_active = $this->sessionscolaireModel->getActive();
+            $annee_scolaire_id = $session_active ? $session_active['id'] : null;
+            
+            // ... reste du code inchangé ...
+            
+            // Ajout du paiement via le modèle
+            $this->paiementModel->add(
+                $eleve_id, $frai_id, $amount_paid, 
+                $payment_date, $created_at, $moi_id, 
+                $classe_id, $option_id, $section,
+                $annee_scolaire_id
+            );
+            
+            // ... reste du code inchangé ...
+        }
+    }
 ?>

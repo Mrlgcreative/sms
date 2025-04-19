@@ -251,7 +251,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                         <select class="form-control" id="filterClasse">
                           <option value="">Toutes les classes</option>
                           <?php foreach ($classes as $classe) : ?>
-                            <option value="<?php echo $classe['nom']; ?>"><?php echo $classe['nom']; ?></option>
+                            <option value="<?php echo $classe['id' ?>"><?php echo $classe['nom']; ?></option>
                           <?php endforeach; ?>
                         </select>
                       </div>
@@ -345,7 +345,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                     <?php foreach ($paiements as $paiement) : ?>
                       <tr>
                         <td><?php echo $paiement['id']; ?></td>
-                        <td><?php echo $paiement['nom'] . ' ' . $paiement['post_nom_eleve'] . ' ' . $paiement['prenom_eleve']; ?></td>
+                        <td><?php echo $paiement['nom'] . ' ' . $paiement['post_nom'] . ' ' . $paiement['prenom_eleve']; ?></td>
                         <td><?php echo $paiement['classe']; ?></td>
                         <td><?php echo $paiement['option_nom']; ?></td>
                         <td><?php echo $paiement['description_frais']; ?></td>
