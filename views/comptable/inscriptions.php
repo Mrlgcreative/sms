@@ -714,10 +714,9 @@ if (isset($_SESSION['success'])) {
     
     // Regenerate matricule pour secondaire
     $("#regenerate-matricule-secondaire").click(function() {
-      var year = new Date().getFullYear();
       var random = Math.floor(Math.random() * 9999) + 1;
       var paddedRandom = random.toString().padStart(4, '0');
-      $("#matricule").val('SGS-' + year + '-' + paddedRandom);
+      $("#matricule").val(paddedRandom);
     });
     
     // Afficher les notifications toast

@@ -233,6 +233,33 @@ public function getAllMois() {
     exit;
 }
 
+
+public function verifierEleveExistant() {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $nom = $_POST['nom'];
+        $post_nom = $_POST['post_nom'];
+        $prenom = $_POST['prenom'];
+       
+        
+        // Vérifier si l'élève existe déjà dans la base de données
+        $query = "SELECT COUNT(*) as count FROM eleves 
+                 WHERE nom = ? AND post_nom = ? AND prenom = ? ";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("sss", $nom, $post_nom, $prenom);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        
+        if ($row['count'] > 0) {
+            echo "existe";
+        } else {
+            echo "non_existe";
+        }
+        exit;
+    }
+}
+
 /**
  * Récupère tous les mois disponibles
  */
@@ -269,6 +296,31 @@ public function getAllMois() {
                     exit();
                 }
             }
+
+            // ... code existant ...
+
+// Vérifier si l'élève existe déjà, sauf si on force l'inscription
+if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1') {
+    // Générer un format de matricule similaire à celui utilisé lors de l'inscription
+    $annee = date('Y'); // Utiliser l'année courante
+    
+    $query = "SELECT COUNT(*) as count FROM eleves 
+             WHERE nom = ? AND post_nom = ? AND prenom = ?";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->bind_param("sss", $nom, $post_nom, $prenom );
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    
+    if ($row['count'] > 0) {
+        $_SESSION['error'] = "Cet élève est déjà inscrit. Veuillez vérifier les informations.";
+        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=inscriptions&section=' . $section);
+        exit();
+    }
+}
+
+// ... reste du code ...
             
             // ... rest of the method remains the same ...
             

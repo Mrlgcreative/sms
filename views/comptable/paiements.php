@@ -251,7 +251,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                         <select class="form-control" id="filterClasse">
                           <option value="">Toutes les classes</option>
                           <?php foreach ($classes as $classe) : ?>
-                            <option value="<?php echo $classe['id' ?>"><?php echo $classe['nom']; ?></option>
+                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
                           <?php endforeach; ?>
                         </select>
                       </div>
