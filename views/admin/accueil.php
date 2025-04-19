@@ -11,8 +11,8 @@ $total_eleves = $mysqli->query("SELECT COUNT(*) AS total FROM eleves")->fetch_as
 $total_professeurs = $mysqli->query("SELECT COUNT(*) AS total FROM professeurs")->fetch_assoc()['total'];
 $total_directeurs = $mysqli->query("SELECT COUNT(*) AS total FROM users WHERE role='director'")->fetch_assoc()['total'];
 $total_directrices = $mysqli->query("SELECT COUNT(*) AS total FROM users WHERE role='directrice'")->fetch_assoc()['total'];
-$total_prefets = $mysqli->query("SELECT COUNT(*) AS total FROM prefet")->fetch_assoc()['total'];
-$total_comptables = $mysqli->query("SELECT COUNT(*) AS total FROM comptable")->fetch_assoc()['total'];
+$total_prefets = $mysqli->query("SELECT COUNT(*) AS total FROM users WHERE role='prefet'")->fetch_assoc()['total'];
+$total_comptables = $mysqli->query("SELECT COUNT(*) AS total FROM users WHERE role='comptable'")->fetch_assoc()['total'];
 $total_frais = $mysqli->query("SELECT SUM(amount_paid) AS total FROM paiements_frais")->fetch_assoc()['total'] ?? 0;
 
 // Récupérer le nombre de classes et d'employés avant de fermer la connexion
@@ -377,7 +377,7 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
             <div class="icon">
               <i class="fa fa-dollar"></i>
             </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=Frais" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="#" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
       </div>
