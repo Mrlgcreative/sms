@@ -1,0 +1,24 @@
+[2025-04-21 09:29:24] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"Divina","role":"director"}
+[2025-04-21 09:29:42] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-21 09:29:42] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-21 09:30:45] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-21 09:30:45] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-21 09:31:13] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-21 09:31:13] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-21 09:35:53] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-21 09:35:53] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-21 09:41:02] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Divina","ip":"::1"}
+[2025-04-21 09:41:22] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-21 09:41:22] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-21 09:51:16] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-21 09:51:16] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-21 09:55:25] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-21 09:55:25] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-21 09:59:12] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-21 09:59:12] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-21 10:04:37] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-21 10:04:37] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-21 10:27:54] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-21 10:27:54] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-21 10:28:40] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-21 10:28:40] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
