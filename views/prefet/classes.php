@@ -11,6 +11,7 @@ $classes = [];
 $classes_query = "SELECT c.*, COUNT(e.id) as nb_eleves 
                  FROM classes c 
                  LEFT JOIN eleves e ON e.classe_id = c.id
+                 WHERE c.section LIKE 'Secondaire%'
                  GROUP BY c.id";
 $classes_result = $mysqli->query($classes_query);
 if ($classes_result) {
@@ -200,9 +201,6 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
             <div class="box-header">
               <h3 class="box-title">Liste des Classes - Section Secondaire</h3>
               <div class="box-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-ajouter-classe">
-                  <i class="fa fa-plus"></i> Ajouter une classe
-                </button>
                 <button type="button" class="btn btn-success" onclick="printContent('classes-table')">
                   <i class="fa fa-print"></i> Imprimer
                 </button>
@@ -250,32 +248,17 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                     <td class="no-print">
                       <div class="btn-group">
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-voir-classe" 
-                                data-id="<?php echo $classe['id']; ?>" 
-                                data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
-                                data-niveau="<?php echo htmlspecialchars($classe['niveau']); ?>"
-                                data-titulaire="<?php echo htmlspecialchars($classe['titulaire']); ?>"
-                                
-                                data-eleves="<?php echo $classe['total_eleves']; ?>">
+                        data-id="<?php echo $classe['id']; ?>" 
+                        data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
+                        data-niveau="<?php echo htmlspecialchars($classe['niveau']); ?>"
+                        data-titulaire="<?php echo htmlspecialchars($classe['titulaire']); ?>"
+                        data-salle="<?php echo htmlspecialchars($classe['salle'] ?? ''); ?>"
+                        data-eleves="<?php echo $classe['total_eleves']; ?>">
                           <i class="fa fa-eye"></i>
-                        </button>
-                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-modifier-classe"
-                                data-id="<?php echo $classe['id']; ?>" 
-                                data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
-                                data-niveau="<?php echo htmlspecialchars($classe['niveau']); ?>"
-                                data-titulaire="<?php echo htmlspecialchars($classe['titulaire']); ?>"
-                               
-                                data-prof-id="<?php echo $classe['prof_id']; ?>">
-                          <i class="fa fa-edit"></i>
                         </button>
                         <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleves&classe=<?php echo urlencode($classe['nom']); ?>" class="btn btn-success btn-sm">
                           <i class="fa fa-users"></i>
                         </a>
-                        <button type="button" class="btn btn-danger btn-sm btn-delete-classe" 
-                                data-id="<?php echo $classe['id']; ?>"
-                                data-nom="<?php echo htmlspecialchars($classe['nom']); ?>"
-                                data-eleves="<?php echo $classe['total_eleves']; ?>">
-                          <i class="fa fa-trash"></i>
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -400,131 +383,45 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
     </section>
   </div>
 
-  <!-- Modal Ajouter Classe -->
-  <div class="modal fade" id="modal-ajouter-classe">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title">Ajouter une nouvelle classe</h4>
-        </div>
-        <form action="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterClasse" method="post">
-          <div class="modal-body">
-            <div class="form-group">
-              <label for="nom">Nom de la classe</label>
-              <input type="text" class="form-control" id="nom" name="nom" required>
-            </div>
-            
-            <div class="form-group">
-              <label for="titulaire">Professeur titulaire</label>
-              <select class="form-control" id="titulaire" name="titulaire" required>
-                <option value="">Sélectionner un professeur</option>
-                <?php foreach ($professeurs as $prof): ?>
-                <option value="<?php echo $prof['nom'] . ' ' . $prof['prenom']; ?>"><?php echo $prof['nom'] . ' ' . $prof['prenom']; ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Modifier Classe -->
-  <div class="modal fade" id="modal-modifier-classe">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title">Modifier la classe</h4>
-        </div>
-        <form action="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=modifierClasse" method="post">
-          <div class="modal-body">
-            <div class="form-group">
-              <label for="edit-nom">Nom de la classe</label>
-              <input type="text" class="form-control" id="edit-nom" name="nom" required>
-            </div>
-            <div class="form-group">
-              <label for="edit-niveau">Niveau</label>
-              <select class="form-control" id="edit-niveau" name="niveau" required>
-                <option value="">Sélectionner un niveau</option>
-                <option value="6ème">6ème</option>
-                <option value="5ème">5ème</option>
-                <option value="4ème">4ème</option>
-                <option value="3ème">3ème</option>
-                <option value="2nde">2nde</option>
-                <option value="1ère">1ère</option>
-                <option value="Terminale">Terminale</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="edit-titulaire">Professeur titulaire</label>
-              <select class="form-control" id="edit-titulaire" name="titulaire" required>
-                <option value="">Sélectionner un professeur</option>
-                <?php foreach ($professeurs as $prof): ?>
-                <option value="<?php echo $prof['nom'] . ' ' . $prof['prenom']; ?>"><?php echo $prof['nom'] . ' ' . $prof['prenom']; ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="edit-salle">Salle</label>
-              <input type="text" class="form-control" id="edit-salle" name="salle" required>
-            </div>
-            <input type="hidden" name="id" id="edit-id">
-            <input type="hidden" name="section" value="secondaire">
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Fermer</button>
-            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal Voir Classe -->
-  <div class="modal fade" id="modal-voir-classe">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title">Détails de la classe</h4>
-        </div>
-        <div class="modal-body">
-          <div class="box-body box-profile">
-            <h3 class="profile-username text-center" id="view-nom"></h3>
-            <p class="text-muted text-center" id="view-niveau"></p>
+<div class="modal fade" id="modal-voir-classe">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Détails de la classe</h4>
+      </div>
+      <div class="modal-body">
+        <div class="box-body box-profile">
+          <h3 class="profile-username text-center" id="view-nom"></h3>
+          <p class="text-muted text-center" id="view-niveau"></p>
 
-            <ul class="list-group list-group-unbordered">
-              <li class="list-group-item">
-                <b>Professeur titulaire</b> <a class="pull-right" id="view-titulaire"></a>
-              </li>
-              <li class="list-group-item">
-                <b>Salle</b> <a class="pull-right" id="view-salle"></a>
-              </li>
-              <li class="list-group-item">
-                <b>Nombre d'élèves</b> <a class="pull-right" id="view-eleves"></a>
-              </li>
-              <li class="list-group-item">
-                <b>Section</b> <a class="pull-right">Secondaire</a>
-              </li>
-            </ul>
+          <ul class="list-group list-group-unbordered">
+            <li class="list-group-item">
+              <b>Professeur titulaire</b> <a class="pull-right" id="view-titulaire"></a>
+            </li>
+            <li class="list-group-item">
+              <b>Salle</b> <a class="pull-right" id="view-salle"></a>
+            </li>
+            <li class="list-group-item">
+              <b>Nombre d'élèves</b> <a class="pull-right" id="view-eleves"></a>
+            </li>
+            <li class="list-group-item">
+              <b>Section</b> <a class="pull-right">Secondaire</a>
+            </li>
+          </ul>
 
-            <a href="#" id="view-eleves-link" class="btn btn-primary btn-block"><b>Voir les élèves</b></a>
-          </div>
+          <a href="#" id="view-eleves-link" class="btn btn-primary btn-block"><b>Voir les élèves</b></a>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Formulaire de suppression caché -->
   <form id="delete-classe-form" action="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=supprimerClasse" method="post" style="display: none;">
@@ -701,7 +598,7 @@ $(function () {
     modal.find('#view-nom').text(nom);
     modal.find('#view-niveau').text(niveau);
     modal.find('#view-titulaire').text(titulaire);
-    modal.find('#view-salle').text(salle);
+    modal.find('#view-salle').text(salle || 'Non spécifiée');
     modal.find('#view-eleves').text(eleves);
     
     // Mettre à jour le lien pour voir les élèves
