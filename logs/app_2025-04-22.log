@@ -34,3 +34,5 @@
 [2025-04-22 14:11:06] [INFO] [::1] [eclair] Connexion réussie {"username":"eclair","ip":"::1"}
 [2025-04-22 14:12:47] [INFO] [::1] [dk] User role for redirection {"role":"director"}
 [2025-04-22 14:12:47] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-22 14:51:49] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-22 14:51:49] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
