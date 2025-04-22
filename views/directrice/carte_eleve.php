@@ -154,14 +154,14 @@ $mysqli->close();
     }
     .carte-signature {
       position: absolute;
-      bottom: 20px;
+      bottom: 10px;
       left: 10px;
       font-size: 10px;
       text-align: center;
     }
     .carte-signature img {
-      max-width: 20mm;
-      max-height: 10mm;
+      max-width: 15mm;
+      max-height: 9mm;
     }
     .watermark {
       position: absolute;

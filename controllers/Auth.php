@@ -200,11 +200,11 @@ class Auth {
         $this->logger->info("Connexion réussie", ['username' => $username, 'ip' => $ip]);
         
         //  // Vérifier si le mot de passe doit être changé
-        if ($this->userModel->isPasswordChangeRequired($user['id'])) {
-           $_SESSION['password_change_required'] = true;
-            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=changePassword');
-              exit;
-         }
+        // if ($this->userModel->isPasswordChangeRequired($user['id'])) {
+        //    $_SESSION['password_change_required'] = true;
+        //     header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=changePassword');
+        //       exit;
+        //  }
         
         // Rediriger en fonction du rôle
         $this->redirectBasedOnRole($user['role']);
@@ -255,7 +255,7 @@ class Auth {
             case 'comptable':
                 header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=accueil');
                 break;
-            case 'directeur':
+            case 'director':
                 header('Location: ' . BASE_URL . 'index.php?controller=Director&action=accueil');
                 break;
             case 'directrice':
