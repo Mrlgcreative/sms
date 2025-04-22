@@ -26,3 +26,11 @@
 [2025-04-22 14:01:23] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
 [2025-04-22 14:03:34] [INFO] [::1] [dk] User role for redirection {"role":"director"}
 [2025-04-22 14:03:34] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-22 14:10:22] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"hermine","ip":"::1"}
+[2025-04-22 14:10:28] [INFO] [::1] [hermine] User role for redirection {"role":"admin"}
+[2025-04-22 14:10:28] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-22 14:10:58] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"eclair","ip":"::1"}
+[2025-04-22 14:11:06] [INFO] [::1] [eclair] User role for redirection {"role":"comptable"}
+[2025-04-22 14:11:06] [INFO] [::1] [eclair] Connexion réussie {"username":"eclair","ip":"::1"}
+[2025-04-22 14:12:47] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-22 14:12:47] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
