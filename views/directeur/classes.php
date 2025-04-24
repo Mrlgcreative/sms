@@ -6,19 +6,36 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Forcer la section à "primaire" pour n'afficher que les professeurs du primaire
+// Forcer la section à "primaire" pour n'afficher que les classes du primaire
 $section = "primaire";
 
-// Récupération des professeurs de la section primaire uniquement
-$professeurs = [];
-$professeurs_query = "SELECT * FROM professeurs WHERE section = 'primaire' ORDER BY nom, prenom";
-$professeurs_result = $mysqli->query($professeurs_query);
+// Requête pour récupérer les classes du primaire uniquement
+$classes = [];
+$classes_query = "SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom 
+                 FROM classes c 
+                 LEFT JOIN professeurs p ON c.titulaire = p.id
+                 WHERE c.section = 'primaire'
+                 ORDER BY c.niveau, c.nom";
 
-if ($professeurs_result) {
-    while ($row = $professeurs_result->fetch_assoc()) {
-        $professeurs[] = $row;
+$classes_result = $mysqli->query($classes_query);
+
+if ($classes_result) {
+    while ($row = $classes_result->fetch_assoc()) {
+        $classes[] = $row;
     }
 }
+
+// Requête pour obtenir des statistiques sur les classes primaires
+$stats_query = "SELECT 
+                COUNT(*) as total_classes,
+                COUNT(DISTINCT niveau) as total_niveaux,
+                SUM(CASE WHEN titulaire IS NOT NULL THEN 1 ELSE 0 END) as classes_avec_titulaire,
+                SUM(CASE WHEN titulaire IS NULL THEN 1 ELSE 0 END) as classes_sans_titulaire
+                FROM classes 
+                WHERE section = 'primaire'";
+                
+$stats_result = $mysqli->query($stats_query);
+$stats = $stats_result->fetch_assoc();
 
 // Fermer la connexion
 $mysqli->close();
@@ -45,7 +62,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>SGS | Gestion des Professeurs</title>
+  <title>SGS | Gestion des Classes Primaires</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
@@ -124,33 +141,21 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           </a>
         </li>
         
-        <li class="active">
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=professeurs">
             <i class="fa fa-graduation-cap"></i> <span>Professeurs</span>
           </a>
         </li>
         
-        <li>
+        <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=classes">
             <i class="fa fa-table"></i> <span>Classes</span>
           </a>
         </li>
- 
+        
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=evenementsScolaires">
             <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=absences">
-            <i class="fa fa-clock-o"></i> <span>Gestion des Absences</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=discipline">
-            <i class="fa fa-gavel"></i> <span>Discipline</span>
           </a>
         </li>
       </ul>
@@ -160,71 +165,123 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
-        Gestion des Professeurs
-        <small>Liste des professeurs<?php echo !empty($section) ? ' - Section ' . ucfirst($section) : ''; ?></small>
+        Gestion des Classes
+        <small>Liste des classes - Section Primaire</small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
-        <li class="active">Professeurs</li>
+        <li class="active">Classes Primaires</li>
       </ol>
     </section>
 
     <section class="content">
+      <!-- Boîte d'informations générales -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Informations générales - Classes Primaires</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <div class="row">
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-aqua"><i class="fa fa-table"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Total des classes</span>
+                      <span class="info-box-number"><?php echo $stats['total_classes']; ?></span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-green"><i class="fa fa-bar-chart"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Niveaux différents</span>
+                      <span class="info-box-number"><?php echo $stats['total_niveaux']; ?></span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-yellow"><i class="fa fa-graduation-cap"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Classes avec titulaire</span>
+                      <span class="info-box-number"><?php echo $stats['classes_avec_titulaire']; ?></span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-red"><i class="fa fa-exclamation-triangle"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Classes sans titulaire</span>
+                      <span class="info-box-number"><?php echo $stats['classes_sans_titulaire']; ?></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="progress-group">
+                    <span class="progress-text">Taux d'attribution des titulaires</span>
+                    <span class="progress-number"><b><?php echo $stats['classes_avec_titulaire']; ?></b>/<?php echo $stats['total_classes']; ?></span>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-green" style="width: <?php echo ($stats['total_classes'] > 0) ? ($stats['classes_avec_titulaire'] / $stats['total_classes'] * 100) : 0; ?>%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Liste des professeurs</h3>
-              <div class="box-tools">
-                <div class="btn-group">
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    Filtrer par section <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=professeurs">Toutes les sections</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=professeurs&section=maternelle">Maternelle</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=professeurs&section=primaire">Primaire</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=professeurs&section=secondaire">Secondaire</a></li>
-                  </ul>
-                </div>
-                <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=ajouterProfesseur" class="btn btn-success">
-                  <i class="fa fa-plus"></i> Ajouter un professeur
-                </a>
-              </div>
+              <h3 class="box-title">Liste des classes primaires</h3>
             </div>
+            
             <div class="box-body">
-              <table id="professeurs-table" class="table table-bordered table-striped">
+              <table id="classes-table" class="table table-bordered table-striped">
                 <thead>
                   <tr>
                     <th>ID</th>
                     <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Téléphone</th>
-                    <th>Section</th>
+                    <th>Niveau</th>
+                    <th>Professeur </th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <?php if (!empty($professeurs)): ?>
-                    <?php foreach ($professeurs as $professeur): ?>
+                  <?php if (!empty($classes)): ?>
+                    <?php foreach ($classes as $classe): ?>
                       <tr>
-                        <td><?php echo $professeur['id']; ?></td>
-                        <td><?php echo htmlspecialchars($professeur['nom']); ?></td>
-                        <td><?php echo htmlspecialchars($professeur['prenom']); ?></td>
-                        <td><?php echo htmlspecialchars($professeur['email']); ?></td>
-                        <td><?php echo htmlspecialchars($professeur['contact']); ?></td>
-                        <td><?php echo ucfirst(htmlspecialchars($professeur['section'])); ?></td>
+                        <td><?php echo $classe['id']; ?></td>
+                        <td><?php echo htmlspecialchars($classe['nom']); ?></td>
+                        <td><?php echo htmlspecialchars($classe['niveau']); ?></td>
+                        <td>
+                          <?php 
+                            if (!empty($classe['titulaire']) && !empty($classe['titulaire'])) {
+                              echo htmlspecialchars($classe['titulaire'] . ' ' . $classe['titulaire']);
+                            } else {
+                              echo '<span class="text-muted">Non assigné</span>';
+                            }
+                          ?>
+                        </td>
                         <td>
                           <div class="btn-group">
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=voirProfesseur&id=<?php echo $professeur['id']; ?>" class="btn btn-info btn-sm">
-                              <i class="fa fa-eye"></i> Voir
-                            </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=modifierProfesseur&id=<?php echo $professeur['id']; ?>" class="btn btn-warning btn-sm">
-                              <i class="fa fa-edit"></i> Modifier
-                            </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=supprimerProfesseur&id=<?php echo $professeur['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce professeur?');">
-                              <i class="fa fa-trash"></i> Supprimer
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=voirEleves&classe=<?php echo $classe['id']; ?>" class="btn btn-info btn-sm">
+                              <i class="fa fa-users"></i> Voir élèves
                             </a>
                           </div>
                         </td>
@@ -232,7 +289,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                     <?php endforeach; ?>
                   <?php else: ?>
                     <tr>
-                      <td colspan="8" class="text-center">Aucun professeur trouvé</td>
+                      <td colspan="5" class="text-center">Aucune classe primaire trouvée</td>
                     </tr>
                   <?php endif; ?>
                 </tbody>
@@ -260,7 +317,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
 
 <script>
 $(function () {
-  $('#professeurs-table').DataTable({
+  $('#classes-table').DataTable({
     'paging'      : true,
     'lengthChange': true,
     'searching'   : true,

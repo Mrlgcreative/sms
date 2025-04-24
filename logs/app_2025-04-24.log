@@ -1,0 +1,9 @@
+[2025-04-24 16:15:10] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-24 16:15:10] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-24 17:28:07] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"dk","ip":"::1"}
+[2025-04-24 17:28:14] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-24 17:28:14] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-24 17:35:50] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-24 17:35:50] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-24 18:06:14] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-24 18:06:14] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}

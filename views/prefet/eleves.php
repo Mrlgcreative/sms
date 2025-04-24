@@ -21,22 +21,53 @@ if ($result) {
     }
 }
 
+// Récupération des statistiques sur le genre par classe
+$stats_query = "SELECT c.nom as classe_nom, 
+                SUM(CASE WHEN e.sexe = 'M' THEN 1 ELSE 0 END) as nb_garcons,
+                SUM(CASE WHEN e.sexe = 'F' THEN 1 ELSE 0 END) as nb_filles,
+                COUNT(*) as total
+                FROM eleves e
+                JOIN classes c ON e.classe_id = c.id
+                WHERE e.section = 'secondaire'
+                GROUP BY e.classe_id
+                ORDER BY c.nom";
+$stats_result = $mysqli->query($stats_query);
+
+$stats_classes = [];
+if ($stats_result) {
+    while ($row = $stats_result->fetch_assoc()) {
+        $stats_classes[] = $row;
+    }
+}
+
+// Récupération des statistiques globales sur le genre
+$stats_global_query = "SELECT 
+                      SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as nb_garcons,
+                      SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as nb_filles,
+                      COUNT(*) as total
+                      FROM eleves
+                      WHERE section = 'secondaire'";
+$stats_global_result = $mysqli->query($stats_global_query);
+$stats_global = $stats_global_result->fetch_assoc();
+
+// Fermer la connexion
+$mysqli->close();
+
 // Vérification de la session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Récupérer les informations de l'utilisateur
+// Récupérer l'ID de l'utilisateur connecté
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+
+// Initialiser les variables de session
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
-$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Préfet';
-$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Prefet';
 
-// Mode d'affichage (carte ou liste)
-$view_mode = isset($_GET['view']) ? $_GET['view'] : 'list';
-
-// Fermer la connexion
-$mysqli->close();
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -44,52 +75,15 @@ $mysqli->close();
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>SGS | Élèves Secondaire</title>
+  <title>SGS | Gestion des Élèves</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/Ionicons/css/ionicons.min.css">
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    .student-card {
-      height: 340px;
-      margin-bottom: 20px;
-      transition: transform 0.3s;
-    }
-    .student-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    .student-card .box-body {
-      padding-top: 10px;
-    }
-    .student-card .profile-img {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto 10px;
-      display: block;
-      border-radius: 50%;
-    }
-    .student-card h4 {
-      text-align: center;
-      margin-bottom: 15px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .student-card .info-row {
-      margin-bottom: 5px;
-    }
-    .student-card .info-label {
-      font-weight: bold;
-    }
-    .view-toggle {
-      margin-bottom: 15px;
-    }
-  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -156,31 +150,19 @@ $mysqli->close();
         
         <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=eleves">
-            <i class="fa fa-child"></i> <span>Élèves Secondaire</span>
+            <i class="fa fa-child"></i> <span>Élèves</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs">
-            <i class="fa fa-graduation-cap"></i> <span>Professeurs</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=absences">
+            <i class="fa fa-calendar-times-o"></i> <span>Absences</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=classes">
-            <i class="fa fa-table"></i> <span>Classes</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=cours">
-            <i class="fa fa-book"></i> <span>Cours</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=evenementsScolaires">
-            <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=discipline">
+            <i class="fa fa-gavel"></i> <span>Discipline</span>
           </a>
         </li>
       </ul>
@@ -190,8 +172,8 @@ $mysqli->close();
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
-        Élèves du Secondaire
-        <small>Liste complète</small>
+        Gestion des Élèves
+        <small>Liste des élèves</small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
@@ -200,102 +182,164 @@ $mysqli->close();
     </section>
 
     <section class="content">
+      <!-- Boîte d'informations générales -->
       <div class="row">
-        <div class="col-xs-12">
-          <div class="view-toggle text-right">
-            <div class="btn-group">
-              <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=eleves&view=list" class="btn btn-default <?php echo $view_mode == 'list' ? 'active' : ''; ?>">
-                <i class="fa fa-list"></i> Vue Liste
-              </a>
-              <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=eleves&view=card" class="btn btn-default <?php echo $view_mode == 'card' ? 'active' : ''; ?>">
-                <i class="fa fa-th"></i> Vue Carte
-              </a>
+        <div class="col-md-12">
+          <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Informations générales - Répartition par sexe</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="info-box bg-aqua">
+                    <span class="info-box-icon"><i class="fa fa-users"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Total des élèves</span>
+                      <span class="info-box-number"><?php echo $stats_global['total']; ?></span>
+                      <div class="progress">
+                        <div class="progress-bar" style="width: 100%"></div>
+                      </div>
+                      <span class="progress-description">
+                        Section secondaire 
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="info-box bg-blue">
+                    <span class="info-box-icon"><i class="fa fa-male"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Garçons</span>
+                      <span class="info-box-number"><?php echo $stats_global['nb_garcons']; ?></span>
+                      <div class="progress">
+                        <div class="progress-bar" style="width: <?php echo ($stats_global['total'] > 0) ? ($stats_global['nb_garcons'] / $stats_global['total'] * 100) : 0; ?>%"></div>
+                      </div>
+                      <span class="progress-description">
+                        <?php echo ($stats_global['total'] > 0) ? round($stats_global['nb_garcons'] / $stats_global['total'] * 100, 1) : 0; ?>% du total
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="info-box bg-pink">
+                    <span class="info-box-icon"><i class="fa fa-female"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Filles</span>
+                      <span class="info-box-number"><?php echo $stats_global['nb_filles']; ?></span>
+                      <div class="progress">
+                        <div class="progress-bar" style="width: <?php echo ($stats_global['total'] > 0) ? ($stats_global['nb_filles'] / $stats_global['total'] * 100) : 0; ?>%"></div>
+                      </div>
+                      <span class="progress-description">
+                        <?php echo ($stats_global['total'] > 0) ? round($stats_global['nb_filles'] / $stats_global['total'] * 100, 1) : 0; ?>% du total
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <h4>Répartition par classe</h4>
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                      <thead>
+                        <tr>
+                          <th>Classe</th>
+                          <th>Garçons</th>
+                          <th>Filles</th>
+                          <th>Total</th>
+                          <th>Pourcentage garçons</th>
+                          <th>Pourcentage filles</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php foreach ($stats_classes as $classe): ?>
+                          <tr>
+                            <td><?php echo htmlspecialchars($classe['classe_nom']); ?></td>
+                            <td><?php echo $classe['nb_garcons']; ?></td>
+                            <td><?php echo $classe['nb_filles']; ?></td>
+                            <td><?php echo $classe['total']; ?></td>
+                            <td>
+                              <div class="progress progress-xs">
+                                <div class="progress-bar progress-bar-blue" style="width: <?php echo ($classe['total'] > 0) ? ($classe['nb_garcons'] / $classe['total'] * 100) : 0; ?>%"></div>
+                              </div>
+                              <span class="badge bg-blue"><?php echo ($classe['total'] > 0) ? round($classe['nb_garcons'] / $classe['total'] * 100, 1) : 0; ?>%</span>
+                            </td>
+                            <td>
+                              <div class="progress progress-xs">
+                                <div class="progress-bar progress-bar-pink" style="width: <?php echo ($classe['total'] > 0) ? ($classe['nb_filles'] / $classe['total'] * 100) : 0; ?>%"></div>
+                              </div>
+                              <span class="badge bg-pink"><?php echo ($classe['total'] > 0) ? round($classe['nb_filles'] / $classe['total'] * 100, 1) : 0; ?>%</span>
+                            </td>
+                          </tr>
+                        <?php endforeach; ?>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
-      <?php if ($view_mode == 'list'): ?>
-      <!-- Vue Liste (tableau existant) -->
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Liste des élèves du secondaire</h3>
+              <h3 class="box-title">Liste des élèves</h3>
             </div>
             <div class="box-body">
-              <table id="elevesList" class="table table-bordered table-striped">
+              <table id="eleves-table" class="table table-bordered table-striped">
                 <thead>
                   <tr>
                     <th>ID</th>
                     <th>Nom</th>
                     <th>Prénom</th>
-                    <th>Classe</th>
                     <th>Date de naissance</th>
-                    <th>Sexe</th>
-                    <th>Adresse</th>
+                    <th>Classe</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <?php foreach ($eleves as $eleve): ?>
+                  <?php if (!empty($eleves)): ?>
+                    <?php foreach ($eleves as $eleve): ?>
+                      <tr>
+                        <td><?php echo $eleve['id']; ?></td>
+                        <td><?php echo htmlspecialchars($eleve['nom']); ?></td>
+                        <td><?php echo htmlspecialchars($eleve['prenom']); ?></td>
+                        <td><?php echo date('d/m/Y', strtotime($eleve['date_naissance'])); ?></td>
+                        <td><?php echo htmlspecialchars($eleve['classe_nom']); ?></td>
+                        <td>
+                          <div class="btn-group">
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-sm">
+                              <i class="fa fa-eye"></i> Voir
+                            </a>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterAbsence&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-warning btn-sm">
+                              <i class="fa fa-calendar-times-o"></i> Absence
+                            </a>
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterIncident&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-danger btn-sm">
+                              <i class="fa fa-gavel"></i> Incident
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php else: ?>
                     <tr>
-                      <td><?php echo $eleve['id']; ?></td>
-                      <td><?php echo $eleve['nom']; ?></td>
-                      <td><?php echo $eleve['prenom']; ?></td>
-                      <td><?php echo $eleve['classe_nom']; ?></td>
-                      <td><?php echo date('d/m/Y', strtotime($eleve['date_naissance'])); ?></td>
-                      <td><?php echo $eleve['sexe']; ?></td>
-                      <td><?php echo $eleve['adresse']; ?></td>
-                      <td>
-                        <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Voir</a>
-                        <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=carteEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-primary btn-xs"><i class="fa fa-id-card"></i> Carte</a>
-                      </td>
+                      <td colspan="6" class="text-center">Aucun élève trouvé</td>
                     </tr>
-                  <?php endforeach; ?>
+                  <?php endif; ?>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
-      <?php else: ?>
-      <!-- Vue Carte -->
-      <div class="row">
-        <?php foreach ($eleves as $eleve): ?>
-        <div class="col-md-3 col-sm-6">
-          <div class="box box-primary student-card">
-            <div class="box-body box-profile">
-              <img class="profile-img" src="<?php echo BASE_URL; ?>dist/img/<?php echo $eleve['sexe'] == 'M' ? 'avatar5.png' : 'avatar2.png'; ?>" alt="Photo de l'élève">
-              <h4><?php echo $eleve['nom'] . ' ' . $eleve['prenom']; ?></h4>
-              
-              <div class="info-row">
-                <span class="info-label">Classe:</span> 
-                <span class="info-value"><?php echo $eleve['classe_nom']; ?></span>
-              </div>
-              
-              <div class="info-row">
-                <span class="info-label">Matricule:</span> 
-                <span class="info-value"><?php echo $eleve['matricule']; ?></span>
-              </div>
-              
-              <div class="info-row">
-                <span class="info-label">Naissance:</span> 
-                <span class="info-value"><?php echo date('d/m/Y', strtotime($eleve['date_naissance'])); ?></span>
-              </div>
-              
-              <div class="text-center" style="margin-top: 10px;">
-                <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=carteEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-primary btn-sm">
-                  <i class="fa fa-id-card"></i> Carte
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
-      
     </section>
   </div>
 
@@ -314,19 +358,19 @@ $mysqli->close();
 <script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
 
 <script>
-  $(function () {
-    $('#elevesList').DataTable({
-      'paging'      : true,
-      'lengthChange': true,
-      'searching'   : true,
-      'ordering'    : true,
-      'info'        : true,
-      'autoWidth'   : false,
-      'language': {
-        'url': '//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json'
-      }
-    });
+$(function () {
+  $('#eleves-table').DataTable({
+    'paging'      : true,
+    'lengthChange': true,
+    'searching'   : true,
+    'ordering'    : true,
+    'info'        : true,
+    'autoWidth'   : false,
+    'language': {
+      'url': '//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json'
+    }
   });
+});
 </script>
 </body>
 </html>
