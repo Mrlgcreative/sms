@@ -28,7 +28,7 @@ $page_title = 'Changer le mot de passe';
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>St Sofie | <?php echo $page_title; ?></title>
+  <title>St Sophie | <?php echo $page_title; ?></title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
@@ -43,7 +43,7 @@ $page_title = 'Changer le mot de passe';
   <header class="main-header">
     <a href="<?php echo BASE_URL; ?>index.php?controller=<?php echo $role; ?>&action=accueil" class="logo">
       <span class="logo-mini"><b>St</b>S</span>
-      <span class="logo-lg"><b>St Sofie</b> SGS</span>
+      <span class="logo-lg"><b>St Sophie</b> SGS</span>
     </a>
     <nav class="navbar navbar-static-top">
       <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">

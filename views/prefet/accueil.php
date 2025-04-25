@@ -29,6 +29,7 @@ $cours_par_prof = [];
 $cours_par_prof_query = "SELECT p.nom, p.prenom, COUNT(c.id) as total_cours 
                          FROM professeurs p 
                          LEFT JOIN cours c ON p.id = c.professeur_id 
+                         WHERE p.section='secondaire'
                          GROUP BY p.id 
                          ORDER BY total_cours DESC 
                          LIMIT 5";

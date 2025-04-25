@@ -256,9 +256,15 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                         data-eleves="<?php echo $classe['total_eleves']; ?>">
                           <i class="fa fa-eye"></i>
                         </button>
-                        <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleves&classe=<?php echo urlencode($classe['nom']); ?>" class="btn btn-success btn-sm">
-                          <i class="fa fa-users"></i>
-                        </a>
+                        <!-- In the table where classes are listed, add this in the Actions column -->
+                        <td>
+                          <div class="btn-group">
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleves&classe=<?php echo $classe['id']; ?>" class="btn btn-info btn-sm">
+                              <i class="fa fa-users"></i> Voir élèves
+                            </a>
+                            <!-- Other action buttons -->
+                          </div>
+                        </td>
                       </div>
                     </td>
                   </tr>

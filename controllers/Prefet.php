@@ -870,5 +870,130 @@ $stmt->close();
         // Charger la vue
         require_once('views/prefet/voirProfesseur.php');
     }
+    
+    /**
+     * Affiche les élèves d'une classe spécifique
+     */
+    public function voirEleves() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID de classe est fourni
+        if (!isset($_GET['classe']) || empty($_GET['classe'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=classes');
+            exit;
+        }
+        
+        // Récupérer l'ID de la classe
+        $classe_id = (int)$_GET['classe'];
+        
+        // Charger la vue des élèves de la classe
+        require_once 'views/prefet/eleves_classe.php';
+    }
+    
+    /**
+     * Marque directement un élève comme absent pour la journée
+     */
+    public function marquerAbsent() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si l'ID de l'élève est fourni
+        if (!isset($_GET['eleve']) || empty($_GET['eleve'])) {
+            $_SESSION['error_message'] = "Aucun élève spécifié.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=classes');
+            exit;
+        }
+        
+        // Récupérer l'ID de l'élève
+        $eleve_id = (int)$_GET['eleve'];
+        
+        // Récupérer l'ID de la classe pour la redirection
+        $classe_id = isset($_GET['classe']) ? (int)$_GET['classe'] : 0;
+        
+        // Date d'aujourd'hui
+        $date = date('Y-m-d');
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            $_SESSION['error_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=classes');
+            exit;
+        }
+        
+        // Vérifier si l'élève existe et est dans une classe du secondaire
+        $check_query = "SELECT e.id, e.nom, e.prenom, c.nom as classe_nom 
+                       FROM eleves e 
+                       JOIN classes c ON e.classe_id = c.id 
+                       WHERE e.id = ? AND e.section = 'secondaire'";
+        $stmt = $mysqli->prepare($check_query);
+        $stmt->bind_param("i", $eleve_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            $_SESSION['error_message'] = "Élève non trouvé ou n'appartient pas à une classe du secondaire.";
+            $mysqli->close();
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=classes');
+            exit;
+        }
+        
+        $eleve = $result->fetch_assoc();
+        
+        // Vérifier si l'absence existe déjà pour aujourd'hui
+        $check_absence_query = "SELECT id FROM absences WHERE eleve_id = ? AND date_absence = ?";
+        $stmt = $mysqli->prepare($check_absence_query);
+        $stmt->bind_param("is", $eleve_id, $date);
+        $stmt->execute();
+        $absence_result = $stmt->get_result();
+        
+        if ($absence_result->num_rows > 0) {
+            // L'absence existe déjà
+            $_SESSION['info_message'] = "L'élève " . $eleve['prenom'] . " " . $eleve['nom'] . " est déjà marqué absent pour aujourd'hui.";
+        } else {
+            // Insérer la nouvelle absence
+            $insert_query = "INSERT INTO absences (eleve_id, date_absence, motif, justifiee, date_creation) 
+                            VALUES (?, ?, 'Non spécifié', 0, NOW())";
+            $stmt = $mysqli->prepare($insert_query);
+            $stmt->bind_param("is", $eleve_id, $date);
+            
+            if ($stmt->execute()) {
+                $_SESSION['success_message'] = "L'élève " . $eleve['prenom'] . " " . $eleve['nom'] . " a été marqué absent pour aujourd'hui.";
+            } else {
+                $_SESSION['error_message'] = "Erreur lors de l'enregistrement de l'absence: " . $mysqli->error;
+            }
+        }
+        
+        $mysqli->close();
+        
+        // Redirection
+        if (isset($_GET['redirect']) && $_GET['redirect'] == 1 && $classe_id > 0) {
+            // Rediriger vers la page de la classe
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=voirEleves&classe=' . $classe_id);
+        } else {
+            // Rediriger vers la page des absences
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=absences');
+        }
+        exit;
+    }
+    
+    //exit;
+    
+    
+
+    /**
+     * Affiche les élèves d'une classe spécifique
+     */
+  
 }
 ?>
