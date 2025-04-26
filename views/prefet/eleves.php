@@ -148,15 +148,39 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           </a>
         </li>
         
-        <li class="active">
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=eleves">
-            <i class="fa fa-child"></i> <span>Élèves</span>
+            <i class="fa fa-child"></i> <span>Élèves Secondaire</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs">
+            <i class="fa fa-graduation-cap"></i> <span>Professeurs</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=classes">
+            <i class="fa fa-table"></i> <span>Classes</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=cours">
+            <i class="fa fa-book"></i> <span>Cours</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=evenementsScolaires">
+            <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=absences">
-            <i class="fa fa-calendar-times-o"></i> <span>Absences</span>
+            <i class="fa fa-clock-o"></i> <span>Gestion des Absences</span>
           </a>
         </li>
         

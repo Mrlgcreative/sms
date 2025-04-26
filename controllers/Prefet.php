@@ -986,8 +986,98 @@ $stmt->close();
         }
         exit;
     }
+    // ... existing code ...
+
+public function presenceProfesseur() {
+    // Vérifier si l'utilisateur est connecté et a les droits
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
     
-    //exit;
+    // Récupérer l'ID du professeur
+    $professeurId = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    
+    if ($professeurId <= 0) {
+        $_SESSION['error'] = "ID de professeur invalide.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=professeurs');
+        exit;
+    }
+    
+    // Connexion à la base de données
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
+    
+    // Récupérer les informations du professeur
+    $query = "SELECT * FROM professeurs WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("i", $professeurId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $_SESSION['error'] = "Professeur non trouvé.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=professeurs');
+        exit;
+    }
+    
+    $professeur = $result->fetch_assoc();
+    
+    // Traitement du formulaire de présence
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $date = $_POST['date'] ?? date('Y-m-d');
+        $status = $_POST['status'] ?? 'present';
+        $commentaire = $_POST['commentaire'] ?? '';
+        
+        // Vérifier si une entrée existe déjà pour cette date et ce professeur
+        $check_query = "SELECT id FROM presences_professeurs WHERE professeur_id = ? AND date = ?";
+        $check_stmt = $mysqli->prepare($check_query);
+        $check_stmt->bind_param("is", $professeurId, $date);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            // Mettre à jour l'entrée existante
+            $presence_id = $check_result->fetch_assoc()['id'];
+            $update_query = "UPDATE presences_professeurs SET status = ?, commentaire = ? WHERE id = ?";
+            $update_stmt = $mysqli->prepare($update_query);
+            $update_stmt->bind_param("ssi", $status, $commentaire, $presence_id);
+            $update_stmt->execute();
+        } else {
+            // Créer une nouvelle entrée
+            $insert_query = "INSERT INTO presences_professeurs (professeur_id, date, status, commentaire) VALUES (?, ?, ?, ?)";
+            $insert_stmt = $mysqli->prepare($insert_query);
+            $insert_stmt->bind_param("isss", $professeurId, $date, $status, $commentaire);
+            $insert_stmt->execute();
+        }
+        
+        $_SESSION['success'] = "Présence enregistrée avec succès.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=presenceProfesseur&id=' . $professeurId);
+        exit;
+    }
+    
+    // Récupérer l'historique des présences
+    $presences_query = "SELECT * FROM presences_professeurs WHERE professeur_id = ? ORDER BY date DESC LIMIT 30";
+    $presences_stmt = $mysqli->prepare($presences_query);
+    $presences_stmt->bind_param("i", $professeurId);
+    $presences_stmt->execute();
+    $presences_result = $presences_stmt->get_result();
+    $presences = [];
+    
+    while ($row = $presences_result->fetch_assoc()) {
+        $presences[] = $row;
+    }
+    
+    $mysqli->close();
+    
+    // Charger la vue
+    require_once 'views/prefet/presence_professeur.php';
+}
+
+// ... existing code ...
     
     
 

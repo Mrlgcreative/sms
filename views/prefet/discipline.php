@@ -8,20 +8,76 @@ if ($mysqli->connect_error) {
 
 // Récupération des incidents disciplinaires
 $incidents = [];
+
+// Construction de la requête avec filtres
 $incidents_query = "SELECT i.id, e.nom, e.prenom, c.nom AS classe_nom, i.date_incident, i.description, i.sanction, i.statut 
                   FROM incidents_disciplinaires i 
                   LEFT JOIN eleves e ON i.eleve_id = e.id 
                   LEFT JOIN classes c ON e.classe_id = c.id 
-                  ORDER BY i.date_incident DESC 
-                  LIMIT 50";
+                  WHERE 1=1 ";
 
-$incidents_result = $mysqli->query($incidents_query);
-if ($incidents_result) {
-    while ($row = $incidents_result->fetch_assoc()) {
-        $incidents[] = $row;
+$params = [];
+$types = "";
+
+// Filtre par classe
+if (isset($_GET['classe']) && !empty($_GET['classe'])) {
+    $incidents_query .= " AND e.classe_id = ? ";
+    $params[] = $_GET['classe'];
+    $types .= "i";
+}
+
+// Filtre par date de début
+if (isset($_GET['date_debut']) && !empty($_GET['date_debut'])) {
+    $date_debut = DateTime::createFromFormat('d/m/Y', $_GET['date_debut']);
+    if ($date_debut) {
+        $incidents_query .= " AND i.date_incident >= ? ";
+        $params[] = $date_debut->format('Y-m-d');
+        $types .= "s";
+    }
+}
+
+// Filtre par date de fin
+if (isset($_GET['date_fin']) && !empty($_GET['date_fin'])) {
+    $date_fin = DateTime::createFromFormat('d/m/Y', $_GET['date_fin']);
+    if ($date_fin) {
+        $incidents_query .= " AND i.date_incident <= ? ";
+        $params[] = $date_fin->format('Y-m-d');
+        $types .= "s";
+    }
+}
+
+// Filtre par statut
+if (isset($_GET['statut']) && !empty($_GET['statut'])) {
+    $incidents_query .= " AND i.statut = ? ";
+    $params[] = $_GET['statut'];
+    $types .= "s";
+}
+
+$incidents_query .= " ORDER BY i.date_incident DESC LIMIT 50";
+
+// Exécution de la requête avec les paramètres
+if (!empty($params)) {
+    $stmt = $mysqli->prepare($incidents_query);
+    if ($stmt) {
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $incidents_result = $stmt->get_result();
+        while ($row = $incidents_result->fetch_assoc()) {
+            $incidents[] = $row;
+        }
+        $stmt->close();
+    } else {
+        error_log("Erreur de préparation SQL: " . $mysqli->error);
     }
 } else {
-    error_log("Erreur SQL: " . $mysqli->error);
+    $incidents_result = $mysqli->query($incidents_query);
+    if ($incidents_result) {
+        while ($row = $incidents_result->fetch_assoc()) {
+            $incidents[] = $row;
+        }
+    } else {
+        error_log("Erreur SQL: " . $mysqli->error);
+    }
 }
 
 // Récupération des classes pour le filtre
@@ -52,7 +108,7 @@ $incidents_par_classe_query = "SELECT c.nom AS classe_nom, COUNT(i.id) AS nombre
                              FROM classes c 
                              LEFT JOIN eleves e ON e.classe_id = c.id 
                              LEFT JOIN incidents_disciplinaires i ON i.eleve_id = e.id 
-                             WHERE c.section = 'secondaire' AND i.id IS NOT NULL
+                             WHERE c.section = 'secondaire'
                              GROUP BY c.id, c.nom
                              ORDER BY c.nom";
 $incidents_par_classe_result = $mysqli->query($incidents_par_classe_query);
@@ -235,7 +291,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
           <?php unset($_SESSION['flash_message']); unset($_SESSION['flash_type']); ?>
         </div>
       <?php endif; ?>
-      
+
       <!-- Filtres et bouton d'ajout -->
       <div class="row">
         <div class="col-md-12">
@@ -255,31 +311,38 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                       <select class="form-control" id="classe" name="classe">
                         <option value="">Toutes les classes</option>
                         <?php foreach ($classes as $classe): ?>
-                          <option value="<?php echo $classe['id']; ?>"><?php echo htmlspecialchars($classe['nom']); ?></option>
+                          <option value="<?php echo $classe['id']; ?>" <?php echo (isset($_GET['classe']) && $_GET['classe'] == $classe['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($classe['nom']); ?>
+                          </option>
                         <?php endforeach; ?>
                       </select>
                     </div>
                     
                     <div class="form-group">
                       <label for="date_debut">Du:</label>
-                      <input type="text" class="form-control datepicker" id="date_debut" name="date_debut" placeholder="Date début">
+                      <input type="text" class="form-control datepicker" id="date_debut" name="date_debut" 
+                             value="<?php echo isset($_GET['date_debut']) ? htmlspecialchars($_GET['date_debut']) : ''; ?>" 
+                             placeholder="Date début">
                     </div>
                     
                     <div class="form-group">
                       <label for="date_fin">Au:</label>
-                      <input type="text" class="form-control datepicker" id="date_fin" name="date_fin" placeholder="Date fin">
+                      <input type="text" class="form-control datepicker" id="date_fin" name="date_fin" 
+                             value="<?php echo isset($_GET['date_fin']) ? htmlspecialchars($_GET['date_fin']) : ''; ?>" 
+                             placeholder="Date fin">
                     </div>
                     
                     <div class="form-group">
                       <label for="statut">Statut:</label>
                       <select class="form-control" id="statut" name="statut">
                         <option value="">Tous</option>
-                        <option value="En cours">En cours</option>
-                        <option value="Résolu">Résolu</option>
+                        <option value="En cours" <?php echo (isset($_GET['statut']) && $_GET['statut'] == 'En cours') ? 'selected' : ''; ?>>En cours</option>
+                        <option value="Résolu" <?php echo (isset($_GET['statut']) && $_GET['statut'] == 'Résolu') ? 'selected' : ''; ?>>Résolu</option>
                       </select>
                     </div>
                     
                     <button type="submit" class="btn btn-primary">Filtrer</button>
+                    <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=discipline" class="btn btn-default">Réinitialiser</a>
                   </form>
                 </div>
                 <div class="col-md-3 text-right">
@@ -377,6 +440,94 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
             </div>
             <div class="box-body">
               <canvas id="typesSanctions" style="height:250px"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Informations générales -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-solid bg-teal-gradient">
+            <div class="box-header">
+              <i class="fa fa-info-circle"></i>
+              <h3 class="box-title">Informations générales sur la discipline</h3>
+            </div>
+            <div class="box-body">
+              <div class="row">
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="small-box bg-aqua">
+                    <div class="inner">
+                      <h3><?php echo count($incidents); ?></h3>
+                      <p>Total incidents</p>
+                    </div>
+                    <div class="icon">
+                      <i class="fa fa-exclamation-triangle"></i>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="small-box bg-yellow">
+                    <div class="inner">
+                      <h3>
+                        <?php 
+                          $en_cours = array_filter($incidents, function($incident) {
+                            return $incident['statut'] == 'En cours';
+                          });
+                          echo count($en_cours);
+                        ?>
+                      </h3>
+                      <p>En cours</p>
+                    </div>
+                    <div class="icon">
+                      <i class="fa fa-clock-o"></i>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="small-box bg-green">
+                    <div class="inner">
+                      <h3>
+                        <?php 
+                          $resolus = array_filter($incidents, function($incident) {
+                            return $incident['statut'] == 'Résolu';
+                          });
+                          echo count($resolus);
+                        ?>
+                      </h3>
+                      <p>Résolus</p>
+                    </div>
+                    <div class="icon">
+                      <i class="fa fa-check"></i>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <div class="small-box bg-red">
+                    <div class="inner">
+                      <h3>
+                        <?php 
+                          $debut_mois = date('Y-m-01');
+                          $fin_mois = date('Y-m-t');
+                          $ce_mois = array_filter($incidents, function($incident) use ($debut_mois, $fin_mois) {
+                            // Convertir la date de l'incident en format Y-m-d pour comparaison
+                            $date_incident = date('Y-m-d', strtotime($incident['date_incident']));
+                            return $date_incident >= $debut_mois && $date_incident <= $fin_mois;
+                          });
+                          echo count($ce_mois);
+                        ?>
+                      </h3>
+                      <p>Ce mois</p>
+                    </div>
+                    <div class="icon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

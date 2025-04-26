@@ -1,0 +1,16 @@
+[2025-04-26 11:08:59] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-26 11:08:59] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-26 11:14:21] [INFO] [::1] [hermine] User role for redirection {"role":"admin"}
+[2025-04-26 11:14:21] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-26 11:15:18] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"dk","ip":"::1"}
+[2025-04-26 11:15:23] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-26 11:15:23] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-26 11:16:44] [INFO] [::1] [eclair] User role for redirection {"role":"comptable"}
+[2025-04-26 11:16:44] [INFO] [::1] [eclair] Connexion réussie {"username":"eclair","ip":"::1"}
+[2025-04-26 11:18:34] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"ciella","ip":"::1"}
+[2025-04-26 11:18:39] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"ciella","ip":"::1"}
+[2025-04-26 11:19:15] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"exou","role":"directrice"}
+[2025-04-26 11:19:22] [INFO] [::1] [exou] User role for redirection {"role":"directrice"}
+[2025-04-26 11:19:22] [INFO] [::1] [exou] Connexion réussie {"username":"exou","ip":"::1"}
+[2025-04-26 11:20:30] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-26 11:20:30] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}

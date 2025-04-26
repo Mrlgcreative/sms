@@ -7,30 +7,63 @@ if (session_status() === PHP_SESSION_NONE) {
 // Récupérer les informations de l'utilisateur
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
-$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Préfet';
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Prefet';
 $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 
-// Vérifier si les données du professeur sont disponibles
-if (!isset($professeur) || empty($professeur)) {
-    // Au lieu de sortir immédiatement, affichons un message d'erreur et continuons
-    $error_message = "Aucune information disponible pour ce professeur.";
-    // Créons un tableau vide pour éviter les erreurs plus loin
-    $professeur = [
-        'id' => 0,
-        'nom' => 'Non disponible',
-        'prenom' => '',
-        'email' => 'Non disponible',
-        'telephone' => 'Non disponible',
-        'specialite' => 'Non disponible',
-        'date_embauche' => date('Y-m-d'),
-        'adresse' => 'Non disponible',
-        'formation' => 'Non disponible',
-        'notes' => 'Non disponible'
-    ];
+// Vérifier si l'ID du professeur est fourni
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    $_SESSION['flash_message'] = "ID du professeur non spécifié.";
+    $_SESSION['flash_type'] = "danger";
+    header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=professeurs');
+    exit;
 }
 
-// Récupérer les cours du professeur si disponibles
-$cours_professeur = isset($cours) ? $cours : [];
+$prof_id = intval($_GET['id']);
+
+// Connexion à la base de données
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Récupération des informations du professeur
+$query = "SELECT p.*, GROUP_CONCAT(DISTINCT c.titre SEPARATOR ', ') as cours_nom
+          FROM professeurs p
+          LEFT JOIN cours c ON p.id = c.professeur_id
+          WHERE p.id = ?
+          GROUP BY p.id";
+
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param("i", $prof_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    $_SESSION['flash_message'] = "Professeur non trouvé.";
+    $_SESSION['flash_type'] = "danger";
+    header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=professeurs');
+    exit;
+}
+
+$professeur = $result->fetch_assoc();
+
+// Récupération des cours enseignés par le professeur
+$cours_query = "SELECT c.*, cl.nom as classe_nom
+                FROM cours c
+                LEFT JOIN classes cl ON c.classe_id = cl.id
+                WHERE c.professeur_id = ? AND cl.section = 'secondaire'
+                ORDER BY cl.nom";
+
+$cours_stmt = $mysqli->prepare($cours_query);
+$cours_stmt->bind_param("i", $prof_id);
+$cours_stmt->execute();
+$cours_result = $cours_stmt->get_result();
+
+// Fermer la connexion
+$stmt->close();
+$cours_stmt->close();
+$mysqli->close();
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +71,7 @@ $cours_professeur = isset($cours) ? $cours : [];
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>SGS | Détails du Professeur</title>
+  <title>SGS | Profil Professeur</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
@@ -158,208 +191,299 @@ $cours_professeur = isset($cours) ? $cours : [];
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
-        Détails du Professeur
-        <small>Informations complètes</small>
+        Profil du Professeur
+        <small>Détails complets</small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs">Professeurs</a></li>
-        <li class="active">Détails du Professeur</li>
+        <li class="active">Profil</li>
       </ol>
     </section>
 
     <section class="content">
-      <?php if (isset($error_message)): ?>
-      <div class="alert alert-danger">
-        <h4><i class="icon fa fa-ban"></i> Erreur!</h4>
-        <?php echo $error_message; ?>
-      </div>
-      <?php endif; ?>
-      
-      <!-- Affichage des données de débogage si nécessaire -->
-      <?php if (isset($_GET['debug']) && $_GET['debug'] == 1): ?>
-      <div class="box box-danger">
-        <div class="box-header with-border">
-          <h3 class="box-title">Informations de débogage</h3>
-        </div>
-        <div class="box-body">
-          <pre><?php print_r($professeur); ?></pre>
-        </div>
-      </div>
-      <?php endif; ?>
-
       <div class="row">
         <div class="col-md-4">
-          <!-- Profil du professeur -->
+          <!-- Profil Box -->
           <div class="box box-primary">
             <div class="box-body box-profile">
-              <img class="profile-user-img img-responsive img-circle" src="<?php echo BASE_URL; ?>dist/img/teacher-avatar.png" alt="Photo du professeur">
-              <h3 class="profile-username text-center"><?php echo htmlspecialchars($professeur['nom'] . ' ' . $professeur['prenom']); ?></h3>
-              <p class="text-muted text-center">Professeur</p>
+              <img class="profile-user-img img-responsive img-circle" src="<?php echo BASE_URL; ?>dist/img/teacher.png" alt="Photo du professeur">
+              <h3 class="profile-username text-center"><?php echo htmlspecialchars($professeur['prenom'] . ' ' . $professeur['nom']); ?></h3>
+              <p class="text-muted text-center">Professeur - Section Secondaire</p>
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">
                   <b>Email</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['email']); ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Téléphone</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['telephone']); ?></a>
+                  <b>Téléphone</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['contact'] ?? 'Non renseigné'); ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Spécialité</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['specialite']); ?></a>
+                  <b>Date d'embauche</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['date_embauche'] ?? 'Non renseigné'); ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Date d'embauche</b> <a class="pull-right"><?php echo date('d/m/Y', strtotime($professeur['date_embauche'])); ?></a>
+                  <b>Cours enseignés</b> <a class="pull-right"><?php echo $professeur['cours_nom'] ?? 'Aucun'; ?></a>
                 </li>
               </ul>
 
-              <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=modifierProfesseur&id=<?php echo $professeur['id']; ?>" class="btn btn-primary btn-block"><b>Modifier</b></a>
+              <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=modifierProfesseur&id=<?php echo $professeur['id']; ?>" class="btn btn-warning btn-block"><b>Modifier</b></a>
             </div>
           </div>
 
-          <!-- Informations supplémentaires -->
-          <div class="box box-primary">
+          <!-- Coordonnées Box -->
+          <div class="box box-info">
             <div class="box-header with-border">
-              <h3 class="box-title">Informations supplémentaires</h3>
+              <h3 class="box-title">Coordonnées</h3>
             </div>
             <div class="box-body">
+              <strong><i class="fa fa-envelope margin-r-5"></i> Email</strong>
+              <p class="text-muted"><?php echo htmlspecialchars($professeur['email']); ?></p>
+              <hr>
+
+              <strong><i class="fa fa-phone margin-r-5"></i> Téléphone</strong>
+              <p class="text-muted"><?php echo htmlspecialchars($professeur['contact'] ?? 'Non renseigné'); ?></p>
+              <hr>
+
               <strong><i class="fa fa-map-marker margin-r-5"></i> Adresse</strong>
-              <p class="text-muted"><?php echo htmlspecialchars($professeur['adresse']); ?></p>
-              <hr>
-
-              <strong><i class="fa fa-graduation-cap margin-r-5"></i> Formation</strong>
-              <p class="text-muted"><?php echo htmlspecialchars($professeur['formation']); ?></p>
-              <hr>
-
-              <strong><i class="fa fa-file-text-o margin-r-5"></i> Notes</strong>
-              <p class="text-muted"><?php echo htmlspecialchars($professeur['notes']); ?></p>
+              <p class="text-muted"><?php echo htmlspecialchars($professeur['adresse'] ?? 'Non renseignée'); ?></p>
             </div>
           </div>
         </div>
 
         <div class="col-md-8">
-          <!-- Cours enseignés -->
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Cours enseignés</h3>
-            </div>
-            <div class="box-body">
-              <?php if (!empty($cours_professeur)): ?>
-                <div class="table-responsive">
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#cours" data-toggle="tab">Cours enseignés</a></li>
+              <li><a href="#presence" data-toggle="tab">Présences</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="active tab-pane" id="cours">
+                <div class="box-body">
                   <table class="table table-bordered table-striped">
                     <thead>
                       <tr>
-                        <th>Nom du cours</th>
+                        <th>Titre du cours</th>
                         <th>Classe</th>
-                        <th>Horaire</th>
-                        <th>Actions</th>
+                        <th>Jours</th>
+                        <th>Horaires</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <?php foreach ($cours_professeur as $cours): ?>
-                        <tr>
-                          <td><?php echo htmlspecialchars($cours['titre']); ?></td>
-                          <td><?php echo htmlspecialchars($cours['classe']); ?></td>
-                          <td><?php echo htmlspecialchars($cours['horaire']); ?></td>
-                          <td>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirCours&id=<?php echo $cours['id']; ?>" class="btn btn-xs btn-info">
-                              <i class="fa fa-eye"></i> Voir
-                            </a>
-                          </td>
-                        </tr>
-                      <?php endforeach; ?>
+                      <?php
+                      if ($cours_result->num_rows > 0) {
+                        while ($cours = $cours_result->fetch_assoc()) {
+                          echo "<tr>
+                                  <td>" . htmlspecialchars($cours['titre']) . "</td>
+                                  <td>" . htmlspecialchars($cours['classe_nom']) . "</td>
+                                  <td>" . htmlspecialchars($cours['jours'] ?? 'Non défini') . "</td>
+                                  <td>" . htmlspecialchars($cours['horaires'] ?? 'Non défini') . "</td>
+                                </tr>";
+                        }
+                      } else {
+                        echo "<tr><td colspan='4' class='text-center'>Aucun cours assigné à ce professeur dans la section secondaire.</td></tr>";
+                      }
+                      ?>
                     </tbody>
                   </table>
                 </div>
-              <?php else: ?>
-                <div class="alert alert-info">
-                  <i class="icon fa fa-info"></i> Ce professeur n'enseigne actuellement aucun cours.
-                </div>
-              <?php endif; ?>
-            </div>
-          </div>
+              </div>
 
-          <!-- Emploi du temps -->
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Emploi du temps</h3>
-            </div>
-            <div class="box-body">
-              <div class="table-responsive">
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>Heure</th>
-                      <th>Lundi</th>
-                      <th>Mardi</th>
-                      <th>Mercredi</th>
-                      <th>Jeudi</th>
-                      <th>Vendredi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <!-- Ici, vous pouvez ajouter dynamiquement l'emploi du temps du professeur -->
-                    <tr>
-                      <td>08:00 - 09:00</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>09:00 - 10:00</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>10:00 - 11:00</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>11:00 - 12:00</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>12:00 - 13:00</td>
-                      <td colspan="5" class="text-center">Pause déjeuner</td>
-                    </tr>
-                    <tr>
-                      <td>13:00 - 14:00</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>14:00 - 15:00</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>15:00 - 16:00</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="tab-pane" id="infos">
+                <!-- Existing infos content -->
+              </div>
+
+              <div class="tab-pane" id="presence">
+                <div class="box-body">
+                  <?php
+                  // Connexion à la base de données pour récupérer les présences
+                  $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+                  
+                  // Récupérer les présences par mois
+                  $presence_query = "SELECT 
+                                      DATE_FORMAT(date, '%Y-%m') as mois,
+                                      DATE_FORMAT(date, '%M %Y') as mois_nom,
+                                      date,
+                                      status,
+                                      commentaire
+                                    FROM presences_professeurs
+                                    WHERE professeur_id = ?
+                                    ORDER BY date DESC";
+                  
+                  $presence_stmt = $mysqli->prepare($presence_query);
+                  $presence_stmt->bind_param("i", $prof_id);
+                  $presence_stmt->execute();
+                  $presence_result = $presence_stmt->get_result();
+                  
+                  $presences_par_mois = [];
+                  
+                  if ($presence_result->num_rows > 0) {
+                    while ($presence = $presence_result->fetch_assoc()) {
+                      $mois = $presence['mois'];
+                      $mois_nom = $presence['mois_nom'];
+                      
+                      if (!isset($presences_par_mois[$mois])) {
+                        $presences_par_mois[$mois] = [
+                          'nom' => $mois_nom,
+                          'presences' => []
+                        ];
+                      }
+                      
+                      $presences_par_mois[$mois]['presences'][] = $presence;
+                    }
+                    
+                    // Afficher les présences par mois
+                    foreach ($presences_par_mois as $mois => $data) {
+                      // Initialize counters for each status
+                      $count_present = 0;
+                      $count_absent = 0;
+                      $count_retard = 0;
+                      $count_excuse = 0;
+                      
+                      // Count each status
+                      foreach ($data['presences'] as $presence) {
+                        switch ($presence['status']) {
+                          case 'present':
+                            $count_present++;
+                            break;
+                          case 'absent':
+                            $count_absent++;
+                            break;
+                          case 'retard':
+                            $count_retard++;
+                            break;
+                          case 'excuse':
+                            $count_excuse++;
+                            break;
+                        }
+                      }
+                      
+                      echo '<div class="box box-solid">
+                              <div class="box-header with-border">
+                                <h3 class="box-title">' . ucfirst($data['nom']) . '</h3>
+                                <div class="box-tools pull-right">
+                                  <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <div class="box-body">
+                                <table class="table table-bordered table-striped">
+                                  <thead>
+                                    <tr>
+                                      <th>Date</th>
+                                      <th>Statut</th>
+                                      <th>Commentaire</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>';
+                      
+                      foreach ($data['presences'] as $presence) {
+                        $status_class = '';
+                        $status_text = '';
+                        
+                        switch ($presence['status']) {
+                          case 'present':
+                            $status_class = 'label-success';
+                            $status_text = 'Présent';
+                            break;
+                          case 'absent':
+                            $status_class = 'label-danger';
+                            $status_text = 'Absent';
+                            break;
+                          case 'retard':
+                            $status_class = 'label-warning';
+                            $status_text = 'En retard';
+                            break;
+                          case 'excuse':
+                            $status_class = 'label-info';
+                            $status_text = 'Absence excusée';
+                            break;
+                          default:
+                            $status_class = 'label-default';
+                            $status_text = 'Inconnu';
+                        }
+                        
+                        echo '<tr>
+                                <td>' . date('d/m/Y', strtotime($presence['date'])) . '</td>
+                                <td><span class="label ' . $status_class . '">' . $status_text . '</span></td>
+                                <td>' . htmlspecialchars($presence['commentaire'] ?? '') . '</td>
+                              </tr>';
+                      }
+                      
+                      // Add summary row at the end of the month
+                      echo '    </tbody>
+                                </table>
+                                <div class="box-footer">
+                                  <div class="row">
+                                    <div class="col-sm-12">
+                                      <h4>Résumé du mois:</h4>
+                                      <div class="row">
+                                        <div class="col-xs-3 col-sm-3 col-md-3">
+                                          <div class="small-box bg-green" style="margin-bottom: 10px; height: 80px;">
+                                            <div class="inner" style="padding: 5px 10px;">
+                                              <h4 style="margin-top: 5px;">Présent</h4>
+                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_present . '</h3>
+                                            </div>
+                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                              <i class="fa fa-check"></i>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3">
+                                          <div class="small-box bg-red" style="margin-bottom: 10px; height: 80px;">
+                                            <div class="inner" style="padding: 5px 10px;">
+                                              <h4 style="margin-top: 5px;">Absent</h4>
+                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_absent . '</h3>
+                                            </div>
+                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                              <i class="fa fa-times"></i>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3">
+                                          <div class="small-box bg-yellow" style="margin-bottom: 10px; height: 80px;">
+                                            <div class="inner" style="padding: 5px 10px;">
+                                              <h4 style="margin-top: 5px;">Retard</h4>
+                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_retard . '</h3>
+                                            </div>
+                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                              <i class="fa fa-clock-o"></i>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="col-xs-3 col-sm-3 col-md-3">
+                                          <div class="small-box bg-aqua" style="margin-bottom: 10px; height: 80px;">
+                                            <div class="inner" style="padding: 5px 10px;">
+                                              <h4 style="margin-top: 5px;">Excusé</h4>
+                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_excuse . '</h3>
+                                            </div>
+                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                              <i class="fa fa-exclamation"></i>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>';
+                    }
+                  } else {
+                    echo '<div class="alert alert-info">
+                            <h4><i class="icon fa fa-info"></i> Information</h4>
+                            Aucun enregistrement de présence trouvé pour ce professeur.
+                          </div>
+                          <a href="' . BASE_URL . 'index.php?controller=Prefet&action=presenceProfesseur&id=' . $prof_id . '" class="btn btn-primary">
+                            <i class="fa fa-plus"></i> Ajouter une présence
+                          </a>';
+                  }
+                  
+                  // Fermer la connexion
+                  $presence_stmt->close();
+                  $mysqli->close();
+                  ?>
+                </div>
               </div>
             </div>
           </div>
