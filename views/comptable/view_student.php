@@ -222,10 +222,12 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
                     <thead>
                       <tr>
                         <th>Date</th>
-                        <th>Type</th>
+                        <th>Type frais </th>
                         <th>Montant</th>
                         <th>Référence</th>
+                        <th>mois</th>
                         <th>Statut</th>
+                        
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -241,13 +243,14 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
                             <td><?php echo htmlspecialchars($paiement['type_paiement']); ?></td>
                             <td><?php echo number_format($paiement['montant'], 0, ',', ' ') . ' $'; ?></td>
                             <td><?php echo htmlspecialchars($paiement['reference']); ?></td>
+                            <td><?php echo htmlspecialchars($paiement['mois']); ?></td>
                             <td>
                               <?php if ($paiement['statut'] == 'Payé'): ?>
                                 <span class="label label-success">Payé</span>
                               <?php elseif ($paiement['statut'] == 'En attente'): ?>
                                 <span class="label label-warning">En attente</span>
                               <?php else: ?>
-                                <span class="label label-danger">Annulé</span>
+                                <span class="label label-success">Payer</span>
                               <?php endif; ?>
                             </td>
                             <td>

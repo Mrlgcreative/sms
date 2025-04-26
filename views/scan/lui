@@ -1,0 +1,15 @@
+$.ajax({
+  url: '<?php echo BASE_URL; ?>index.php?controller=Scan&action=processQRCode',
+  type: 'POST',
+  data: { matricule: content },
+  dataType: 'json',
+  success: function(data) {
+    // ... votre code existant ...
+  },
+  error: function(xhr, status, error) {
+    $('.loading').hide();
+    console.error("Erreur AJAX:", status, error);
+    console.log("Réponse du serveur:", xhr.responseText);
+    $('#result').html('<span class="error-message"><i class="fa fa-exclamation-triangle"></i> Erreur de communication avec le serveur: ' + status + ' - ' + error + '</span>');
+  }
+});

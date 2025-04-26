@@ -239,11 +239,46 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
       </ol>
 
       <?php if (isset($showWelcomeMessage) && $showWelcomeMessage): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <strong>Bienvenue <?php echo htmlspecialchars($username); ?> !</strong> Vous êtes maintenant connecté en tant que <?php echo htmlspecialchars($role); ?>.
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-<?php endif; ?>
+      <style>
+        #welcomeAlert {
+          width: 50%; /* Réduire la largeur à 70% */
+          margin-left: 0; /* Aligner à gauche */
+          margin-right: auto;
+          border-left: 5px solid #00a65a;
+          background-color: #f8f9fa;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-bottom: 20px;
+          animation: slideIn 0.5s ease-out;
+        }
+        
+        #welcomeAlert ,h4 {
+          color: #00a65a;
+          margin-top: 0;
+        }
+        
+        @keyframes slideIn {
+          from {
+            transform: translateX(-20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      </style>
+      <div class="alert alert-success alert-dismissible" id="welcomeAlert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-check"></i> Bienvenue !</h4>
+        <strong><?php echo htmlspecialchars($username); ?> !</strong> Vous êtes maintenant connecté en tant que <?php echo htmlspecialchars($role); ?>.
+      </div>
+      <script>
+        // Faire disparaître l'alerte après 10 secondes
+        setTimeout(function() {
+          $('#welcomeAlert').fadeOut('slow');
+        }, 10000); // 10000 ms = 10 secondes
+      </script>
+      <?php endif; ?>
     </section>
 
     <section class="content">
@@ -290,87 +325,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
             <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-yellow">
-            <div class="inner">
-              <h3><?php echo $total_professeurs; ?></h3>
-              <p>Professeurs</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-user"></i>
-            </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-red">
-            <div class="inner">
-              <h3><?php echo $total_directeurs;?></h3>
-              <p>Directeurs</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-male"></i>
-            </div>
-            <a href="#" class="small-box-footer">Voir Plus <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-      </div>
-      
-      <div class="row">
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
-            <div class="inner">
-              <h3><?php echo $total_directrices; ?></h3>
-              <p>Directrices</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-female"></i>
-            </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-green">
-            <div class="inner">
-              <h3><?php echo $total_prefets; ?></h3>
-              <p>Préfets</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-male"></i>
-            </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-yellow">
-            <div class="inner">
-              <h3><?php echo $total_comptables; ?></h3>
-              <p>Comptables</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-calculator"></i>
-            </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-yellow">
-            <div class="inner">
-              <h3><?php echo $total_employes; ?></h3>
-              <p>Employés</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-group"></i>
-            </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-      </div>
+       
       
       <div class="row">
         <div class="col-lg-3 col-xs-6">
@@ -501,10 +456,5 @@ $(function () {
 </div>
 </body>
 </html>
-<?php if (isset($showWelcomeMessage) && $showWelcomeMessage): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <strong>Bienvenue <?php echo htmlspecialchars($username); ?> !</strong> Vous êtes maintenant connecté en tant que <?php echo htmlspecialchars($role); ?>.
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-<?php endif; ?>
-<!-- Continuer avec le reste de votre contenu -->
+ reste de votre contenu -->
+

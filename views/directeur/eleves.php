@@ -6,17 +6,20 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Récupération des élèves de la section secondaire avec information de classe
-$query = "SELECT e.*, e.classe_id as classe_nom 
-          FROM eleves e 
-          LEFT JOIN classes c ON e.classe_id = e.id
-          WHERE e.section = 'secondaire'
-          ORDER BY e.nom, e.prenom";
-$result = $mysqli->query($query);
+// Forcer la section à "primaire" pour n'afficher que les élèves du primaire
+$section = "primaire";
 
+// Récupération des élèves de la section primaire uniquement
 $eleves = [];
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
+$eleves_query = "SELECT e.*, c.nom as classe_nom 
+                FROM eleves e 
+                LEFT JOIN classes c ON e.classe_id = c.id 
+                WHERE e.section = 'primaire'
+                ORDER BY e.nom, e.prenom";
+$eleves_result = $mysqli->query($eleves_query);
+
+if ($eleves_result) {
+    while ($row = $eleves_result->fetch_assoc()) {
         $eleves[] = $row;
     }
 }
@@ -28,7 +31,7 @@ $stats_query = "SELECT c.nom as classe_nom,
                 COUNT(*) as total
                 FROM eleves e
                 JOIN classes c ON e.classe_id = c.id
-                WHERE e.section = 'secondaire'
+                WHERE e.section = 'primaire'
                 GROUP BY e.classe_id
                 ORDER BY c.nom";
 $stats_result = $mysqli->query($stats_query);
@@ -46,7 +49,7 @@ $stats_global_query = "SELECT
                       SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as nb_filles,
                       COUNT(*) as total
                       FROM eleves
-                      WHERE section = 'secondaire'";
+                      WHERE section = 'primaire'";
 $stats_global_result = $mysqli->query($stats_global_query);
 $stats_global = $stats_global_result->fetch_assoc();
 
@@ -64,7 +67,7 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 // Initialiser les variables de session
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
-$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Prefet';
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Director';
 
 // Utiliser l'image de la session ou l'image par défaut
 $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
@@ -85,11 +88,11 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-purple sidebar-mini">
 <div class="wrapper">
 
   <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil" class="logo">
+    <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=accueil" class="logo">
       <span class="logo-mini"><b>SGS</b></span>
       <span class="logo-lg"><b>Système</b> Gestion</span>
     </a>
@@ -115,7 +118,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
               </li>
               <li class="user-footer">
                 <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=profil" class="btn btn-default btn-flat">Profil</a>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=profil" class="btn btn-default btn-flat">Profil</a>
                 </div>
                 <div class="pull-right">
                   <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
@@ -143,50 +146,32 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MENU PRINCIPAL</li>
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=accueil">
             <i class="fa fa-dashboard"></i> <span>Tableau de bord</span>
           </a>
         </li>
         
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=eleves">
-            <i class="fa fa-child"></i> <span>Élèves Secondaire</span>
+        <li class="active">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=eleves">
+            <i class="fa fa-child"></i> <span>Élèves</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=professeurs">
             <i class="fa fa-graduation-cap"></i> <span>Professeurs</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=classes">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=classes">
             <i class="fa fa-table"></i> <span>Classes</span>
           </a>
         </li>
-        
+  
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=cours">
-            <i class="fa fa-book"></i> <span>Cours</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=evenementsScolaires">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=evenementsScolaires">
             <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=absences">
-            <i class="fa fa-clock-o"></i> <span>Gestion des Absences</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=discipline">
-            <i class="fa fa-gavel"></i> <span>Discipline</span>
           </a>
         </li>
       </ul>
@@ -197,10 +182,10 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
     <section class="content-header">
       <h1>
         Gestion des Élèves
-        <small>Liste des élèves</small>
+        <small>Liste des élèves<?php echo !empty($section) ? ' - Section ' . ucfirst($section) : ''; ?></small>
       </h1>
       <ol class="breadcrumb">
-        <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
+        <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Élèves</li>
       </ol>
     </section>
@@ -228,7 +213,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                         <div class="progress-bar" style="width: 100%"></div>
                       </div>
                       <span class="progress-description">
-                        Section secondaire 
+                        Section primaire
                       </span>
                     </div>
                   </div>
@@ -316,6 +301,19 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           <div class="box">
             <div class="box-header">
               <h3 class="box-title">Liste des élèves</h3>
+              <div class="box-tools">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    Filtrer par section <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=eleves">Toutes les sections</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=eleves&section=maternelle">Maternelle</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=eleves&section=primaire">Primaire</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=eleves&section=secondaire">Secondaire</a></li>
+                  </ul>
+                </div>
+              </div>
             </div>
             <div class="box-body">
               <table id="eleves-table" class="table table-bordered table-striped">
@@ -326,6 +324,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                     <th>Prénom</th>
                     <th>Date de naissance</th>
                     <th>Classe</th>
+                    <th>Section</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -338,16 +337,11 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                         <td><?php echo htmlspecialchars($eleve['prenom']); ?></td>
                         <td><?php echo date('d/m/Y', strtotime($eleve['date_naissance'])); ?></td>
                         <td><?php echo htmlspecialchars($eleve['classe_nom']); ?></td>
+                        <td><?php echo ucfirst(htmlspecialchars($eleve['section'])); ?></td>
                         <td>
                           <div class="btn-group">
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-sm">
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=voirEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-sm">
                               <i class="fa fa-eye"></i> Voir
-                            </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterAbsence&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-warning btn-sm">
-                              <i class="fa fa-calendar-times-o"></i> Absence
-                            </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterIncident&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-danger btn-sm">
-                              <i class="fa fa-gavel"></i> Incident
                             </a>
                           </div>
                         </td>
@@ -355,7 +349,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                     <?php endforeach; ?>
                   <?php else: ?>
                     <tr>
-                      <td colspan="6" class="text-center">Aucun élève trouvé</td>
+                      <td colspan="7" class="text-center">Aucun élève trouvé</td>
                     </tr>
                   <?php endif; ?>
                 </tbody>

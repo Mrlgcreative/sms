@@ -1374,10 +1374,11 @@ public function viewStudent() {
 // Récupérer les paiements de l'élève
 $paiements = [];
 $stmt = $mysqli->prepare("
-    SELECT p.*, p.payment_date AS date_paiement, 'Standard' AS type_paiement, 
+    SELECT p.*, p.payment_date AS date_paiement, f.description AS type_paiement, m.nom AS mois ,
            p.amount_paid AS montant, CONCAT('REF-', p.id) AS reference,
            'Validé' AS statut, f.description AS frais_description
     FROM paiements_frais p
+    LEFT JOIN mois m ON p.moi_id = m.id
     LEFT JOIN frais f ON p.frais_id = f.id
     WHERE p.eleve_id = ?
     ORDER BY p.payment_date DESC

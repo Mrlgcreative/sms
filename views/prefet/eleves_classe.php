@@ -1,58 +1,4 @@
 <?php
-// Connexion à la base de données
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-
-// Récupération des élèves de la section secondaire avec information de classe
-$query = "SELECT e.*, e.classe_id as classe_nom 
-          FROM eleves e 
-          LEFT JOIN classes c ON e.classe_id = e.id
-          WHERE e.section = 'secondaire'
-          ORDER BY e.nom, e.prenom";
-$result = $mysqli->query($query);
-
-$eleves = [];
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $eleves[] = $row;
-    }
-}
-
-// Récupération des statistiques sur le genre par classe
-$stats_query = "SELECT c.nom as classe_nom, 
-                SUM(CASE WHEN e.sexe = 'M' THEN 1 ELSE 0 END) as nb_garcons,
-                SUM(CASE WHEN e.sexe = 'F' THEN 1 ELSE 0 END) as nb_filles,
-                COUNT(*) as total
-                FROM eleves e
-                JOIN classes c ON e.classe_id = c.id
-                WHERE e.section = 'secondaire'
-                GROUP BY e.classe_id
-                ORDER BY c.nom";
-$stats_result = $mysqli->query($stats_query);
-
-$stats_classes = [];
-if ($stats_result) {
-    while ($row = $stats_result->fetch_assoc()) {
-        $stats_classes[] = $row;
-    }
-}
-
-// Récupération des statistiques globales sur le genre
-$stats_global_query = "SELECT 
-                      SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as nb_garcons,
-                      SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as nb_filles,
-                      COUNT(*) as total
-                      FROM eleves
-                      WHERE section = 'secondaire'";
-$stats_global_result = $mysqli->query($stats_global_query);
-$stats_global = $stats_global_result->fetch_assoc();
-
-// Fermer la connexion
-$mysqli->close();
-
 // Vérification de la session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -68,6 +14,66 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Prefet';
 
 // Utiliser l'image de la session ou l'image par défaut
 $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+
+// Vérifier si l'ID de classe est défini
+if (!isset($classe_id) || empty($classe_id)) {
+    header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=classes');
+    exit;
+}
+
+// Connexion à la base de données
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+// Récupérer les informations de la classe
+$classe_query = "SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom 
+                FROM classes c 
+                LEFT JOIN professeurs p ON c.titulaire = p.id
+                WHERE c.id = ? AND c.section = 'secondaire'";
+                
+$stmt = $mysqli->prepare($classe_query);
+$stmt->bind_param("i", $classe_id);
+$stmt->execute();
+$classe_result = $stmt->get_result();
+$classe = $classe_result->fetch_assoc();
+
+if (!$classe) {
+    header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=classes');
+    exit;
+}
+
+// Récupérer les élèves de cette classe
+$eleves_query = "SELECT * FROM eleves WHERE classe_id = ? AND section = 'secondaire' ORDER BY nom, prenom";
+$stmt = $mysqli->prepare($eleves_query);
+$stmt->bind_param("i", $classe_id);
+$stmt->execute();
+$eleves_result = $stmt->get_result();
+
+$eleves = [];
+while ($row = $eleves_result->fetch_assoc()) {
+    $eleves[] = $row;
+}
+
+// Statistiques de la classe
+$stats_query = "SELECT 
+                COUNT(*) as total_eleves,
+                SUM(CASE WHEN sexe = 'M' THEN 1 ELSE 0 END) as nb_garcons,
+                SUM(CASE WHEN sexe = 'F' THEN 1 ELSE 0 END) as nb_filles,
+                AVG(CASE WHEN date_naissance IS NOT NULL THEN TIMESTAMPDIFF(YEAR, date_naissance, CURDATE()) ELSE NULL END) as age_moyen
+                FROM eleves 
+                WHERE classe_id = ? AND section = 'secondaire'";
+                
+$stmt = $mysqli->prepare($stats_query);
+$stmt->bind_param("i", $classe_id);
+$stmt->execute();
+$stats_result = $stmt->get_result();
+$stats = $stats_result->fetch_assoc();
+
+// Fermer la connexion
+$mysqli->close();
 ?>
 
 <!DOCTYPE html>
@@ -75,7 +81,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>SGS | Gestion des Élèves</title>
+  <title>SGS | Élèves de la classe <?php echo htmlspecialchars($classe['nom']); ?></title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
@@ -160,7 +166,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           </a>
         </li>
         
-        <li>
+        <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=classes">
             <i class="fa fa-table"></i> <span>Classes</span>
           </a>
@@ -196,69 +202,49 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
-        Gestion des Élèves
+        Classe: <?php echo htmlspecialchars($classe['nom']); ?>
         <small>Liste des élèves</small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
-        <li class="active">Élèves</li>
+        <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=classes">Classes</a></li>
+        <li class="active"><?php echo htmlspecialchars($classe['nom']); ?></li>
       </ol>
     </section>
 
     <section class="content">
-      <!-- Boîte d'informations générales -->
+      <!-- Informations sur la classe -->
       <div class="row">
         <div class="col-md-12">
-          <div class="box box-info">
+          <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Informations générales - Répartition par sexe</h3>
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-              </div>
+              <h3 class="box-title">Informations sur la classe</h3>
             </div>
             <div class="box-body">
               <div class="row">
-                <div class="col-md-4">
-                  <div class="info-box bg-aqua">
-                    <span class="info-box-icon"><i class="fa fa-users"></i></span>
+                <div class="col-md-6">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-aqua"><i class="fa fa-info-circle"></i></span>
                     <div class="info-box-content">
-                      <span class="info-box-text">Total des élèves</span>
-                      <span class="info-box-number"><?php echo $stats_global['total']; ?></span>
-                      <div class="progress">
-                        <div class="progress-bar" style="width: 100%"></div>
-                      </div>
-                      <span class="progress-description">
-                        Section secondaire 
-                      </span>
+                      <span class="info-box-text">Niveau</span>
+                      <span class="info-box-number"><?php echo htmlspecialchars($classe['niveau']); ?></span>
                     </div>
                   </div>
                 </div>
-                <div class="col-md-4">
-                  <div class="info-box bg-blue">
-                    <span class="info-box-icon"><i class="fa fa-male"></i></span>
+                
+                <div class="col-md-6">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-green"><i class="fa fa-graduation-cap"></i></span>
                     <div class="info-box-content">
-                      <span class="info-box-text">Garçons</span>
-                      <span class="info-box-number"><?php echo $stats_global['nb_garcons']; ?></span>
-                      <div class="progress">
-                        <div class="progress-bar" style="width: <?php echo ($stats_global['total'] > 0) ? ($stats_global['nb_garcons'] / $stats_global['total'] * 100) : 0; ?>%"></div>
-                      </div>
-                      <span class="progress-description">
-                        <?php echo ($stats_global['total'] > 0) ? round($stats_global['nb_garcons'] / $stats_global['total'] * 100, 1) : 0; ?>% du total
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="info-box bg-pink">
-                    <span class="info-box-icon"><i class="fa fa-female"></i></span>
-                    <div class="info-box-content">
-                      <span class="info-box-text">Filles</span>
-                      <span class="info-box-number"><?php echo $stats_global['nb_filles']; ?></span>
-                      <div class="progress">
-                        <div class="progress-bar" style="width: <?php echo ($stats_global['total'] > 0) ? ($stats_global['nb_filles'] / $stats_global['total'] * 100) : 0; ?>%"></div>
-                      </div>
-                      <span class="progress-description">
-                        <?php echo ($stats_global['total'] > 0) ? round($stats_global['nb_filles'] / $stats_global['total'] * 100, 1) : 0; ?>% du total
+                      <span class="info-box-text">Professeur titulaire</span>
+                      <span class="info-box-number">
+                        <?php 
+                          if (!empty($classe['prof_nom']) && !empty($classe['prof_prenom'])) {
+                            echo htmlspecialchars($classe['prof_prenom'] . ' ' . $classe['prof_nom']);
+                          } else {
+                            echo '<span class="text-muted">Non assigné</span>';
+                          }
+                        ?>
                       </span>
                     </div>
                   </div>
@@ -266,43 +252,45 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
               </div>
               
               <div class="row">
+                <div class="col-md-4">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-yellow"><i class="fa fa-users"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Total des élèves</span>
+                      <span class="info-box-number"><?php echo $stats['total_eleves']; ?></span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-blue"><i class="fa fa-male"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Garçons</span>
+                      <span class="info-box-number"><?php echo $stats['nb_garcons']; ?> (<?php echo ($stats['total_eleves'] > 0) ? round(($stats['nb_garcons'] / $stats['total_eleves']) * 100) : 0; ?>%)</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4">
+                  <div class="info-box">
+                    <span class="info-box-icon bg-pink"><i class="fa fa-female"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Filles</span>
+                      <span class="info-box-number"><?php echo $stats['nb_filles']; ?> (<?php echo ($stats['total_eleves'] > 0) ? round(($stats['nb_filles'] / $stats['total_eleves']) * 100) : 0; ?>%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
                 <div class="col-md-12">
-                  <h4>Répartition par classe</h4>
-                  <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                      <thead>
-                        <tr>
-                          <th>Classe</th>
-                          <th>Garçons</th>
-                          <th>Filles</th>
-                          <th>Total</th>
-                          <th>Pourcentage garçons</th>
-                          <th>Pourcentage filles</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <?php foreach ($stats_classes as $classe): ?>
-                          <tr>
-                            <td><?php echo htmlspecialchars($classe['classe_nom']); ?></td>
-                            <td><?php echo $classe['nb_garcons']; ?></td>
-                            <td><?php echo $classe['nb_filles']; ?></td>
-                            <td><?php echo $classe['total']; ?></td>
-                            <td>
-                              <div class="progress progress-xs">
-                                <div class="progress-bar progress-bar-blue" style="width: <?php echo ($classe['total'] > 0) ? ($classe['nb_garcons'] / $classe['total'] * 100) : 0; ?>%"></div>
-                              </div>
-                              <span class="badge bg-blue"><?php echo ($classe['total'] > 0) ? round($classe['nb_garcons'] / $classe['total'] * 100, 1) : 0; ?>%</span>
-                            </td>
-                            <td>
-                              <div class="progress progress-xs">
-                                <div class="progress-bar progress-bar-pink" style="width: <?php echo ($classe['total'] > 0) ? ($classe['nb_filles'] / $classe['total'] * 100) : 0; ?>%"></div>
-                              </div>
-                              <span class="badge bg-pink"><?php echo ($classe['total'] > 0) ? round($classe['nb_filles'] / $classe['total'] * 100, 1) : 0; ?>%</span>
-                            </td>
-                          </tr>
-                        <?php endforeach; ?>
-                      </tbody>
-                    </table>
+                  <div class="info-box">
+                    <span class="info-box-icon bg-purple"><i class="fa fa-birthday-cake"></i></span>
+                    <div class="info-box-content">
+                      <span class="info-box-text">Âge moyen des élèves</span>
+                      <span class="info-box-number"><?php echo round($stats['age_moyen'], 1); ?> ans</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -311,11 +299,20 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
         </div>
       </div>
       
+      <!-- Liste des élèves -->
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Liste des élèves</h3>
+              <h3 class="box-title">Liste des élèves de la classe <?php echo htmlspecialchars($classe['nom']); ?></h3>
+              <div class="box-tools">
+                <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=absences&classe=<?php echo $classe_id; ?>" class="btn btn-warning btn-sm">
+                  <i class="fa fa-clock-o"></i> Gérer les absences
+                </a>
+                <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=discipline&classe=<?php echo $classe_id; ?>" class="btn btn-danger btn-sm">
+                  <i class="fa fa-gavel"></i> Gérer la discipline
+                </a>
+              </div>
             </div>
             <div class="box-body">
               <table id="eleves-table" class="table table-bordered table-striped">
@@ -324,8 +321,8 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                     <th>ID</th>
                     <th>Nom</th>
                     <th>Prénom</th>
+                    <th>Sexe</th>
                     <th>Date de naissance</th>
-                    <th>Classe</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -336,18 +333,18 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                         <td><?php echo $eleve['id']; ?></td>
                         <td><?php echo htmlspecialchars($eleve['nom']); ?></td>
                         <td><?php echo htmlspecialchars($eleve['prenom']); ?></td>
+                        <td><?php echo $eleve['sexe'] === 'M' ? 'Masculin' : 'Féminin'; ?></td>
                         <td><?php echo date('d/m/Y', strtotime($eleve['date_naissance'])); ?></td>
-                        <td><?php echo htmlspecialchars($eleve['classe_nom']); ?></td>
                         <td>
                           <div class="btn-group">
                             <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-sm">
                               <i class="fa fa-eye"></i> Voir
                             </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterAbsence&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-warning btn-sm">
-                              <i class="fa fa-calendar-times-o"></i> Absence
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=marquerAbsent&eleve=<?php echo $eleve['id']; ?>&classe=<?php echo $classe_id; ?>&redirect=1" class="btn btn-warning btn-sm">
+                              <i class="fa fa-clock-o"></i> Marquer absent
                             </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterIncident&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-danger btn-sm">
-                              <i class="fa fa-gavel"></i> Incident
+                            <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=ajouterSanction&eleve=<?php echo $eleve['id']; ?>" class="btn btn-danger btn-sm">
+                              <i class="fa fa-gavel"></i> Sanction
                             </a>
                           </div>
                         </td>
@@ -355,7 +352,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                     <?php endforeach; ?>
                   <?php else: ?>
                     <tr>
-                      <td colspan="6" class="text-center">Aucun élève trouvé</td>
+                      <td colspan="6" class="text-center">Aucun élève trouvé dans cette classe</td>
                     </tr>
                   <?php endif; ?>
                 </tbody>

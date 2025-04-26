@@ -110,7 +110,7 @@ class Director {
             $stmt = $this->db->prepare("SELECT c.*, COUNT(e.id) as nb_eleves, p.nom as prof_nom, p.prenom as prof_prenom 
                                         FROM classes c 
                                         LEFT JOIN eleves e ON c.id = e.classe_id 
-                                        LEFT JOIN professeurs p ON c.professeur_principal_id = p.id 
+                                        LEFT JOIN professeurs p ON c.titulaire = p.id 
                                         WHERE c.section = ? 
                                         GROUP BY c.id 
                                         ORDER BY c.nom");
@@ -119,7 +119,7 @@ class Director {
             $stmt = $this->db->prepare("SELECT c.*, COUNT(e.id) as nb_eleves, p.nom as prof_nom, p.prenom as prof_prenom 
                                         FROM classes c 
                                         LEFT JOIN eleves e ON c.id = e.classe_id 
-                                        LEFT JOIN professeurs p ON c.professeur_principal_id = p.id 
+                                        LEFT JOIN professeurs p ON c.titulaire = p.id 
                                         GROUP BY c.id 
                                         ORDER BY c.section, c.nom");
         }
@@ -138,15 +138,23 @@ class Director {
     
     // Voir les élèves d'une classe
     public function voirEleves() {
-        $classe = isset($_GET['classe']) ? $_GET['classe'] : '';
+        // Vérifier si l'utilisateur est connecté et a le rôle de directeur
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'directeur') {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
         
-        if (empty($classe)) {
-            $_SESSION['message'] = 'Aucune classe spécifiée.';
-            $_SESSION['message_type'] = 'danger';
+        // Vérifier si l'ID de classe est fourni
+        if (!isset($_GET['classe']) || empty($_GET['classe'])) {
             header('Location: ' . BASE_URL . 'index.php?controller=Director&action=classes');
             exit;
         }
         
+        // Récupérer l'ID de la classe
+        $classe_id = (int)$_GET['classe'];
+        
+        // Charger la vue des élèves de la classe
         require_once 'views/directeur/eleves_classe.php';
     }
     
@@ -213,8 +221,7 @@ class Director {
         $query = "SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom, cl.nom as classe_nom 
                  FROM cours c 
                  LEFT JOIN professeurs p ON c.professeur_id = p.id 
-                 LEFT JOIN classes cl ON c.classe_id = cl.id 
-                 ORDER BY c.jour, c.heure_debut";
+                 LEFT JOIN classes cl ON c.classe_id = cl.id ";
         
         $result = $this->db->query($query);
         

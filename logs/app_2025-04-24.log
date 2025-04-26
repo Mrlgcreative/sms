@@ -1,0 +1,22 @@
+[2025-04-24 10:12:45] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-24 10:12:45] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-24 10:14:17] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-24 10:14:17] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
+[2025-04-24 10:29:14] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-24 10:29:14] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-24 10:43:33] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-24 10:43:33] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-24 12:06:44] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-24 12:06:44] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-24 23:15:04] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
+[2025-04-24 23:15:04] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
+[2025-04-24 23:16:47] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-24 23:16:47] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-24 23:25:04] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-24 23:25:04] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-24 23:38:44] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-24 23:38:44] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-24 23:39:03] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-24 23:39:03] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
+[2025-04-24 23:39:50] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-24 23:39:50] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

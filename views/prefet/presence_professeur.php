@@ -1,20 +1,4 @@
 <?php
-// Connexion à la base de données
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-
-// Récupération des professeurs
-$query = "SELECT p.*, GROUP_CONCAT(c.titre SEPARATOR ', ') as cours_enseignes 
-          FROM professeurs p 
-          LEFT JOIN cours c ON FIND_IN_SET(c.id, p.cours_id)
-          WHERE p.section = 'Secondaire' OR p.section = 'Tous'
-          GROUP BY p.id
-          ORDER BY p.nom, p.prenom";
-$result = $mysqli->query($query);
-
 // Vérification de la session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -25,9 +9,6 @@ $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur'
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Préfet';
 $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
-
-// Fermer la connexion
-$mysqli->close();
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +16,7 @@ $mysqli->close();
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>SGS | Professeurs</title>
+  <title>SGS | Présence Professeur</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
@@ -43,6 +24,7 @@ $mysqli->close();
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -144,149 +126,155 @@ $mysqli->close();
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
-        Professeurs
-        <small>Liste complète</small>
+        Gestion des présences
+        <small>Professeur: <?php echo htmlspecialchars($professeur['nom'] . ' ' . $professeur['prenom']); ?></small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
-        <li class="active">Professeurs</li>
+        <li><a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs">Professeurs</a></li>
+        <li class="active">Présence</li>
       </ol>
     </section>
 
     <section class="content">
-      <!-- Informations générales -->
+      <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-check"></i> Succès!</h4>
+          <?php 
+            echo $_SESSION['success']; 
+            unset($_SESSION['success']);
+          ?>
+        </div>
+      <?php endif; ?>
+      
+      <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <h4><i class="icon fa fa-ban"></i> Erreur!</h4>
+          <?php 
+            echo $_SESSION['error']; 
+            unset($_SESSION['error']);
+          ?>
+        </div>
+      <?php endif; ?>
+      
       <div class="row">
-        <div class="col-md-12">
-          <div class="box box-solid bg-teal-gradient">
-            <div class="box-header">
-              <i class="fa fa-info-circle"></i>
-              <h3 class="box-title">Informations générales sur les professeurs</h3>
+        <div class="col-md-4">
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Informations du professeur</h3>
             </div>
-            <div class="box-body">
-              <div class="row">
-                <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="small-box bg-aqua">
-                    <div class="inner">
-                      <h3><?php echo $result->num_rows; ?></h3>
-                      <p>Total professeurs</p>
-                    </div>
-                    <div class="icon">
-                      <i class="fa fa-graduation-cap"></i>
-                    </div>
-                  </div>
-                </div>
-                
-                <?php
-                // Récupération des statistiques
-                $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-                
-                // Nombre de cours enseignés dans la section secondaire
-                $cours_query = "SELECT COUNT(DISTINCT id) as total FROM cours WHERE section = 'Secondaire'";
-                $cours_result = $mysqli->query($cours_query);
-                $total_cours = $cours_result->fetch_assoc()['total'];
-                
-                // Nombre de professeurs titulaires de la section secondaire
-                $titulaires_query = "SELECT COUNT(DISTINCT p.id) as total FROM professeurs p 
-                                    JOIN classes c ON c.prof_id = p.id
-                                    WHERE c.section = 'Secondaire'";
-                $titulaires_result = $mysqli->query($titulaires_query);
-                $total_titulaires = $titulaires_result->fetch_assoc()['total'];
-                
-                // Moyenne de cours par professeur de la section secondaire
-                $avg_query = "SELECT AVG(cours_count) as moyenne FROM (
-                              SELECT COUNT(c.id) as cours_count 
-                              FROM professeurs p 
-                              LEFT JOIN cours c ON FIND_IN_SET(c.id, p.cours_id)
-                              WHERE (p.section = 'Secondaire' OR p.section = 'Tous')
-                              AND (c.section = 'Secondaire' OR c.section IS NULL)
-                              GROUP BY p.id) as counts";
-                $avg_result = $mysqli->query($avg_query);
-                $avg_cours = $avg_result->fetch_assoc()['moyenne'];
-                
-                $mysqli->close();
-                ?>
-                
-                <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="small-box bg-green">
-                    <div class="inner">
-                      <h3><?php echo $total_cours; ?></h3>
-                      <p>Cours enseignés</p>
-                    </div>
-                    <div class="icon">
-                      <i class="fa fa-book"></i>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="small-box bg-yellow">
-                    <div class="inner">
-                      <h3><?php echo $total_titulaires; ?></h3>
-                      <p>Professeurs titulaires</p>
-                    </div>
-                    <div class="icon">
-                      <i class="fa fa-users"></i>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="col-md-3 col-sm-6 col-xs-12">
-                  <div class="small-box bg-red">
-                    <div class="inner">
-                      <h3><?php echo round($avg_cours, 1); ?></h3>
-                      <p>Moyenne cours/prof</p>
-                    </div>
-                    <div class="icon">
-                      <i class="fa fa-bar-chart"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div class="box-body box-profile">
+              <h3 class="profile-username text-center"><?php echo htmlspecialchars($professeur['nom'] . ' ' . $professeur['prenom']); ?></h3>
+              <p class="text-muted text-center">Professeur - Section <?php echo htmlspecialchars($professeur['section']); ?></p>
+              
+              <ul class="list-group list-group-unbordered">
+                <li class="list-group-item">
+                  <b>Email</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['email']); ?></a>
+                </li>
+                <li class="list-group-item">
+                  <b>Téléphone</b> <a class="pull-right"><?php echo htmlspecialchars($professeur['telephone'] ?? 'Non renseigné'); ?></a>
+                </li>
+              </ul>
+              
+              <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=voirProfesseur&id=<?php echo $professeur['id']; ?>" class="btn btn-primary btn-block"><b>Voir profil complet</b></a>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Liste des professeurs</h3>
+        
+        <div class="col-md-8">
+          <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Enregistrer une présence</h3>
+            </div>
+            <form class="form-horizontal" method="post">
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="date" class="col-sm-2 control-label">Date</label>
+                  <div class="col-sm-10">
+                    <div class="input-group date">
+                      <div class="input-group-addon">
+                        <i class="fa fa-calendar"></i>
+                      </div>
+                      <input type="text" class="form-control pull-right datepicker" id="date" name="date" value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="status" class="col-sm-2 control-label">Statut</label>
+                  <div class="col-sm-10">
+                    <select class="form-control" id="status" name="status">
+                      <option value="present">Présent</option>
+                      <option value="absent">Absent</option>
+                      <option value="retard">En retard</option>
+                      <option value="excuse">Absence excusée</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="commentaire" class="col-sm-2 control-label">Commentaire</label>
+                  <div class="col-sm-10">
+                    <textarea class="form-control" id="commentaire" name="commentaire" rows="3" placeholder="Commentaire optionnel..."></textarea>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="box-footer">
+                <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=professeurs" class="btn btn-default">Annuler</a>
+                <button type="submit" class="btn btn-info pull-right">Enregistrer</button>
+              </div>
+            </form>
+          </div>
+          
+          <div class="box box-success">
+            <div class="box-header with-border">
+              <h3 class="box-title">Historique des présences</h3>
             </div>
             <div class="box-body">
-              <table id="professeursList" class="table table-bordered table-striped">
+              <table class="table table-bordered table-striped">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                
-                    <th>Cours enseignés</th>
-                   
-                    <th>Email</th>
-                    <th>Actions</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th>Commentaire</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <?php
-                  if ($result && $result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                      echo "<tr>
-                              <td>{$row['id']}</td>
-                              <td>{$row['nom']}</td>
-                              <td>{$row['prenom']}</td>
-                         
-                              <td>{$row['cours_enseignes']}</td>
-                             
-                              <td>{$row['email']}</td>
-                              <td>
-                                <a href='" . BASE_URL . "index.php?controller=Prefet&action=voirProfesseur&id={$row['id']}' class='btn btn-info btn-xs'><i class='fa fa-eye'></i> Voir</a>
-                                <a href='" . BASE_URL . "index.php?controller=Prefet&action=presenceProfesseur&id={$row['id']}' class='btn btn-success btn-xs'><i class='fa fa-check-circle'></i> Présence</a>
-                              </td>
-                            </tr>";
-                    }
-                  }
-                  ?>
+                  <?php if (empty($presences)): ?>
+                    <tr>
+                      <td colspan="3" class="text-center">Aucun enregistrement de présence trouvé.</td>
+                    </tr>
+                  <?php else: ?>
+                    <?php foreach ($presences as $presence): ?>
+                      <tr>
+                        <td><?php echo date('d/m/Y', strtotime($presence['date'])); ?></td>
+                        <td>
+                          <?php 
+                            switch ($presence['status']) {
+                              case 'present':
+                                echo '<span class="label label-success">Présent</span>';
+                                break;
+                              case 'absent':
+                                echo '<span class="label label-danger">Absent</span>';
+                                break;
+                              case 'retard':
+                                echo '<span class="label label-warning">En retard</span>';
+                                break;
+                              case 'excuse':
+                                echo '<span class="label label-info">Absence excusée</span>';
+                                break;
+                              default:
+                                echo '<span class="label label-default">Inconnu</span>';
+                            }
+                          ?>
+                        </td>
+                        <td><?php echo htmlspecialchars($presence['commentaire'] ?? ''); ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
                 </tbody>
               </table>
             </div>
@@ -308,20 +296,14 @@ $mysqli->close();
 <script src="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="<?php echo BASE_URL; ?>bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+<script src="<?php echo BASE_URL; ?>bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 <script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
 
 <script>
   $(function () {
-    $('#professeursList').DataTable({
-      'paging'      : true,
-      'lengthChange': true,
-      'searching'   : true,
-      'ordering'    : true,
-      'info'        : true,
-      'autoWidth'   : false,
-      'language': {
-        'url': '//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json'
-      }
+    $('.datepicker').datepicker({
+      autoclose: true,
+      format: 'yyyy-mm-dd'
     });
   });
 </script>

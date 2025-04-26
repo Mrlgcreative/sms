@@ -1,0 +1,2 @@
+# Ajouter "Scan" à la liste des contrôleurs autorisés
+RewriteRule ^index\.php?controller=(Auth|Director|Directrice|Prefet|Scan)&(.*)$ index.php?controller=$1&$2 [L,QSA]

@@ -8,7 +8,7 @@ if ($mysqli->connect_error) {
 
 // Récupération des statistiques pour la section secondaire uniquement
 $total_eleves_secondaire = $mysqli->query("SELECT COUNT(*) AS total FROM eleves WHERE section='secondaire'")->fetch_assoc()['total'];
-$total_professeurs = $mysqli->query("SELECT COUNT(*) AS total FROM professeurs")->fetch_assoc()['total'];
+$total_professeurs = $mysqli->query("SELECT COUNT(*) AS total FROM professeurs WHERE section = 'Secondaire' OR section LIKE '%Secondaire%'")->fetch_assoc()['total'];
 
 // Récupération des élèves par classe (section secondaire uniquement)
 $eleves_par_classe = [];
@@ -29,6 +29,7 @@ $cours_par_prof = [];
 $cours_par_prof_query = "SELECT p.nom, p.prenom, COUNT(c.id) as total_cours 
                          FROM professeurs p 
                          LEFT JOIN cours c ON p.id = c.professeur_id 
+                         WHERE p.section='secondaire'
                          GROUP BY p.id 
                          ORDER BY total_cours DESC 
                          LIMIT 5";
@@ -222,7 +223,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
           <div class="small-box bg-green">
             <div class="inner">
               <h3><?php echo $total_professeurs; ?></h3>
-              <p>Professeurs</p>
+              <p>Professeurs Secondaire</p>
             </div>
             <div class="icon">
               <i class="fa fa-graduation-cap"></i>
@@ -393,23 +394,12 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                     </div>
                   </a>
                 </div>
-                
                 <div class="col-md-3 col-sm-6 col-xs-12">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=emploiTemps" class="info-box">
-                    <span class="info-box-icon bg-blue"><i class="fa fa-calendar-check-o"></i></span>
-                    <div class="info-box-content">
-                      <span class="info-box-text">Emploi du</span>
-                      <span class="info-box-number">Temps</span>
-                    </div>
-                  </a>
-                </div>
-                
-                <div class="col-md-3 col-sm-6 col-xs-12">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=bulletins" class="info-box">
-                    <span class="info-box-icon bg-green"><i class="fa fa-file-text"></i></span>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=rapports" class="info-box">
+                    <span class="info-box-icon bg-purple"><i class="fa fa-bar-chart"></i></span>
                     <div class="info-box-content">
                       <span class="info-box-text">Gestion des</span>
-                      <span class="info-box-number">Bulletins</span>
+                      <span class="info-box-number">Rapports</span>
                     </div>
                   </a>
                 </div>

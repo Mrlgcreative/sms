@@ -198,28 +198,11 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=cours">
-            <i class="fa fa-book"></i> <span>Cours</span>
-          </a>
-        </li>
-        
-        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=evenementsScolaires">
             <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
           </a>
         </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=absences">
-            <i class="fa fa-clock-o"></i> <span>Gestion des Absences</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=discipline">
-            <i class="fa fa-gavel"></i> <span>Discipline</span>
-          </a>
-        </li>
+      
       </ul>
     </section>
   </aside>
@@ -436,16 +419,6 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
                     <div class="info-box-content">
                       <span class="info-box-text">Gestion de la</span>
                       <span class="info-box-number">Discipline</span>
-                    </div>
-                  </a>
-                </div>
-                
-                <div class="col-md-3 col-sm-6 col-xs-12">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=finances" class="info-box">
-                    <span class="info-box-icon bg-blue"><i class="fa fa-money"></i></span>
-                    <div class="info-box-content">
-                      <span class="info-box-text">Gestion des</span>
-                      <span class="info-box-number">Finances</span>
                     </div>
                   </a>
                 </div>

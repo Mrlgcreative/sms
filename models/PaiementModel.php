@@ -143,35 +143,14 @@ public function getAll() {
         return null;
     }
 
-    public function add($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $moi_id, $classe_id, $option_id, $section) {
-        // Préparer la requête SQL
-        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, moi_id, classe_id, option_id, section) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public function add($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section) {
+        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, mois_id, classe_id, option_id, section, statut) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'payé')";
         
-        // Préparer la déclaration
         $stmt = $this->db->prepare($query);
+        $stmt->bind_param("iidssiiss", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section);
         
-        if (!$stmt) {
-            die("Erreur de préparation: " . $this->db->error);
-        }
-        
-        // Lier les paramètres
-        $stmt->bind_param("iisddiiis", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $moi_id, $classe_id, $option_id, $section);
-        
-        // Exécuter la requête
-        $result = $stmt->execute();
-        
-        if (!$result) {
-            die("Erreur d'exécution: " . $stmt->error);
-        }
-        
-        // Récupérer l'ID du paiement inséré
-        $paiement_id = $this->db->insert_id;
-        
-        // Fermer la déclaration
-        $stmt->close();
-        
-        return $paiement_id;
+        return $stmt->execute();
     }
 
     /**
