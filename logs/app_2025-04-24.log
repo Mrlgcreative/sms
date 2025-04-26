@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [2025-04-24 10:12:45] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
 [2025-04-24 10:12:45] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
 [2025-04-24 10:14:17] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
@@ -20,3 +21,14 @@
 [2025-04-24 23:39:03] [INFO] [::1] [ciella] Connexion réussie {"username":"ciella","ip":"::1"}
 [2025-04-24 23:39:50] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
 [2025-04-24 23:39:50] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+=======
+[2025-04-24 16:15:10] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-24 16:15:10] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-24 17:28:07] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"dk","ip":"::1"}
+[2025-04-24 17:28:14] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-24 17:28:14] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-24 17:35:50] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-24 17:35:50] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-24 18:06:14] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-24 18:06:14] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+>>>>>>> e50260dfde188d55ca5c10d5f3a5a66503eeb998

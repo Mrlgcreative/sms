@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [2025-04-25 09:12:01] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
 [2025-04-25 09:12:01] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
 [2025-04-25 09:54:23] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
@@ -30,3 +31,26 @@
 [2025-04-25 20:54:41] [INFO] [::1] [Divina] Connexion réussie {"username":"Divina","ip":"::1"}
 [2025-04-25 20:55:16] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
 [2025-04-25 20:55:16] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+=======
+[2025-04-25 12:03:42] [INFO] [::1] [hermine] User role for redirection {"role":"admin"}
+[2025-04-25 12:03:42] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-25 12:05:07] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-25 12:05:07] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-25 12:05:39] [INFO] [::1] [eclair] User role for redirection {"role":"comptable"}
+[2025-04-25 12:05:39] [INFO] [::1] [eclair] Connexion réussie {"username":"eclair","ip":"::1"}
+[2025-04-25 12:06:09] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-25 12:06:09] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-25 12:06:38] [INFO] [::1] [hermine] User role for redirection {"role":"admin"}
+[2025-04-25 12:06:38] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-25 12:26:17] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-25 12:26:17] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-25 12:47:29] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"hermine","ip":"::1"}
+[2025-04-25 12:47:35] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-25 12:47:35] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-25 14:48:34] [INFO] [::1] [hermine] User role for redirection {"role":"admin"}
+[2025-04-25 14:48:34] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-25 15:27:49] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Mine","ip":"::1"}
+[2025-04-25 15:27:55] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Mine","ip":"::1"}
+[2025-04-25 15:28:02] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-25 15:28:02] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+>>>>>>> e50260dfde188d55ca5c10d5f3a5a66503eeb998

@@ -22,6 +22,7 @@
 [2025-04-22 10:29:56] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
 [2025-04-22 10:59:46] [INFO] [::1] [rapha] User role for redirection {"role":"prefet"}
 [2025-04-22 10:59:47] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}
+<<<<<<< HEAD
 [2025-04-22 14:45:10] [INFO] [::1] [rapha] User role for redirection {"role":"prefet"}
 [2025-04-22 14:45:10] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}
 [2025-04-22 14:52:14] [INFO] [::1] [Divina] User role for redirection {"role":"director"}
@@ -32,3 +33,19 @@
 [2025-04-22 15:09:13] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}
 [2025-04-22 15:09:57] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
 [2025-04-22 15:09:57] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+=======
+[2025-04-22 14:01:23] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-22 14:01:23] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+[2025-04-22 14:03:34] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-22 14:03:34] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-22 14:10:22] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"hermine","ip":"::1"}
+[2025-04-22 14:10:28] [INFO] [::1] [hermine] User role for redirection {"role":"admin"}
+[2025-04-22 14:10:28] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
+[2025-04-22 14:10:58] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"eclair","ip":"::1"}
+[2025-04-22 14:11:06] [INFO] [::1] [eclair] User role for redirection {"role":"comptable"}
+[2025-04-22 14:11:06] [INFO] [::1] [eclair] Connexion réussie {"username":"eclair","ip":"::1"}
+[2025-04-22 14:12:47] [INFO] [::1] [dk] User role for redirection {"role":"director"}
+[2025-04-22 14:12:47] [INFO] [::1] [dk] Connexion réussie {"username":"dk","ip":"::1"}
+[2025-04-22 14:51:49] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
+[2025-04-22 14:51:49] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
+>>>>>>> e50260dfde188d55ca5c10d5f3a5a66503eeb998
