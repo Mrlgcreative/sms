@@ -376,7 +376,9 @@ if (isset($_SESSION['success'])) {
                       <select class="form-control" id="classe_id" name="classe_id" required>
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes as $classe) : ?>
-                          <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
+                          <?php if ($classe['section'] == 'maternelle') : ?>
+                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
+                          <?php endif; ?>
                         <?php endforeach; ?>
                       </select>
                     </div>
@@ -482,7 +484,9 @@ if (isset($_SESSION['success'])) {
                       <select class="form-control" id="classe_id" name="classe_id" required>
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes as $classe) : ?>
-                          <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
+                          <?php if ($classe['section'] == 'primaire') : ?>
+                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
+                          <?php endif; ?>
                         <?php endforeach; ?>
                       </select>
                     </div>
@@ -589,7 +593,9 @@ if (isset($_SESSION['success'])) {
                       <select class="form-control" id="classe_id" name="classe_id" required>
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes as $classe) : ?>
-                          <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
+                          <?php if ($classe['section'] == 'secondaire') : ?>
+                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['niveau']; ?></option>
+                          <?php endif; ?>
                         <?php endforeach; ?>
                       </select>
                     </div>

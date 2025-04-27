@@ -104,6 +104,11 @@
           </a>
         </li>
         <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
+            <i class="fa fa-refresh"></i> <span>Réinscription</span>
+          </a>
+        </li>
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
             <i class="fa fa-file"></i> <span>Rapports</span>
           </a>

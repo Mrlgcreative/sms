@@ -6,8 +6,8 @@ if ($mysqli->connect_error) {
     die("Erreur de connexion: " . $mysqli->connect_error);
 }
 
-// Récupérer le nombre d'élèves inscrits
-$result = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM eleves");
+// Récupérer le nombre d'élèves réinscrits
+$result = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM inscriptions ");
 $row = $result->fetch_assoc();
 $total_eleves = $row['total_eleves'];
 
@@ -31,7 +31,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>St Sofie | Liste des élèves</title>
+  <title>St Sofie | Liste des élèves réinscrits</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
@@ -121,9 +121,14 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
           </a>
         </li>
-        <li class="active">
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
             <i class="fa fa-users"></i> <span>Élèves</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
+            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
           </a>
         </li>
         <li>
@@ -142,11 +147,6 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
           </a>
         </li>
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
-          </a>
-        </li>
-        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
             <i class="fa fa-file"></i> <span>Rapports</span>
           </a>
@@ -158,12 +158,12 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
-        Liste des élèves
-        <small>Tous les élèves inscrits</small>
+        Liste des élèves réinscrits
+        <small>Tous les élèves réinscrits pour l'année <?php echo $current_session; ?></small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
-        <li class="active">Élèves</li>
+        <li class="active">Réinscriptions</li>
       </ol>
     </section>
 
@@ -172,7 +172,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Liste des élèves (Total: <?php echo $total_eleves; ?>)</h3>
+              <h3 class="box-title">Liste des élèves réinscrits (Total: <?php echo $total_eleves; ?>)</h3>
               <div class="box-tools">
                 <div class="input-group input-group-sm" style="width: 250px;">
                   <input type="text" id="searchInput" class="form-control pull-right" placeholder="Rechercher...">
@@ -187,7 +187,8 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
               <div class="row no-print" style="margin-bottom: 15px;">
                 <div class="col-xs-12">
                   <button type="button" class="btn btn-success" onclick="window.print()"><i class="fa fa-print"></i> Imprimer</button>
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=exportEleves" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Exporter Excel</a>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=exportReinscrits" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Exporter Excel</a>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutReinscription" class="btn btn-info"><i class="fa fa-plus"></i> Nouvelle réinscription</a>
                 </div>
               </div>
               
@@ -202,11 +203,10 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                       <th>Post-nom</th>
                       <th>Prénom</th>
                       <th>Date de naissance</th>
-                      <th>Lieu de naissance</th>
-                      <th>Section</th>
-                      <th>Option</th>
-                      <th>Classe</th>
-                      <th>Adresse</th>
+                      <th>Ancienne classe</th>
+                      <th>Nouvelle classe</th>
+                      <th>Date réinscription</th>
+                      <th>Statut paiement</th>
                       <th class="no-print">Actions</th>
                     </tr>
                   </thead>
@@ -220,14 +220,22 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                         <td><?php echo $eleve['post_nom']; ?></td>
                         <td><?php echo $eleve['prenom']; ?></td>
                         <td><?php echo $eleve['date_naissance']; ?></td>
-                        <td><?php echo $eleve['lieu_naissance']; ?></td>
-                        <td><?php echo $eleve['section']; ?></td>
-                        <td><?php echo $eleve['option_nom']; ?></td>
-                        <td><?php echo $eleve['classe_nom']; ?></td>
-                        <td><?php echo $eleve['adresse']; ?></td>
+                        <td><?php echo $eleve['ancienne_classe']; ?></td>
+                        <td><?php echo $eleve['nouvelle_classe']; ?></td>
+                        <td><?php echo $eleve['date_reinscription']; ?></td>
+                        <td>
+                          <?php if ($eleve['statut_paiement'] == 'Complet') : ?>
+                            <span class="label label-success">Complet</span>
+                          <?php elseif ($eleve['statut_paiement'] == 'Partiel') : ?>
+                            <span class="label label-warning">Partiel</span>
+                          <?php else : ?>
+                            <span class="label label-danger">Non payé</span>
+                          <?php endif; ?>
+                        </td>
                         <td class="no-print">
                           <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=viewStudent&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Détails</a>
                           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-success btn-xs"><i class="fa fa-money"></i> Paiement</a>
+                          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=modifierReinscription&id=<?php echo $eleve['id']; ?>" class="btn btn-warning btn-xs"><i class="fa fa-edit"></i> Modifier</a>
                         </td>
                       </tr>
                     <?php endforeach; ?>

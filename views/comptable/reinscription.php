@@ -217,6 +217,11 @@ if (isset($_SESSION['success'])) {
             <i class="fa fa-child"></i> <span>Élèves</span>
           </a>
         </li>
+        <li class="active">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscriptionEleve">
+            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
+          </a>
+        </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-edit"></i> <span>Inscription</span>
@@ -424,7 +429,7 @@ if (isset($_SESSION['success'])) {
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes as $classe) : ?>
                           <?php if ($classe['section'] == 'maternelle') : ?>
-                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
+                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['niveau']; ?></option>
                           <?php endif; ?>
                         <?php endforeach; ?>
                       </select>
@@ -559,7 +564,7 @@ if (isset($_SESSION['success'])) {
                         <option value="">-- Sélectionner une classe --</option>
                         <?php foreach ($classes_primaire as $classe) : ?>
                           <?php if ($classe['section'] == 'primaire') : ?>
-                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['nom']; ?></option>
+                            <option value="<?php echo $classe['id']; ?>"><?php echo $classe['niveau']; ?></option>
                           <?php endif; ?>
                         <?php endforeach; ?>
                       </select>

@@ -132,6 +132,11 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
             <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
+        <li class="active">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscriptionEleve">
+            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
+          </a>
+        </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-pencil"></i> <span>Inscription</span>
@@ -145,6 +150,11 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
             <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
+          </a>
+        </li>
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
+            <i class="fa fa-refresh"></i> <span>Réinscription</span>
           </a>
         </li>
         <li class="active">

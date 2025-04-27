@@ -97,6 +97,11 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
             <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
+        <li class="active">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscriptionEleve">
+            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
+          </a>
+        </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-pencil"></i> <span>Inscription</span>
