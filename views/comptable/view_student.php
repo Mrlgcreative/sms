@@ -169,7 +169,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
                 </li>
               </ul>
 
-              <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=modifierEleve&id=<?php echo $eleve['id']; ?>" class="btn btn-primary btn-block"><b>Modifier</b></a>
+             
             </div>
           </div>
 
@@ -254,9 +254,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
                               <?php endif; ?>
                             </td>
                             <td>
-                              <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=detailPaiement&id=<?php echo $paiement['id']; ?>" class="btn btn-info btn-xs">
-                                <i class="fa fa-eye"></i>
-                              </a>
+                             
                               <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=recu&paiement_id=<?php echo isset($paiement['id']) ? $paiement['id'] : ''; ?>" class="btn btn-default btn-xs">
                                 <i class="fa fa-print"></i>
                               </a>

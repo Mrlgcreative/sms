@@ -301,7 +301,7 @@ if (isset($_SESSION['success'])) {
                     <i class="fa fa-book"></i> Primaire
                   </a>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions&section=secondaire" class="btn btn-lg btn-block section-button secondaire">
                     <i class="fa fa-graduation-cap"></i> Secondaire
                   </a>

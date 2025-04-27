@@ -53,3 +53,7 @@
 [2025-04-26 11:20:30] [INFO] [::1] [Mine] User role for redirection {"role":"prefet"}
 [2025-04-26 11:20:30] [INFO] [::1] [Mine] Connexion réussie {"username":"Mine","ip":"::1"}
 >>>>>>> e50260dfde188d55ca5c10d5f3a5a66503eeb998
+[2025-04-26 18:15:16] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-26 18:15:16] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-26 19:05:00] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-04-26 19:05:00] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}

@@ -143,12 +143,12 @@ public function getAll() {
         return null;
     }
 
-    public function add($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section) {
-        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, mois_id, classe_id, option_id, section, statut) 
+    public function add($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $moi_id, $classe_id, $option_id, $section) {
+        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, moi_id, classe_id, option_id, section, statut) 
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'payé')";
         
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("iidssiiss", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section);
+        $stmt->bind_param("iidssiiss", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $moi_id, $classe_id, $option_id, $section);
         
         return $stmt->execute();
     }

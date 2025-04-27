@@ -21,9 +21,9 @@ class PrefetModel {
         return $result->fetch_assoc();
     }
 
-    public function add($nom, $prenom, $contact, $email, $adresse, $section) {
-        $stmt = $this->db->prepare("INSERT INTO prefet (nom, prenom, contact, email, adresse, section) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssss", $nom, $prenom, $contact, $email, $adresse, $section);
+    public function add($username,  $contact, $email, $adresse, $section) {
+        $stmt = $this->db->prepare("INSERT INTO prefet (username,  contact, email, adresse, section) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssss", $username, $contact, $email, $adresse, $section);
         $stmt->execute();
     }
 
@@ -32,6 +32,12 @@ class PrefetModel {
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("i", $id);
         return $stmt->execute();
+    }
+
+    public function update($id, $username, $contact, $email, $adresse,$section) {
+        $stmt = $this->db->prepare("UPDATE users SET username = ?, contact = ?, email = ?, adresse=?, section=? WHERE id = ?");
+        $stmt->bind_param("sssssi", $username,  $contact, $email, $adresse, $section, $id);
+        $stmt->execute();
     }
 }
 ?>

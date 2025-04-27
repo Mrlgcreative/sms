@@ -30,6 +30,7 @@ class Admin {
     private $prefetModel;
     private $sessionscolaireModel;
     private $employeModel;
+    private $db;
 
     public function __construct() {
         $this->eleveModel = new EleveModel();
@@ -413,7 +414,7 @@ public function editeleve() {
             }
             
             // Mettre à jour les données du préfet
-            $result = $this->prefetModel->update($id, $nom, $prenom, $contact, $email, $adresse, $section);
+            $result = $this->prefetModel-> update($id, $username, $contact, $email, $adresse, $section);
             
             if ($result) {
                 // Enregistrer l'action dans l'historique

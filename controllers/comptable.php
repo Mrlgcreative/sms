@@ -516,6 +516,7 @@ if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1')
         
         require 'views/comptable/inscriptions.php';
     }
+
     public function enregistrerEleve() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Récupérer les données du formulaire
@@ -1423,7 +1424,282 @@ if ($stmt) {
     require 'views/comptable/view_student.php';
 }
 
-// Méthode utilitaire pour enregistrer les actions dans les logs
+
+// ... existing code ...
+
+/**
+ * Affiche la page de réinscription des élèves
+ */
+public function reinscription() {
+    // Vérifier si l'utilisateur est connecté
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
+    $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
+    
+    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'comptable') {
+        $_SESSION['error'] = "Vous n'avez pas les droits pour accéder à cette page.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Récupérer la section si elle est définie
+    $section = isset($_GET['section']) ? $_GET['section'] : '';
+    
+    // Récupérer les sessions scolaires
+    $sessions_scolaires = $this->sessionscolaireModel->getAll();
+    
+    // Récupérer les classes selon la section
+    $classes = [];
+    $classes_primaire = [];
+    $classes_secondaire = [];
+    
+    if ($section == 'maternelle') {
+        $classes = $this->classeModel->getAllClasses('maternelle');
+    } elseif ($section == 'primaire') {
+        $classes_primaire = $this->classeModel->getAllClasses('primaire');
+    } elseif ($section == 'secondaire') {
+        $classes_secondaire = $this->classeModel->getAllClasses('secondaire');
+    }
+    
+    // Récupérer les messages d'erreur ou de succès
+    $error_message = isset($_SESSION['error']) ? $_SESSION['error'] : '';
+    $success_message = isset($_SESSION['success']) ? $_SESSION['success'] : '';
+    
+    // Effacer les messages après les avoir récupérés
+    unset($_SESSION['error']);
+    unset($_SESSION['success']);
+    
+    // Charger la vue
+    require_once 'views/comptable/reinscription.php';
+}
+
+/**
+ * Recherche un élève pour la réinscription
+ */
+public function rechercherEleve() {
+    // Vérifier si la requête est en AJAX
+    if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+        echo json_encode(['success' => false, 'message' => 'Requête non autorisée']);
+        exit;
+    }
+    
+    // Vérifier si l'utilisateur est connecté
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'comptable') {
+        echo json_encode(['success' => false, 'message' => 'Vous n\'avez pas les droits pour effectuer cette action']);
+        exit;
+    }
+    
+    // Récupérer les paramètres de recherche
+    $search = isset($_POST['search']) ? $_POST['search'] : '';
+    $section = isset($_POST['section']) ? $_POST['section'] : '';
+    
+    if (empty($search) || empty($section)) {
+        echo json_encode(['success' => false, 'message' => 'Paramètres de recherche incomplets']);
+        exit;
+    }
+    
+    // Rechercher les élèves
+    $search = '%' . $search . '%';
+    
+    $query = "SELECT e.id, e.matricule, e.nom, e.post_nom, e.prenom, c.niveau as classe 
+              FROM eleves e 
+            
+              JOIN classes c ON e.classe_id = c.id 
+              WHERE (e.matricule LIKE ? OR e.nom LIKE ? OR e.post_nom LIKE ? OR e.prenom LIKE ?) 
+              AND c.section = ? 
+              AND e.session_scolaire_id = (SELECT MAX(id) FROM sessions_scolaires)
+              ORDER BY e.nom, e.post_nom, e.prenom";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->bind_param("sssss", $search, $search, $search, $search, $section);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $eleves = [];
+    while ($row = $result->fetch_assoc()) {
+        $eleves[] = $row;
+    }
+    
+    echo json_encode(['success' => true, 'eleves' => $eleves]);
+    exit;
+}
+
+/**
+ * Récupère les détails d'un élève pour la réinscription
+ */
+public function getEleveDetails() {
+    // Vérifier si la requête est en AJAX
+    if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+        echo json_encode(['success' => false, 'message' => 'Requête non autorisée']);
+        exit;
+    }
+    
+    // Vérifier si l'utilisateur est connecté
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'comptable') {
+        echo json_encode(['success' => false, 'message' => 'Vous n\'avez pas les droits pour effectuer cette action']);
+        exit;
+    }
+    
+    // Récupérer l'ID de l'élève
+    $eleve_id = isset($_POST['eleve_id']) ? intval($_POST['eleve_id']) : 0;
+    
+    if ($eleve_id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID d\'élève invalide']);
+        exit;
+    }
+    
+    // Récupérer les détails de l'élève
+    $query = "SELECT e.*, c.niveau as classe, c.id as classe_id, e.session_scolaire_id 
+              FROM eleves e 
+           
+              JOIN classes c ON e.classe_id = c.id 
+              WHERE e.id = ? 
+              AND e.session_scolaire_id = (SELECT MAX(id) FROM sessions_scolaires)";
+    
+    $stmt = $this->db->prepare($query);
+    $stmt->bind_param("i", $eleve_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $eleve = $result->fetch_assoc();
+    
+    if (!$eleve) {
+        echo json_encode(['success' => false, 'message' => 'Élève non trouvé']);
+        exit;
+    }
+    
+    // Ajouter le chemin complet de la photo si elle existe
+    if (!empty($eleve['photo'])) {
+        $eleve['photo'] = BASE_URL . 'uploads/eleves/' . $eleve['photo'];
+    } else {
+        $eleve['photo'] = BASE_URL . 'dist/img/default-student.png';
+    }
+    
+    echo json_encode(['success' => true, 'eleve' => $eleve]);
+    exit;
+}
+
+/**
+ * Réinscrit un élève pour la nouvelle année scolaire
+ */
+public function reinscrireEleve() {
+    // Vérifier si l'utilisateur est connecté
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'comptable') {
+        $_SESSION['error'] = "Vous n'avez pas les droits pour effectuer cette action.";
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    // Vérifier si le formulaire a été soumis
+    if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+        $_SESSION['error'] = "Méthode non autorisée.";
+        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription');
+        exit;
+    }
+    
+    // Récupérer les données du formulaire
+    $section = isset($_POST['section']) ? $_POST['section'] : '';
+    $eleve_id = isset($_POST['eleve_id']) ? intval($_POST['eleve_id']) : 0;
+    $nouvelle_classe_id = isset($_POST['nouvelle_classe_id']) ? intval($_POST['nouvelle_classe_id']) : 0;
+    $session_scolaire_id = isset($_POST['session_scolaire_id']) ? intval($_POST['session_scolaire_id']) : 0;
+    $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
+    $contact_pere = isset($_POST['contact_pere']) ? $_POST['contact_pere'] : '';
+    $contact_mere = isset($_POST['contact_mere']) ? $_POST['contact_mere'] : '';
+    
+    // Valider les données
+    if (empty($section) || $eleve_id <= 0 || $nouvelle_classe_id <= 0 || $session_scolaire_id <= 0) {
+        $_SESSION['error'] = "Veuillez remplir tous les champs obligatoires.";
+        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+        exit;
+    }
+    
+    // Traiter la photo si elle est fournie
+    $photo_path = null;
+    if (isset($_FILES['nouvelle_photo']) && $_FILES['nouvelle_photo']['error'] == 0) {
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $filename = $_FILES['nouvelle_photo']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        if (!in_array($ext, $allowed)) {
+            $_SESSION['error'] = "Format de fichier non autorisé. Veuillez utiliser JPG, PNG ou GIF.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+            exit;
+        }
+        
+        $upload_dir = 'uploads/eleves/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        
+        $new_filename = uniqid() . '.' . $ext;
+        $destination = $upload_dir . $new_filename;
+        
+        if (move_uploaded_file($_FILES['nouvelle_photo']['tmp_name'], $destination)) {
+            $photo_path = $new_filename;
+        } else {
+            $_SESSION['error'] = "Erreur lors de l'upload de la photo.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+            exit;
+        }
+    }
+    
+    try {
+        $this->db->begin_transaction();
+        
+        // Mettre à jour les informations de l'élève
+        $update_query = "UPDATE eleves SET adresse = ?, contact_pere = ?, contact_mere = ?";
+        $params = [$adresse, $contact_pere, $contact_mere];
+        $types = "sss";
+        
+        // Ajouter la photo si elle est fournie
+        if ($photo_path) {
+            $update_query .= ", photo = ?";
+            $params[] = $photo_path;
+            $types .= "s";
+        }
+        
+        $update_query .= " WHERE id = ?";
+        $params[] = $eleve_id;
+        $types .= "i";
+        
+        $stmt = $this->db->prepare($update_query);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        
+        // Créer une nouvelle inscription pour la nouvelle année scolaire
+        $insert_query = "INSERT INTO inscriptions (eleve_id, classe_id, session_scolaire_id, date_inscription, statut) 
+                         VALUES (?, ?, ?, NOW(), 'actif')";
+        
+        $stmt = $this->db->prepare($insert_query);
+        $stmt->bind_param("iii", $eleve_id, $nouvelle_classe_id, $session_scolaire_id);
+        $stmt->execute();
+        
+        $this->db->commit();
+        
+        $_SESSION['success'] = "L'élève a été réinscrit avec succès.";
+    } catch (Exception $e) {
+        $this->db->rollback();
+        $_SESSION['error'] = "Erreur lors de la réinscription de l'élève: " . $e->getMessage();
+    }
+    
+    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+    exit;
+}
+
 // ... existing code ...
 
 }?>

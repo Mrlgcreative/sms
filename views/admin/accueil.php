@@ -21,7 +21,7 @@ $total_employes = $mysqli->query("SELECT COUNT(*) AS total FROM employes")->fetc
 
 // Récupération des élèves par classe
 $eleves_par_classe = [];
-$eleves_par_classe_query = "SELECT e.classe_id, COUNT(e.id) as total, c.nom as classe_nom
+$eleves_par_classe_query = "SELECT e.classe_id, COUNT(e.id) as total, c.niveau as classe_nom
                            FROM eleves e 
                            LEFT JOIN classes c ON e.classe_id=c.id
                            GROUP BY e.classe_id 

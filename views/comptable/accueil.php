@@ -219,6 +219,16 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           </a>
         </li>
         <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
+            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
+          </a>
+        </li>
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
+            <i class="fa fa-refresh"></i> <span>Réinscription</span>
+          </a>
+        </li>
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
             <i class="fa fa-file"></i> <span>Rapports</span>
           </a>
