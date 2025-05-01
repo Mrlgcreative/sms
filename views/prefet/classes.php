@@ -224,6 +224,11 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                 <div class="col-md-3">
                   <input type="text" id="search-classe" class="form-control" placeholder="Rechercher une classe...">
                 </div>
+                <div class="col-md-3">
+                  <button id="reset-filters" class="btn btn-default">
+                    <i class="fa fa-refresh"></i> Réinitialiser les filtres
+                  </button>
+                </div>
               </div>
 
               <table id="classes-table" class="table table-bordered table-striped">
@@ -451,12 +456,21 @@ $(function () {
   
   // Filtrage par niveau
   $('#filter-niveau').on('change', function() {
-    table.column(1).search(this.value).draw();
+    var niveau = $(this).val();
+    table.column(1).search(niveau).draw();
   });
   
   // Recherche globale
   $('#search-classe').on('keyup', function() {
-    table.search(this.value).draw();
+    var searchTerm = $(this).val();
+    table.search(searchTerm).draw();
+  });
+  
+  // Réinitialiser les filtres
+  $('#reset-filters').on('click', function() {
+    $('#filter-niveau').val('');
+    $('#search-classe').val('');
+    table.search('').columns().search('').draw();
   });
   
   // Préparer les données pour le graphique des classes

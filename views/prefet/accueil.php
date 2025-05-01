@@ -172,6 +172,12 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
         </li>
         
         <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=emploiDuTemps">
+            <i class="fa fa-calendar-check-o"></i> <span>Emploi du temps</span>
+          </a>
+        </li>
+        
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=Prefet&action=evenementsScolaires">
             <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
           </a>

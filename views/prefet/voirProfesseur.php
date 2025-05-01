@@ -416,48 +416,48 @@ $mysqli->close();
                                 <div class="box-footer">
                                   <div class="row">
                                     <div class="col-sm-12">
-                                      <h4>Résumé du mois:</h4>
+                                      <h4 style="margin-top: 0; font-size: 16px;">Résumé du mois:</h4>
                                       <div class="row">
                                         <div class="col-xs-3 col-sm-3 col-md-3">
-                                          <div class="small-box bg-green" style="margin-bottom: 10px; height: 80px;">
-                                            <div class="inner" style="padding: 5px 10px;">
-                                              <h4 style="margin-top: 5px;">Présent</h4>
-                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_present . '</h3>
+                                          <div class="small-box bg-green" style="margin-bottom: 5px; height: 60px; min-height: 60px;">
+                                            <div class="inner" style="padding: 3px 8px;">
+                                              <p style="margin: 0; font-size: 12px;">Présent</p>
+                                              <h3 style="margin: 0; font-size: 18px;">' . $count_present . '</h3>
                                             </div>
-                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                            <div class="icon" style="right: 5px; top: 0px; font-size: 30px; opacity: 0.5;">
                                               <i class="fa fa-check"></i>
                                             </div>
                                           </div>
                                         </div>
                                         <div class="col-xs-3 col-sm-3 col-md-3">
-                                          <div class="small-box bg-red" style="margin-bottom: 10px; height: 80px;">
-                                            <div class="inner" style="padding: 5px 10px;">
-                                              <h4 style="margin-top: 5px;">Absent</h4>
-                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_absent . '</h3>
+                                          <div class="small-box bg-red" style="margin-bottom: 5px; height: 60px; min-height: 60px;">
+                                            <div class="inner" style="padding: 3px 8px;">
+                                              <p style="margin: 0; font-size: 12px;">Absent</p>
+                                              <h3 style="margin: 0; font-size: 18px;">' . $count_absent . '</h3>
                                             </div>
-                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                            <div class="icon" style="right: 5px; top: 0px; font-size: 30px; opacity: 0.5;">
                                               <i class="fa fa-times"></i>
                                             </div>
                                           </div>
                                         </div>
                                         <div class="col-xs-3 col-sm-3 col-md-3">
-                                          <div class="small-box bg-yellow" style="margin-bottom: 10px; height: 80px;">
-                                            <div class="inner" style="padding: 5px 10px;">
-                                              <h4 style="margin-top: 5px;">Retard</h4>
-                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_retard . '</h3>
+                                          <div class="small-box bg-yellow" style="margin-bottom: 5px; height: 60px; min-height: 60px;">
+                                            <div class="inner" style="padding: 3px 8px;">
+                                              <p style="margin: 0; font-size: 12px;">Retard</p>
+                                              <h3 style="margin: 0; font-size: 18px;">' . $count_retard . '</h3>
                                             </div>
-                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                            <div class="icon" style="right: 5px; top: 0px; font-size: 30px; opacity: 0.5;">
                                               <i class="fa fa-clock-o"></i>
                                             </div>
                                           </div>
                                         </div>
                                         <div class="col-xs-3 col-sm-3 col-md-3">
-                                          <div class="small-box bg-aqua" style="margin-bottom: 10px; height: 80px;">
-                                            <div class="inner" style="padding: 5px 10px;">
-                                              <h4 style="margin-top: 5px;">Excusé</h4>
-                                              <h3 style="margin-top: 5px; margin-bottom: 5px;">' . $count_excuse . '</h3>
+                                          <div class="small-box bg-aqua" style="margin-bottom: 5px; height: 60px; min-height: 60px;">
+                                            <div class="inner" style="padding: 3px 8px;">
+                                              <p style="margin: 0; font-size: 12px;">Excusé</p>
+                                              <h3 style="margin: 0; font-size: 18px;">' . $count_excuse . '</h3>
                                             </div>
-                                            <div class="icon" style="right: 10px; top: 5px; font-size: 40px;">
+                                            <div class="icon" style="right: 5px; top: 0px; font-size: 30px; opacity: 0.5;">
                                               <i class="fa fa-exclamation"></i>
                                             </div>
                                           </div>

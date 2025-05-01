@@ -14,6 +14,102 @@ class Prefet {
         require_once 'views/prefet/accueil.php';
     }
     
+    // Afficher la page de gestion des emplois du temps
+    public function emploiDuTemps() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            $_SESSION['error_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=accueil');
+            exit;
+        }
+        
+        // Récupérer uniquement les classes de la section secondaire pour le formulaire de sélection
+        $classes = [];
+        $classes_query = "SELECT id, nom FROM classes WHERE section = 'secondaire' ORDER BY nom ASC";
+        $classes_result = $mysqli->query($classes_query);
+        if ($classes_result) {
+            while ($row = $classes_result->fetch_assoc()) {
+                $classes[] = $row;
+            }
+        }
+        
+        // Récupérer les cours pour l'emploi du temps si une classe est sélectionnée
+        $emploi_du_temps = [];
+        $cours_disponibles = [];
+        $classe_id = isset($_GET['classe_id']) ? intval($_GET['classe_id']) : 0;
+        
+        if ($classe_id > 0) {
+            // Vérifier que la classe sélectionnée est bien dans la section secondaire
+            $check_classe_query = "SELECT id FROM classes WHERE id = ? AND section = 'secondaire'";
+            $check_classe_stmt = $mysqli->prepare($check_classe_query);
+            $check_classe_stmt->bind_param("i", $classe_id);
+            $check_classe_stmt->execute();
+            $check_classe_result = $check_classe_stmt->get_result();
+            
+            if ($check_classe_result->num_rows === 0) {
+                $_SESSION['error_message'] = "La classe sélectionnée n'appartient pas à la section secondaire.";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=emploiDuTemps');
+                exit;
+            }
+            
+            $check_classe_stmt->close();
+            
+            // Récupérer uniquement les cours disponibles pour cette classe avec les professeurs du secondaire
+            $cours_query = "SELECT c.id, c.titre, p.nom AS prof_nom, p.prenom AS prof_prenom 
+                            FROM cours c
+                            JOIN professeurs p ON c.professeur_id = p.id
+                            WHERE c.classe_id = ? AND p.section = 'secondaire'
+                            ORDER BY c.titre ASC";
+            
+            $cours_stmt = $mysqli->prepare($cours_query);
+            $cours_stmt->bind_param("i", $classe_id);
+            $cours_stmt->execute();
+            $cours_result = $cours_stmt->get_result();
+            
+            while ($row = $cours_result->fetch_assoc()) {
+                $cours_disponibles[] = $row;
+            }
+            
+            $cours_stmt->close();
+            
+            // Récupérer l'emploi du temps existant avec uniquement les professeurs du secondaire
+            $query = "SELECT e.*, c.titre, p.nom AS prof_nom, p.prenom AS prof_prenom 
+                      FROM horaires e
+                      JOIN cours c ON e.cours_id = c.id
+                      JOIN professeurs p ON c.professeur_id = p.id
+                      WHERE e.classe_id = ? AND p.section = 'secondaire'
+                      ORDER BY e.jour, e.heure_debut";
+            
+            $stmt = $mysqli->prepare($query);
+            $stmt->bind_param("i", $classe_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            // Organiser les données par jour et heure
+            while ($row = $result->fetch_assoc()) {
+                $jour = $row['jour'];
+                $heure = $row['heure_debut'] . '-' . $row['heure_fin'];
+                $emploi_du_temps[$jour][$heure] = $row;
+            }
+            
+            $stmt->close();
+        }
+        
+        $mysqli->close();
+        
+        // Charger la vue de l'emploi du temps
+        require_once 'views/prefet/emploiDuTemps.php';
+    }
+    
     // Afficher la liste des élèves du secondaire
     public function eleves() {
         // Vérifier si l'utilisateur est connecté et a le rôle de préfet
@@ -230,7 +326,115 @@ class Prefet {
             exit;
         }
     }
-    
+        /**
+     * Ajouter un nouveau cours
+     */
+    public function ajouterCours() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+            $_SESSION['error_message'] = "Vous n'êtes pas autorisé à effectuer cette action.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Si la méthode est GET, afficher le formulaire
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['error_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=cours');
+                exit;
+            }
+            
+            // Récupérer uniquement les professeurs de la section secondaire pour le formulaire
+            $professeurs = [];
+            $professeurs_query = "SELECT id, nom, prenom FROM professeurs WHERE section = 'secondaire' ORDER BY nom ASC";
+            $professeurs_result = $mysqli->query($professeurs_query);
+            if ($professeurs_result) {
+                while ($row = $professeurs_result->fetch_assoc()) {
+                    $professeurs[] = $row;
+                }
+            }
+            
+            // Récupérer uniquement les classes de la section secondaire pour le formulaire
+            $classes = [];
+            $classes_query = "SELECT id, nom FROM classes WHERE section = 'secondaire' ORDER BY nom ASC";
+            $classes_result = $mysqli->query($classes_query);
+            if ($classes_result) {
+                while ($row = $classes_result->fetch_assoc()) {
+                    $classes[] = $row;
+                }
+            }
+            
+            $mysqli->close();
+            
+            // Inclure la vue du formulaire d'ajout de cours
+            include 'views/prefet/ajouterCours.php';
+            return;
+        }
+        
+        // Si la méthode est POST, traiter le formulaire
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer et valider les données du formulaire
+            $nom = isset($_POST['nom']) ? trim($_POST['nom']) : '';
+            $classe_id = isset($_POST['classe_id']) ? intval($_POST['classe_id']) : 0;
+            $professeur_id = isset($_POST['professeur_id']) ? intval($_POST['professeur_id']) : 0;
+            $coefficient = isset($_POST['coefficient']) ? intval($_POST['coefficient']) : 1;
+            $heures_semaine = isset($_POST['heures_semaine']) ? intval($_POST['heures_semaine']) : 2;
+            $description = isset($_POST['description']) ? trim($_POST['description']) : '';
+            
+            // Validation des données
+            if (empty($nom) || $classe_id <= 0 || $professeur_id <= 0) {
+                $_SESSION['error_message'] = "Veuillez remplir tous les champs obligatoires.";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=cours');
+                exit;
+            }
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                $_SESSION['error_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=cours');
+                exit;
+            }
+            
+            // Vérifier si le cours existe déjà pour cette classe
+            $check_query = "SELECT id FROM cours WHERE titre = ? AND classe_id = ?";
+            $check_stmt = $mysqli->prepare($check_query);
+            $check_stmt->bind_param("si", $nom, $classe_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows > 0) {
+                $_SESSION['error_message'] = "Un cours avec ce nom existe déjà pour cette classe.";
+                header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=cours');
+                exit;
+            }
+            
+            // Insérer le nouveau cours
+            $insert_query = "INSERT INTO cours (titre, classe_id, professeur_id, coefficient, heures_semaine, description) 
+                            VALUES (?, ?, ?, ?, ?, ?)";
+            
+            $stmt = $mysqli->prepare($insert_query);
+            $stmt->bind_param("siiiss", $nom, $classe_id, $professeur_id, $coefficient, $heures_semaine, $description);
+            
+            if ($stmt->execute()) {
+                $_SESSION['success_message'] = "Le cours a été ajouté avec succès.";
+            } else {
+                $_SESSION['error_message'] = "Erreur lors de l'ajout du cours: " . $mysqli->error;
+            }
+            
+            $stmt->close();
+            $mysqli->close();
+            
+            // Redirection vers la liste des cours
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=cours');
+            exit;
+        }
+    }
     // Supprimer un événement scolaire
     public function supprimerEvenement() {
         // Vérifier si l'utilisateur est connecté et a le rôle de préfet
@@ -1084,6 +1288,108 @@ public function presenceProfesseur() {
     /**
      * Affiche les élèves d'une classe spécifique
      */
+   
+    /**
+     * Ajoute un horaire à l'emploi du temps
+     */
+    public function ajouterHoraire() {
+        // Vérifier si l'utilisateur est connecté et a le rôle de préfet
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'prefet') {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Vérifier si la méthode est POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $_SESSION['error_message'] = "Méthode non autorisée.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=emploiDuTemps');
+            exit;
+        }
+        
+        // Récupérer les données du formulaire
+        $classe_id = isset($_POST['classe_id']) ? intval($_POST['classe_id']) : 0;
+        $jour = isset($_POST['jour']) ? trim($_POST['jour']) : '';
+        $heure = isset($_POST['heure']) ? trim($_POST['heure']) : '';
+        $cours_id = isset($_POST['cours_id']) ? intval($_POST['cours_id']) : 0;
+        
+        // Validation minimale - seul le cours_id est obligatoire
+        if ($cours_id <= 0) {
+            $_SESSION['error_message'] = "Veuillez sélectionner un cours.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=emploiDuTemps&classe_id=' . $classe_id);
+            exit;
+        }
+        
+        // Si le jour ou l'heure ne sont pas spécifiés, utiliser des valeurs par défaut
+        if (empty($jour)) {
+            $jour = 'Lundi'; // Valeur par défaut pour le jour
+        }
+        
+        if (empty($heure)) {
+            $heure = '08:00-09:00'; // Valeur par défaut pour l'heure
+        }
+        
+        // Extraire les heures de début et de fin
+        $heures_parts = explode('-', $heure);
+        $heure_debut = isset($heures_parts[0]) ? trim($heures_parts[0]) : '08:00';
+        $heure_fin = isset($heures_parts[1]) ? trim($heures_parts[1]) : '09:00';
+        
+        // Connexion à la base de données
+        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        
+        if ($mysqli->connect_error) {
+            $_SESSION['error_message'] = "Erreur de connexion à la base de données: " . $mysqli->connect_error;
+            header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=emploiDuTemps&classe_id=' . $classe_id);
+            exit;
+        }
+        
+        // Vérifier si un cours existe déjà à cette heure et ce jour pour cette classe
+        $check_query = "SELECT id FROM horaires WHERE classe_id = ? AND jour = ? AND heure_debut = ? AND heure_fin = ?";
+        $check_stmt = $mysqli->prepare($check_query);
+        $check_stmt->bind_param("isss", $classe_id, $jour, $heure_debut, $heure_fin);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            // Si un cours existe déjà, le mettre à jour au lieu d'en ajouter un nouveau
+            $row = $check_result->fetch_assoc();
+            $horaire_id = $row['id'];
+            
+            $update_query = "UPDATE horaires SET cours_id = ? WHERE id = ?";
+            $update_stmt = $mysqli->prepare($update_query);
+            $update_stmt->bind_param("ii", $cours_id, $horaire_id);
+            
+            if ($update_stmt->execute()) {
+                $_SESSION['success_message'] = "L'horaire a été mis à jour avec succès.";
+            } else {
+                $_SESSION['error_message'] = "Erreur lors de la mise à jour de l'horaire: " . $mysqli->error;
+            }
+            
+            $update_stmt->close();
+        } else {
+            // Insérer le nouvel horaire
+            $insert_query = "INSERT INTO horaires (classe_id, cours_id, jour, heure_debut, heure_fin) 
+                        VALUES (?, ?, ?, ?, ?)";
+            
+            $stmt = $mysqli->prepare($insert_query);
+            $stmt->bind_param("iisss", $classe_id, $cours_id, $jour, $heure_debut, $heure_fin);
+            
+            if ($stmt->execute()) {
+                $_SESSION['success_message'] = "L'horaire a été ajouté avec succès à l'emploi du temps.";
+            } else {
+                $_SESSION['error_message'] = "Erreur lors de l'ajout de l'horaire: " . $mysqli->error;
+            }
+            
+            $stmt->close();
+        }
+        
+        $check_stmt->close();
+        $mysqli->close();
+        
+        // Redirection vers la page d'emploi du temps avec la classe sélectionnée
+        header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=emploiDuTemps&classe_id=' . $classe_id);
+        exit;
+    }
   
 }
 ?>
