@@ -135,15 +135,30 @@ $today = date('Y-m-d');
           </a>
         </li>
         <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
             <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
+
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
+            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
+          </a>
+        </li>
+
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-pencil"></i> <span>Inscription</span>
           </a>
         </li>
+        <li>
         <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement">
             <i class="fa fa-money"></i> <span>Paiement frais</span>
@@ -154,7 +169,6 @@ $today = date('Y-m-d');
             <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
           </a>
         </li>
-
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
             <i class="fa fa-refresh"></i> <span>Réinscription</span>
@@ -162,7 +176,7 @@ $today = date('Y-m-d');
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>
@@ -210,20 +224,38 @@ $today = date('Y-m-d');
               <div class="box-body">
                 <div class="row">
                   <div class="col-md-6">
+                    <!-- Champ caché pour l'ID de réinscription -->
+                    <input type="hidden" id="reinscription_id" name="reinscription_id" value="<?php echo isset($_GET['reinscription_id']) ? (int)$_GET['reinscription_id'] : ''; ?>">
+                    
                     <div class="form-group">
                       <label for="eleve_id" class="col-sm-4 control-label">Nom de l'élève</label>
                       <div class="col-sm-8">
-                        <select class="form-control select2" id="eleve_id" name="eleve_id" onchange="fetchEleveDetails()" required>
+                        <select class="form-control select2" id="eleve_id" name="eleve_id" onchange="fetchEleveDetails()" required <?php echo isset($_GET['eleve_id']) ? 'disabled' : ''; ?>>
                           <option value="">-- Sélectionner un élève --</option>
                           <?php foreach ($eleves as $eleve) : ?>
-                            <option value="<?php echo $eleve['id']; ?>">
+                            <option value="<?php echo $eleve['id']; ?>" <?php echo (isset($_GET['eleve_id']) && $_GET['eleve_id'] == $eleve['id']) ? 'selected' : ''; ?>>
                               <?php echo $eleve['nom'] . ' ' . $eleve['post_nom'] . ' ' . $eleve['prenom']; ?>
                             </option>
                           <?php endforeach; ?>
                         </select>
+                        <?php if(isset($_GET['eleve_id'])): ?>
+                          <input type="hidden" name="eleve_id" value="<?php echo (int)$_GET['eleve_id']; ?>">
+                        <?php endif; ?>
                       </div>
                     </div>
 
+                    <!-- Champ pour indiquer si c'est un paiement de réinscription -->
+                    <?php if(isset($_GET['reinscription_id']) && !empty($_GET['reinscription_id'])): ?>
+                      <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-8">
+                          <div class="alert alert-info">
+                            <i class="fa fa-info-circle"></i> Ce paiement est lié à une réinscription
+                          </div>
+                        </div>
+                      </div>
+                    <?php endif; ?>
+
+                    <!-- Reste du formulaire -->
                     <div class="form-group">
                       <label for="classe_id" class="col-sm-4 control-label">Classe</label>
                       <div class="col-sm-8">
@@ -391,6 +423,22 @@ $today = date('Y-m-d');
       // Continuer avec la soumission du formulaire
       return true;
     });
+    
+    // Vérifier si c'est un paiement de réinscription
+    var reinscriptionId = $("input[name='reinscription_id']").val();
+    if (reinscriptionId) {
+        // Sélectionner automatiquement le premier mois de l'année scolaire (généralement septembre)
+        // Adaptez l'ID selon votre configuration
+        var premierMoisId = 9; // ID du mois de septembre, à adapter
+        
+        // Sélectionner le mois dans le dropdown
+        $("#mois").val(premierMoisId).trigger('change');
+        
+        // Sélectionner automatiquement les frais de réinscription
+        // Adaptez l'ID selon votre configuration
+        var fraisReinscriptionId = 2; // ID des frais de réinscription, à adapter
+        $("#frais_id").val(fraisReinscriptionId).trigger('change');
+    }
   });
   
   // Fonction pour récupérer les détails de l'élève

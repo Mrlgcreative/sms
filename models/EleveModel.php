@@ -23,6 +23,7 @@ class EleveModel {
                 e.section, 
                 e.matricule,
                 e.photo,
+                e.professions,
                 e.nom_pere, 
                 e.nom_mere, 
                 e.contact_pere, 
@@ -80,7 +81,7 @@ class EleveModel {
         return null;
     }
 
-    public function add($nom, $post_nom, $prenom, $date_naissance, $lieu_naissance, $adresse, $classe_id, $section, $option_id, $sexe = 'M,F', $annee_scolaire = null, $date_inscription = null, $statut = 'actif', $matricule = '', $photo = 'dist/img/default-student.png', $nom_pere = '', $nom_mere = '', $contact_pere = '', $contact_mere = '') {
+    public function add($nom, $post_nom, $prenom, $date_naissance, $lieu_naissance, $adresse, $classe_id, $section, $option_id, $sexe = 'M,F', $annee_scolaire = null, $date_inscription = null, $statut = 'actif', $matricule = '', $photo = 'dist/img/default-student.png',$professions='', $nom_pere = '', $nom_mere = '', $contact_pere = '', $contact_mere = '', $inscription_id = null) {
         // Si annee_scolaire est null, utilisez l'année scolaire actuelle
         if ($annee_scolaire === null) {
             $annee_scolaire = date('Y') . '-' . (date('Y') + 1);
@@ -113,19 +114,43 @@ class EleveModel {
         }
         
         // Insérer l'élève avec toutes les informations
-        $stmt = $this->db->prepare("INSERT INTO eleves (nom, post_nom, prenom, date_naissance, sexe, lieu_naissance, adresse, section, classe_id, option_id, nom_pere, nom_mere, contact_pere, contact_mere, session_scolaire_id, statut, matricule, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssssssiissssssss", $nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id, $nom_pere, $nom_mere, $contact_pere, $contact_mere, $session_scolaire_id, $statut, $matricule, $photo);
+        $stmt = $this->db->prepare("INSERT INTO eleves (nom, post_nom, prenom, date_naissance, sexe, lieu_naissance, adresse, section, classe_id, option_id, professions, nom_pere, nom_mere, contact_pere, contact_mere, session_scolaire_id, statut, matricule, photo, inscription_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        // Correction de la chaîne de types pour correspondre exactement aux paramètres
+        $stmt->bind_param("sssssssssisssssisssi", 
+            $nom, 
+            $post_nom, 
+            $prenom, 
+            $date_naissance, 
+            $sexe, 
+            $lieu_naissance, 
+            $adresse, 
+            $section, 
+            $classe_id, 
+            $option_id, 
+            $professions, 
+            $nom_pere, 
+            $nom_mere, 
+            $contact_pere, 
+            $contact_mere, 
+            $session_scolaire_id, 
+            $statut, 
+            $matricule, 
+            $photo, 
+            $inscription_id
+        );
+        
         $stmt->execute();
         
         // Retourner l'ID de l'élève inséré
         return $this->db->insert_id;
     }
 
-    public function update($id, $nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id, $nom_pere, $nom_mere, $contact_pere, $contact_mere, $session_scolaire_id = null, $matricule = null, $photo = null) {
+    public function update($id, $nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id,$professions, $nom_pere, $nom_mere, $contact_pere, $contact_mere, $session_scolaire_id = null, $matricule = null, $photo = null, $inscription_id = null) {
         // Construire la requête en fonction des paramètres fournis
-        $query = "UPDATE eleves SET nom = ?, post_nom = ?, prenom = ?, date_naissance = ?, sexe = ?, lieu_naissance = ?, adresse = ?, section = ?, classe_id = ?, option_id = ?, nom_pere = ?, nom_mere = ?, contact_pere = ?, contact_mere = ?";
-        $params = [$nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id, $nom_pere, $nom_mere, $contact_pere, $contact_mere];
-        $types = "ssssssssiissss";
+        $query = "UPDATE eleves SET nom = ?, post_nom = ?, prenom = ?, date_naissance = ?, sexe = ?, lieu_naissance = ?, adresse = ?, section = ?, classe_id = ?, option_id = ?,professions = ?, nom_pere = ?, nom_mere = ?, contact_pere = ?, contact_mere = ?";
+        $params = [$nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id,$professions, $nom_pere, $nom_mere, $contact_pere, $contact_mere];
+        $types = "ssssssssiisssss";
         
         if ($session_scolaire_id !== null) {
             $query .= ", session_scolaire_id = ?";
@@ -143,6 +168,12 @@ class EleveModel {
             $query .= ", photo = ?";
             $params[] = $photo;
             $types .= "s";
+        }
+        
+        if ($inscription_id !== null) {
+            $query .= ", inscription_id = ?";
+            $params[] = $inscription_id;
+            $types .= "i";
         }
         
         $query .= " WHERE id = ?";

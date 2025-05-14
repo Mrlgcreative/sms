@@ -6,3 +6,5 @@
 [2025-04-27 13:11:17] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
 [2025-04-27 14:31:23] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
 [2025-04-27 14:31:23] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-27 19:39:03] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-27 19:39:03] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

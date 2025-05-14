@@ -208,28 +208,33 @@ if (isset($_SESSION['success'])) {
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">NAVIGATION PRINCIPALE</li>
         <li>
+       
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
           </a>
         </li>
         <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-child"></i> <span>Élèves</span>
+            <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscriptionEleve">
-            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
+
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
+            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
           </a>
         </li>
+
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
-            <i class="fa fa-edit"></i> <span>Inscription</span>
-          </a>
-        </li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
+            <i class="fa fa-pencil"></i> <span>Inscription</span>
           </a>
         </li>
         <li>
@@ -239,12 +244,18 @@ if (isset($_SESSION['success'])) {
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-list"></i> <span>Élèves en ordre</span>
+            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
+          </a>
+        </li>
+        <li>
+        <li class="active">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
+            <i class="fa fa-refresh"></i> <span>Réinscription</span>
           </a>
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>

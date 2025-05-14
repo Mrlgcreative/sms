@@ -339,7 +339,7 @@ $mysqli->close();
                   <div class="carte-eleve">
                     <div class="watermark">SGS</div>
                     <div class="carte-header">
-                      <h3>ECOLE St JEAN-HENRI ET St SOFIE</h3>
+                      <h3>ECOLE St JEAN-HENRI ET St SOPHIE</h3>
                       <p>CARTE D'IDENTITÉ SCOLAIRE <?php echo $annee; ?></p>
                     </div>
                     <div class="carte-body">

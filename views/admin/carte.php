@@ -426,7 +426,7 @@ $code_carte = 'SGS-' . str_pad($eleve_id, 5, '0', STR_PAD_LEFT) . '-' . date('Y'
                   <div class="carte-eleve">
                     <div class="watermark">SGS</div>
                     <div class="carte-header">
-                      <h3>ECOLE St JEAN-HENRI ET St SOFIE</h3>
+                      <h3>ECOLE St JEAN-HENRI ET St SOPHIE</h3>
                       <p>CARTE D'IDENTITÉ SCOLAIRE <?php echo $annee; ?></p>
                     </div>
                     <div class="carte-body">

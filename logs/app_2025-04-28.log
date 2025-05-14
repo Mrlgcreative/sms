@@ -1,0 +1,19 @@
+[2025-04-28 14:33:07] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-28 14:33:07] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-28 15:04:59] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-28 15:04:59] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-28 17:29:20] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-28 17:29:20] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-28 20:16:24] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-28 20:16:24] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-28 20:41:54] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"diredi","role":"percepteur"}
+[2025-04-28 20:42:11] [INFO] [::1] [diredi] User role for redirection {"role":"percepteur"}
+[2025-04-28 20:42:11] [INFO] [::1] [diredi] Connexion réussie {"username":"diredi","ip":"::1"}
+[2025-04-28 20:42:11] [INFO] [::1] [diredi] User role for redirection {"role":"percepteur"}
+[2025-04-28 20:42:11] [INFO] [::1] [diredi] Connexion réussie {"username":"diredi","ip":"::1"}
+[2025-04-28 21:05:58] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-28 21:05:58] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-04-28 21:20:25] [INFO] [::1] [diredi] User role for redirection {"role":"percepteur"}
+[2025-04-28 21:20:25] [INFO] [::1] [diredi] Connexion réussie {"username":"diredi","ip":"::1"}
+[2025-04-28 21:33:36] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-04-28 21:33:36] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

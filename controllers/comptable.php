@@ -264,115 +264,131 @@ public function verifierEleveExistant() {
  * Récupère tous les mois disponibles
  */
 
-    public function ajoutPaiement() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $eleve_id = $_POST['eleve_id'];
-            $frai_id = $_POST['frais_id'];
-            $amount_paid = $_POST['amount_paid'];
+ public function ajoutPaiement() {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $eleve_id = $_POST['eleve_id'];
+        $frai_id = $_POST['frais_id'];
+        $amount_paid = $_POST['amount_paid'];
+        
+        // Format the dates properly to ensure they're stored correctly
+        $payment_date = !empty($_POST['payment_date']) ? date('Y-m-d', strtotime($_POST['payment_date'])) : date('Y-m-d');
+        $created_at = !empty($_POST['created_at']) ? date('Y-m-d', strtotime($_POST['created_at'])) : date('Y-m-d');
+        
+        $moi_id = $_POST['mois'];
+        $classe_id = $_POST['classe_id'];
+        $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? $_POST['option_id'] : null;
+        $section = $_POST['section'];
+        $reinscription_id = isset($_POST['reinscription_id']) ? (int)$_POST['reinscription_id'] : null;
+        
+        // Debug information - you can remove this after fixing the issue
+        error_log("Payment Date: " . $payment_date);
+        error_log("Created At: " . $created_at);
+        
+        // Vérifier si classe_id est une chaîne (comme "1er") et non un ID numérique
+        if (!is_numeric($classe_id)) {
+            // Utiliser la méthode getByNom pour obtenir l'ID de la classe
+            $classeObj = $this->classeModel->getByNom($classe_id);
             
-            // Format the dates properly to ensure they're stored correctly
-            $payment_date = !empty($_POST['payment_date']) ? date('Y-m-d', strtotime($_POST['payment_date'])) : date('Y-m-d');
-            $created_at = !empty($_POST['created_at']) ? date('Y-m-d', strtotime($_POST['created_at'])) : date('Y-m-d');
-            
-            $moi_id = $_POST['mois'];
-            $classe_id = $_POST['classe_id'];
-            $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? $_POST['option_id'] : null;
-            $section = $_POST['section'];
-            
-            // Debug information - you can remove this after fixing the issue
-            error_log("Payment Date: " . $payment_date);
-            error_log("Created At: " . $created_at);
-            
-            // Vérifier si classe_id est une chaîne (comme "1er") et non un ID numérique
-            if (!is_numeric($classe_id)) {
-                // Utiliser la méthode getByNom pour obtenir l'ID de la classe
-                $classeObj = $this->classeModel->getByNom($classe_id);
-                
-                if ($classeObj) {
-                    $classe_id = $classeObj['id']; // Utiliser l'ID numérique de la classe
-                } else {
-                    // Si la classe n'existe pas, afficher un message d'erreur
-                    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement&error=1&message=' . urlencode('La classe spécifiée n\'existe pas dans la base de données!'));
-                    exit();
-                }
+            if ($classeObj) {
+                $classe_id = $classeObj['id']; // Utiliser l'ID numérique de la classe
+            } else {
+                // Si la classe n'existe pas, afficher un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement&error=1&message=' . urlencode('La classe spécifiée n\'existe pas dans la base de données!'));
+                exit();
             }
+        }
 
-            // ... code existant ...
-
-// Vérifier si l'élève existe déjà, sauf si on force l'inscription
-if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1') {
-    // Générer un format de matricule similaire à celui utilisé lors de l'inscription
-    $annee = date('Y'); // Utiliser l'année courante
-    
-    $query = "SELECT COUNT(*) as count FROM eleves 
-             WHERE nom = ? AND post_nom = ? AND prenom = ?";
-    
-    $stmt = $this->db->prepare($query);
-    $stmt->bind_param("sss", $nom, $post_nom, $prenom );
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    
-    if ($row['count'] > 0) {
-        $_SESSION['error'] = "Cet élève est déjà inscrit. Veuillez vérifier les informations.";
-        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=inscriptions&section=' . $section);
-        exit();
-    }
-}
-
-// ... reste du code ...
+       
+        // Vérifier si l'élève existe déjà, sauf si on force l'inscription
+        if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1') {
+            // Générer un format de matricule similaire à celui utilisé lors de l'inscription
+            $annee = date('Y'); // Utiliser l'année courante
             
-            // ... rest of the method remains the same ...
+            $query = "SELECT COUNT(*) as count FROM eleves 
+                     WHERE nom = ? AND post_nom = ? AND prenom = ?";
             
-            // Vérifier si l'option_id
-            if (empty($option_id)) {
-                // Récupérer l'option de l'élève si elle n'est pas spécifiée
-                $eleve = $this->eleveModel->getById($eleve_id);
-                if ($eleve && isset($eleve['option_id']) && !empty($eleve['option_id'])) {
-                    $option_id = $eleve['option_id'];
-                }
+            $stmt = $this->db->prepare($query);
+            $stmt->bind_param("sss", $nom, $post_nom, $prenom );
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            
+            if ($row['count'] > 0) {
+                $_SESSION['error'] = "Cet élève est déjà inscrit. Veuillez vérifier les informations.";
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=inscriptions&section=' . $section);
+                exit();
+            }
+        }
+        
+        // Vérifier si l'option_id
+        if (empty($option_id)) {
+            // Récupérer l'option de l'élève si elle n'est pas spécifiée
+            $eleve = $this->eleveModel->getById($eleve_id);
+            if ($eleve && isset($eleve['option_id']) && !empty($eleve['option_id'])) {
+                $option_id = $eleve['option_id'];
+            }
+        }
+        
+        // Vérifier si l'option existe
+        if (!empty($option_id)) {
+            $option = $this->optionModel->getById($option_id);
+            if (!$option) {
+                $option_id = null; // Réinitialiser si l'option n'existe pas
+            }
+        }
+        
+        // Si c'est une réinscription, initialiser le mois (généralement septembre)
+        if ($reinscription_id) {
+            // Vérifier si le mois est déjà défini ou utiliser septembre (ID 9) par défaut
+            if (empty($moi_id)) {
+                // ID 9 correspond généralement à septembre, le premier mois de l'année scolaire
+                // Adaptez cet ID selon votre configuration de base de données
+                $moi_id = 9;
             }
             
-            // Vérifier si l'option existe
-            if (!empty($option_id)) {
-                $option = $this->optionModel->getById($option_id);
-                if (!$option) {
-                    $option_id = null; // Réinitialiser si l'option n'existe pas
-                }
-            }
-                   
-            // Ajout du paiement via le modèle
+            // Ajout du paiement avec l'ID de réinscription
+            $this->paiementModel->addWithReinscription(
+                $eleve_id, $frai_id, $amount_paid, 
+                $payment_date, $created_at, $moi_id, 
+                $classe_id, $option_id, $section, $reinscription_id
+            );
+        } else {
+            // Ajout du paiement normal via le modèle
             $this->paiementModel->add(
                 $eleve_id, $frai_id, $amount_paid, 
                 $payment_date, $created_at, $moi_id, 
                 $classe_id, $option_id, $section
             );
-    
-            // Récupérer l'ID du dernier paiement inséré
-            $paiement_id = $this->paiementModel->getLastInsertedId();
-    
-            // Redirection avec message de succès
-            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=paiements&success=1&message=' . urlencode('Le paiement a été ajouté avec succès!'));
-            exit();
-        } else {
-            // Charge la vue pour ajouter un paiement
-            // ... reste du code inchangé ...
-            // Charge la vue pour ajouter un paiement
-            $eleveModel = new EleveModel();
-            $eleves = $eleveModel->getAll();
-            
-            $fraismodel = new FraisModel();
-            $frais = $fraismodel->getAll();
-            $moisModel = new MoisModel();
-            $mois = $moisModel->getAll();
-            
-            // Récupérer les options pour le formulaire
-            $optionModel = new OptionModel();
-            $options = $optionModel->getAll();
-            
-            require 'views/comptable/ajout_paiement.php';
         }
+
+        // Récupérer l'ID du dernier paiement inséré
+        $paiement_id = $this->paiementModel->getLastInsertedId();
+
+        // Redirection avec message de succès
+        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=paiements&success=1&message=' . urlencode('Le paiement a été ajouté avec succès!'));
+        exit();
+    } else {
+       
+        // Charge la vue pour ajouter un paiement
+        $eleveModel = new EleveModel();
+        $eleves = $eleveModel->getAll();
+        
+        $fraismodel = new FraisModel();
+        $frais = $fraismodel->getAll();
+        $moisModel = new MoisModel();
+        $mois = $moisModel->getAll();
+        
+        // Récupérer les options pour le formulaire
+        $optionModel = new OptionModel();
+        $options = $optionModel->getAll();
+        
+        // Vérifier si c'est une réinscription
+        $reinscription_id = isset($_GET['reinscription_id']) ? (int)$_GET['reinscription_id'] : null;
+        $eleve_id = isset($_GET['eleve_id']) ? (int)$_GET['eleve_id'] : null;
+        
+        require 'views/comptable/ajout_paiement.php';
     }
+}
     
     // Nouvelle méthode pour générer le reçu
     public function genererRecu($paiement_id) {
@@ -471,6 +487,250 @@ if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1')
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    private function isComptableLoggedIn() {
+        // Vérifier si la session est démarrée
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Vérifier si l'utilisateur est connecté et a le rôle d'administrateur
+        return isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'comptable';
+    }
+
+
+    public function achatFournitures() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isComptableLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue
+        require_once 'views/comptable/achatFourniture.php';
+    }
+
+
+
+    public function gestionStock() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isComptableLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue
+        require_once 'views/admin/gestionStock.php';
+    }
+    
+    
+    
+    public function ajouterAchat() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isComptableLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $date = isset($_POST['date_achat']) ? $_POST['date_achat'] : date('Y-m-d');
+            $fournisseur = isset($_POST['fournisseur']) ? $_POST['fournisseur'] : '';
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $quantite = isset($_POST['quantite']) ? intval($_POST['quantite']) : 0;
+            $montant = isset($_POST['montant']) ? floatval($_POST['montant']) : 0;
+            $facture_ref = isset($_POST['facture_ref']) ? $_POST['facture_ref'] : '';
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+            
+            // Instancier le modèle
+            require_once 'models/AchatFourniture.php';
+            $achatModel = new AchatFourniture($mysqli);
+            
+            // Ajouter l'achat
+            $result = $achatModel->ajouterAchat($date, $fournisseur, $description, $quantite, $montant, $facture_ref);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $this->logAction("Ajout d'un achat de fourniture: " . $description);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=achatFournitures&success=1&message=' . urlencode('Achat ajouté avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=achatFournitures&error=1&message=' . urlencode('Erreur lors de l\'ajout de l\'achat'));
+            }
+            
+            $mysqli->close();
+            exit;
+        } else {
+            // Afficher le formulaire d'ajout
+            require_once 'views/comptable/ajout_achat.php';
+        }
+    }
+
+
+
+
+    public function supprimerAchat() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isComptableLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if (isset($_GET['id'])) {
+            $id = intval($_GET['id']);
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+            
+            // Instancier le modèle
+            require_once 'models/AchatFourniture.php';
+            $achatModel = new AchatFourniture($mysqli);
+            
+            // Récupérer les informations de l'achat avant suppression pour le log
+            $achat = $achatModel->getAchatById($id);
+            
+            // Supprimer l'achat
+            $result = $achatModel->supprimerAchat($id);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $description = isset($achat['description']) ? $achat['description'] : 'Achat #' . $id;
+                $this->logAction("Suppression d'un achat de fourniture: " . $description);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=achatFournitures&success=1&message=' . urlencode('Achat supprimé avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=achatFournitures&error=1&message=' . urlencode('Erreur lors de la suppression de l\'achat'));
+            }
+            
+            $mysqli->close();
+        } else {
+            // Rediriger si aucun ID n'est fourni
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=achatFournitures&error=1&message=' . urlencode('ID d\'achat non spécifié'));
+        }
+        exit;
+    }
+
+
+        
+    
+    public function ajouterArticle() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isComptableLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
+            $description = isset($_POST['description']) ? $_POST['description'] : '';
+            $categorie = isset($_POST['categorie']) ? $_POST['categorie'] : '';
+            $quantite = isset($_POST['quantite']) ? intval($_POST['quantite']) : 0;
+            $prix_unitaire = isset($_POST['prix_unitaire']) ? floatval($_POST['prix_unitaire']) : 0;
+            $date_ajout = isset($_POST['date_ajout']) ? $_POST['date_ajout'] : date('Y-m-d');
+            
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+            
+            // Instancier le modèle
+            require_once 'models/Stock.php';
+            $articleModel = new Stock($mysqli);
+            
+            // Ajouter l'article
+            $result = $articleModel->ajouterArticle($nom, $description, $categorie, $quantite, $prix_unitaire, $date_ajout);
+            
+            if ($result) {
+                // Enregistrer l'action dans les logs
+                $this->logAction("Ajout d'un article au stock: " . $nom);
+                
+                // Rediriger avec un message de succès
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=gestionStock&success=1&message=' . urlencode('Article ajouté avec succès'));
+            } else {
+                // Rediriger avec un message d'erreur
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=gestionStock&error=1&message=' . urlencode('Erreur lors de l\'ajout de l\'article'));
+            }
+            
+            $mysqli->close();
+            exit;
+        } else {
+            // Afficher le formulaire d'ajout
+            require_once 'views/admin/ajout_article.php';
+        }
+    }
+
+// Fonction pour enregistrer les actions des utilisateurs
+public function logAction($action) {
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    if ($mysqli->connect_error) {
+        return false;
+    }
+    
+    $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur inconnu';
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $action = $mysqli->real_escape_string($action);
+    
+    // Check if the table exists and has the correct structure
+    $tableCheck = $mysqli->query("SHOW COLUMNS FROM system_logs LIKE 'action'");
+    
+    if ($tableCheck && $tableCheck->num_rows > 0) {
+        // Column exists, proceed with insert
+        $result = $mysqli->query("INSERT INTO system_logs (username, action, ip_address) 
+                                VALUES ('$username', '$action', '$ip')");
+    } else {
+        // Try with the correct column name (check your table structure)
+        $result = $mysqli->query("DESCRIBE system_logs");
+        $columns = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $columns[] = $row['Field'];
+            }
+            
+            // If we found a column that might store the action description
+            if (in_array('action_description', $columns)) {
+                $result = $mysqli->query("INSERT INTO system_logs (username, action_description, ip_address) 
+                                        VALUES ('$username', '$action', '$ip')");
+            } else {
+                // Create the table with the correct structure if it doesn't exist
+                $mysqli->query("CREATE TABLE IF NOT EXISTS system_logs (
+                    id INT(11) NOT NULL AUTO_INCREMENT,
+                    username VARCHAR(255) NOT NULL,
+                    action VARCHAR(255) NOT NULL,
+                    action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ip_address VARCHAR(50) NOT NULL,
+                    PRIMARY KEY (id)
+                )");
+                
+                // Try the insert again
+                $result = $mysqli->query("INSERT INTO system_logs (username, action, ip_address) 
+                                        VALUES ('$username', '$action', '$ip')");
+            }
+        }
+    }
+    
+    $mysqli->close();
+    
+    return isset($result) ? $result : false;
+}
+
    
     public function inscris() {
         $eleves = $this->eleveModel->getAll();
@@ -531,6 +791,7 @@ if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1')
             $section = $_POST['section'];
             $option_id = isset($_POST['option_id']) ? $_POST['option_id'] : null;
             $sexe = isset($_POST['sexe']) ? $_POST['sexe'] : 'M';
+            $profession = isset($_POST['professions']) ? $_POST['professions']: '';
             $nom_pere = $_POST['nom_pere'];
             $nom_mere = $_POST['nom_mere'];
             $contact_pere = $_POST['contact_pere'];
@@ -591,6 +852,7 @@ if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1')
                 $statut,
                 $matricule,
                 $photo_path,
+                $profession,
                 $nom_pere,
                 $nom_mere,
                 $contact_pere,
@@ -1425,7 +1687,7 @@ if ($stmt) {
 }
 
 
-// ... existing code ...
+
 
 /**
  * Affiche la page de réinscription des élèves
@@ -1475,6 +1737,9 @@ public function reinscription() {
     // Charger la vue
     require_once 'views/comptable/reinscription.php';
 }
+
+
+
 
 /**
  * Recherche un élève pour la réinscription
@@ -1589,117 +1854,170 @@ public function getEleveDetails() {
     exit;
 }
 
-/**
- * Réinscrit un élève pour la nouvelle année scolaire
- */
-public function reinscrireEleve() {
-    // Vérifier si l'utilisateur est connecté
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    
-    if (!isset($_SESSION['role']) || $_SESSION['role'] != 'comptable') {
-        $_SESSION['error'] = "Vous n'avez pas les droits pour effectuer cette action.";
+public function reinscris() {
+    // Vérifier si l'utilisateur est connecté et a les droits de comptable
+    if (!$this->isComptableLoggedIn()) {
         header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
         exit;
     }
     
-    // Vérifier si le formulaire a été soumis
-    if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-        $_SESSION['error'] = "Méthode non autorisée.";
-        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription');
-        exit;
+    // Requête SQL pour récupérer toutes les réinscriptions avec leur statut de paiement
+    $query = "SELECT r.id, e.id as eleve_id, e.nom as nom_eleve, e.post_nom, e.prenom, e.date_naissance, e.photo, e.matricule,
+       c_new.niveau as nouvelle_classe, c_old.niveau as ancienne_classe, r.date_reinscription,
+       CASE 
+           WHEN p.amount_paid >= f.montant THEN 'Complet'
+           WHEN p.amount_paid > 0 THEN 'Partiel'
+           ELSE 'Non payé'
+       END as statut_paiement
+       FROM historique_reinscriptions r
+       LEFT JOIN eleves e ON r.eleve_id = e.id
+       LEFT JOIN classes c_new ON r.nouvelle_classe_id = c_new.id
+       LEFT JOIN classes c_old ON r.ancienne_classe_id = c_old.id
+       LEFT JOIN paiements_frais p ON r.id = p.reinscription_id
+       LEFT JOIN frais f ON p.frais_id = f.id
+       ORDER BY r.date_reinscription DESC";
+        // Exécution de la requête
+    $result = $this->db->query($query);
+    
+    if ($result) {
+        $eleves = $result->fetch_all(MYSQLI_ASSOC);
+    } else {
+        $eleves = [];
+        // Enregistrer l'erreur pour le débogage
+        error_log("Erreur SQL dans reinscris(): " . $this->db->error);
     }
     
-    // Récupérer les données du formulaire
-    $section = isset($_POST['section']) ? $_POST['section'] : '';
-    $eleve_id = isset($_POST['eleve_id']) ? intval($_POST['eleve_id']) : 0;
-    $nouvelle_classe_id = isset($_POST['nouvelle_classe_id']) ? intval($_POST['nouvelle_classe_id']) : 0;
-    $session_scolaire_id = isset($_POST['session_scolaire_id']) ? intval($_POST['session_scolaire_id']) : 0;
-    $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
-    $contact_pere = isset($_POST['contact_pere']) ? $_POST['contact_pere'] : '';
-    $contact_mere = isset($_POST['contact_mere']) ? $_POST['contact_mere'] : '';
+    // Comptage des élèves réinscrits
+    $count_query = $this->db->query("SELECT COUNT(*) as total_eleves FROM historique_reinscriptions");
+    $row = $count_query->fetch_assoc();
+    $total_eleves = $row['total_eleves'] ?? 0;
     
-    // Valider les données
-    if (empty($section) || $eleve_id <= 0 || $nouvelle_classe_id <= 0 || $session_scolaire_id <= 0) {
-        $_SESSION['error'] = "Veuillez remplir tous les champs obligatoires.";
-        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
-        exit;
-    }
+    // Récupérer les classes et options pour les filtres
+    $classes = $this->classeModel->getAllClasses();
+    $options = $this->optionModel->getAll();
     
-    // Traiter la photo si elle est fournie
-    $photo_path = null;
-    if (isset($_FILES['nouvelle_photo']) && $_FILES['nouvelle_photo']['error'] == 0) {
-        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
-        $filename = $_FILES['nouvelle_photo']['name'];
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        
-        if (!in_array($ext, $allowed)) {
-            $_SESSION['error'] = "Format de fichier non autorisé. Veuillez utiliser JPG, PNG ou GIF.";
-            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
-            exit;
-        }
-        
-        $upload_dir = 'uploads/eleves/';
-        if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-        
-        $new_filename = uniqid() . '.' . $ext;
-        $destination = $upload_dir . $new_filename;
-        
-        if (move_uploaded_file($_FILES['nouvelle_photo']['tmp_name'], $destination)) {
-            $photo_path = $new_filename;
-        } else {
-            $_SESSION['error'] = "Erreur lors de l'upload de la photo.";
-            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
-            exit;
-        }
-    }
+    // Récupérer la session scolaire active
+    $session_active = $this->sessionscolaireModel->getActive();
+    $current_session = $session_active ? $session_active['annee_debut'] . '-' . $session_active['annee_fin'] : date('Y') . '-' . (date('Y') + 1);
     
-    try {
-        $this->db->begin_transaction();
-        
-        // Mettre à jour les informations de l'élève
-        $update_query = "UPDATE eleves SET adresse = ?, contact_pere = ?, contact_mere = ?";
-        $params = [$adresse, $contact_pere, $contact_mere];
-        $types = "sss";
-        
-        // Ajouter la photo si elle est fournie
-        if ($photo_path) {
-            $update_query .= ", photo = ?";
-            $params[] = $photo_path;
-            $types .= "s";
-        }
-        
-        $update_query .= " WHERE id = ?";
-        $params[] = $eleve_id;
-        $types .= "i";
-        
-        $stmt = $this->db->prepare($update_query);
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        
-        // Créer une nouvelle inscription pour la nouvelle année scolaire
-        $insert_query = "INSERT INTO inscriptions (eleve_id, classe_id, session_scolaire_id, date_inscription, statut) 
-                         VALUES (?, ?, ?, NOW(), 'actif')";
-        
-        $stmt = $this->db->prepare($insert_query);
-        $stmt->bind_param("iii", $eleve_id, $nouvelle_classe_id, $session_scolaire_id);
-        $stmt->execute();
-        
-        $this->db->commit();
-        
-        $_SESSION['success'] = "L'élève a été réinscrit avec succès.";
-    } catch (Exception $e) {
-        $this->db->rollback();
-        $_SESSION['error'] = "Erreur lors de la réinscription de l'élève: " . $e->getMessage();
-    }
-    
-    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
-    exit;
+    // Charger la vue
+    require 'views/comptable/reinscris.php';
 }
 
-// ... existing code ...
+
+/**
+ * Méthode pour réinscrire un élève dans une nouvelle classe
+ */
+public function reinscrireEleve() {
+    // Vérifier si l'utilisateur est connecté et a les droits de comptable
+    if (!$this->isComptableLoggedIn()) {
+        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+        exit;
+    }
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Récupérer les données du formulaire
+        $eleve_id = isset($_POST['eleve_id']) ? (int)$_POST['eleve_id'] : 0;
+        $nouvelle_classe_id = isset($_POST['nouvelle_classe_id']) ? (int)$_POST['nouvelle_classe_id'] : 0;
+        $section = isset($_POST['section']) ? $_POST['section'] : '';
+        
+        // Vérifier que les données nécessaires sont présentes
+        if ($eleve_id <= 0 || $nouvelle_classe_id <= 0) {
+            $_SESSION['error'] = "Veuillez fournir toutes les informations nécessaires pour la réinscription.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+            exit();
+        }
+        
+        // Récupérer les informations actuelles de l'élève
+        $query = "SELECT e.*, c.niveau AS classe_nom FROM eleves e 
+                 LEFT JOIN classes c ON e.classe_id = c.id 
+                 WHERE e.id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $eleve_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $eleve = $result->fetch_assoc();
+        
+        if (!$eleve) {
+            $_SESSION['error'] = "Élève introuvable.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+            exit();
+        }
+        
+        // Récupérer les informations de la nouvelle classe
+        $query = "SELECT niveau FROM classes WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $nouvelle_classe_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $nouvelle_classe = $result->fetch_assoc();
+        
+        if (!$nouvelle_classe) {
+            $_SESSION['error'] = "Classe introuvable.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+            exit();
+        }
+        
+        // Enregistrer l'historique de la réinscription
+        $ancienne_classe_id = $eleve['classe_id'];
+        $ancienne_classe_nom = $eleve['classe_nom'];
+        
+        $query = "INSERT INTO historique_reinscriptions (eleve_id, ancienne_classe_id, nouvelle_classe_id, date_reinscription) 
+                  VALUES (?, ?, ?, NOW())";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("iii", $eleve_id, $ancienne_classe_id, $nouvelle_classe_id);
+        $stmt->execute();
+        
+        // Mettre à jour les autres informations de l'élève si nécessaire
+        $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : $eleve['adresse'];
+        $contact_pere = isset($_POST['contact_pere']) ? $_POST['contact_pere'] : $eleve['contact_pere'];
+        $contact_mere = isset($_POST['contact_mere']) ? $_POST['contact_mere'] : $eleve['contact_mere'];
+        
+        // Traitement de la photo si une nouvelle est fournie
+        $photo = $eleve['photo']; // Garder l'ancienne photo par défaut
+        
+        if (isset($_FILES['nouvelle_photo']) && $_FILES['nouvelle_photo']['size'] > 0) {
+            $upload_dir = 'uploads/eleves/';
+            
+            // Créer le répertoire s'il n'existe pas
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            
+            $file_name = time() . '_' . $_FILES['nouvelle_photo']['name'];
+            $upload_path = $upload_dir . $file_name;
+            
+            if (move_uploaded_file($_FILES['nouvelle_photo']['tmp_name'], $upload_path)) {
+                $photo = $upload_path;
+            }
+        }
+        
+        // Mettre à jour les informations de l'élève dans la base de données
+        $query = "UPDATE eleves SET classe_id = ?, adresse = ?, contact_pere = ?, contact_mere = ?, photo = ? WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("issssi", $nouvelle_classe_id, $adresse, $contact_pere, $contact_mere, $photo, $eleve_id);
+        $result = $stmt->execute();
+        
+        if ($result) {
+            $_SESSION['success'] = "L'élève " . $eleve['nom'] . " " . $eleve['post_nom'] . " " . $eleve['prenom'] . 
+                                  " a été réinscrit avec succès. Ancienne classe : " . $ancienne_classe_nom . 
+                                  ", Nouvelle classe : " . $nouvelle_classe['niveau'];
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+            exit();
+        } else {
+            $_SESSION['error'] = "Une erreur s'est produite lors de la réinscription de l'élève.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription&section=' . $section);
+            exit();
+        }
+    } else {
+        // Rediriger vers la page de réinscription si accès direct
+        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=reinscription');
+        exit();
+    }
+}
+
+
+
+
 
 }?>

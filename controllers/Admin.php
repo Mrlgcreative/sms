@@ -1,4 +1,3 @@
-
 <?php
 require 'models/EleveModel.php';
 require 'models/ProfesseurModel.php';
@@ -104,7 +103,7 @@ class Admin {
     }
 
     public function eleves() {
-        // ... existing authentication checks ...
+    
         
         // Connexion à la base de données
         $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -399,15 +398,14 @@ public function editeleve() {
         // Si le formulaire est soumis
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Récupérer les données du formulaire
-            $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
-            $prenom = isset($_POST['prenom']) ? $_POST['prenom'] : '';
+           $username=isset($_POST['username'])? $_POST['username'] : '';
             $contact = isset($_POST['contact']) ? $_POST['contact'] : '';
             $email = isset($_POST['email']) ? $_POST['email'] : '';
             $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
             $section = isset($_POST['section']) ? $_POST['section'] : '';
             
             // Validation des données
-            if (empty($nom) || empty($prenom) || empty($contact) || empty($email) || empty($adresse) || empty($section)) {
+            if (empty($username) || empty($contact) || empty($email) || empty($adresse) || empty($section)) {
                 $_SESSION['error'] = "Tous les champs sont obligatoires";
                 header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=editPrefet&id=' . $id);
                 exit;
@@ -1347,78 +1345,9 @@ public function rapportactions() {
         return isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     }
     
-    public function achatFournitures() {
-        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
-        if (!$this->isAdminLoggedIn()) {
-            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
-            exit;
-        }
-        
-        // Charger la vue
-        require_once 'views/admin/achatFournitures.php';
-    }
+   
     
-    public function gestionStock() {
-        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
-        if (!$this->isAdminLoggedIn()) {
-            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
-            exit;
-        }
-        
-        // Charger la vue
-        require_once 'views/admin/gestionStock.php';
-    }
-    
-    
-    
-    public function ajouterAchat() {
-        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
-        if (!$this->isAdminLoggedIn()) {
-            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
-            exit;
-        }
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Récupérer les données du formulaire
-            $date = isset($_POST['date_achat']) ? $_POST['date_achat'] : date('Y-m-d');
-            $fournisseur = isset($_POST['fournisseur']) ? $_POST['fournisseur'] : '';
-            $description = isset($_POST['description']) ? $_POST['description'] : '';
-            $quantite = isset($_POST['quantite']) ? intval($_POST['quantite']) : 0;
-            $montant = isset($_POST['montant']) ? floatval($_POST['montant']) : 0;
-            $facture_ref = isset($_POST['facture_ref']) ? $_POST['facture_ref'] : '';
-            
-            // Connexion à la base de données
-            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-            
-            if ($mysqli->connect_error) {
-                die("Connection failed: " . $mysqli->connect_error);
-            }
-            
-            // Instancier le modèle
-            require_once 'models/AchatFourniture.php';
-            $achatModel = new AchatFourniture($mysqli);
-            
-            // Ajouter l'achat
-            $result = $achatModel->ajouterAchat($date, $fournisseur, $description, $quantite, $montant, $facture_ref);
-            
-            if ($result) {
-                // Enregistrer l'action dans les logs
-                $this->logAction("Ajout d'un achat de fourniture: " . $description);
-                
-                // Rediriger avec un message de succès
-                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=achatFournitures&success=1&message=' . urlencode('Achat ajouté avec succès'));
-            } else {
-                // Rediriger avec un message d'erreur
-                header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=achatFournitures&error=1&message=' . urlencode('Erreur lors de l\'ajout de l\'achat'));
-            }
-            
-            $mysqli->close();
-            exit;
-        } else {
-            // Afficher le formulaire d'ajout
-            require_once 'views/admin/ajout_achat.php';
-        }
-    }
+   
 
 
     public function evenementsScolaires() {

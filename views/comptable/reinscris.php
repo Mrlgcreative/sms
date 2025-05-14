@@ -7,7 +7,7 @@ if ($mysqli->connect_error) {
 }
 
 // Récupérer le nombre d'élèves réinscrits
-$result = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM inscriptions ");
+$result = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM historique_reinscriptions ");
 $row = $result->fetch_assoc();
 $total_eleves = $row['total_eleves'];
 
@@ -122,15 +122,24 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
           </a>
         </li>
         <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
             <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
+
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
+            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
           </a>
         </li>
+        
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-pencil"></i> <span>Inscription</span>
@@ -147,8 +156,13 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
           </a>
         </li>
         <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
+            <i class="fa fa-refresh"></i> <span>Réinscription</span>
+          </a>
+        </li>
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>
@@ -188,7 +202,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                 <div class="col-xs-12">
                   <button type="button" class="btn btn-success" onclick="window.print()"><i class="fa fa-print"></i> Imprimer</button>
                   <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=exportReinscrits" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Exporter Excel</a>
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutReinscription" class="btn btn-info"><i class="fa fa-plus"></i> Nouvelle réinscription</a>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription" class="btn btn-info"><i class="fa fa-plus"></i> Nouvelle réinscription</a>
                 </div>
               </div>
               
@@ -203,7 +217,6 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                       <th>Post-nom</th>
                       <th>Prénom</th>
                       <th>Date de naissance</th>
-                      <th>Ancienne classe</th>
                       <th>Nouvelle classe</th>
                       <th>Date réinscription</th>
                       <th>Statut paiement</th>
@@ -216,11 +229,10 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                         <td><?php echo $eleve['id']; ?></td>
                         <td><img src="<?php echo !empty($eleve['photo']) ? $eleve['photo'] : 'dist/img/default-student.png'; ?>" alt="Photo élève" class="img-circle" style="width: 50px; height: 50px;"></td>
                         <td><?php echo !empty($eleve['matricule']) ? $eleve['matricule'] : 'Non défini'; ?></td>
-                        <td><?php echo $eleve['nom']; ?></td>
+                        <td><?php echo $eleve['nom_eleve']; ?></td>
                         <td><?php echo $eleve['post_nom']; ?></td>
                         <td><?php echo $eleve['prenom']; ?></td>
                         <td><?php echo $eleve['date_naissance']; ?></td>
-                        <td><?php echo $eleve['ancienne_classe']; ?></td>
                         <td><?php echo $eleve['nouvelle_classe']; ?></td>
                         <td><?php echo $eleve['date_reinscription']; ?></td>
                         <td>
@@ -233,9 +245,9 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                           <?php endif; ?>
                         </td>
                         <td class="no-print">
-                          <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=viewStudent&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Détails</a>
-                          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-success btn-xs"><i class="fa fa-money"></i> Paiement</a>
-                          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=modifierReinscription&id=<?php echo $eleve['id']; ?>" class="btn btn-warning btn-xs"><i class="fa fa-edit"></i> Modifier</a>
+                        <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=viewStudent&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Détails</a>
+                          
+                       
                         </td>
                       </tr>
                     <?php endforeach; ?>

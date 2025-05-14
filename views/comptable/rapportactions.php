@@ -16,7 +16,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>St Sofie | Rapport d'actions</title>
+  <title>St Sophie | Rapport d'actions</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
@@ -123,18 +123,27 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">NAVIGATION PRINCIPALE</li>
         <li>
+        
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
           </a>
         </li>
         <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
             <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscriptionEleve">
-            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
+
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
+            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
           </a>
         </li>
         <li>
@@ -157,9 +166,10 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
             <i class="fa fa-refresh"></i> <span>Réinscription</span>
           </a>
         </li>
+        <li>
         <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>

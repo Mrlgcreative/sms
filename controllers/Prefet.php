@@ -82,12 +82,12 @@ class Prefet {
             $cours_stmt->close();
             
             // Récupérer l'emploi du temps existant avec uniquement les professeurs du secondaire
-            $query = "SELECT e.*, c.titre, p.nom AS prof_nom, p.prenom AS prof_prenom 
-                      FROM horaires e
-                      JOIN cours c ON e.cours_id = c.id
+            $query = "SELECT h.*, c.titre, p.nom AS prof_nom, p.prenom AS prof_prenom 
+                      FROM horaires h
+                      JOIN cours c ON h.cours_id = c.id
                       JOIN professeurs p ON c.professeur_id = p.id
-                      WHERE e.classe_id = ? AND p.section = 'secondaire'
-                      ORDER BY e.jour, e.heure_debut";
+                      WHERE h.classe_id = ? AND p.section = 'secondaire'
+                      ORDER BY h.jour, h.heure_debut";
             
             $stmt = $mysqli->prepare($query);
             $stmt->bind_param("i", $classe_id);

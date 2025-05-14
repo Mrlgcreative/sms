@@ -92,16 +92,27 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
           </a>
         </li>
+        <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
+        <li>
         <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-users"></i> <span>Élèves</span>
+            <i class="fa fa-users active"></i> <span>Élèves</span>
           </a>
         </li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscriptionEleve">
-            <i class="fa fa-refresh"></i> <span>Réinscriptions</span>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
+            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
           </a>
         </li>
+        
+
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-pencil"></i> <span>Inscription</span>
@@ -118,8 +129,13 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
           </a>
         </li>
         <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
+            <i class="fa fa-refresh"></i> <span>Réinscription</span>
+          </a>
+        </li>
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>

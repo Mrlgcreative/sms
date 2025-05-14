@@ -142,11 +142,18 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
       
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">NAVIGATION PRINCIPALE</li>
-        <li>
+        <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
           </a>
         </li>
+        <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
             <i class="fa fa-users"></i> <span>Élèves</span>
@@ -162,6 +169,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
             <i class="fa fa-money"></i> <span>Paiement frais</span>
           </a>
         </li>
+        <li>
         <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
             <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
@@ -174,7 +182,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>

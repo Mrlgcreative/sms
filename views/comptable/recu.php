@@ -95,7 +95,7 @@
     <div class="receipt">
         <div class="receipt-header">
             <h1>REÇU DE PAIEMENT</h1>
-            <p>École St Sofie</p>
+            <p>École St Sophie</p>
             <p>N° <?php echo $receipt_number; ?></p>
         </div>
         

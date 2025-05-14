@@ -242,5 +242,16 @@ public function getAll() {
         $stmt->close();
         return $result;
     }
+
+    public function addWithReinscription($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $reinscription_id) {
+        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, mois_id, classe_id, option_id, section, reinscription_id) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("iidssiiisi", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $reinscription_id);
+        
+        return $stmt->execute();
+    }
 }
 ?>
+

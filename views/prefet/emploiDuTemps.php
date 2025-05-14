@@ -22,7 +22,7 @@ if ($mysqli->connect_error) {
 
 // Récupérer uniquement les classes de la section secondaire
 $classes = [];
-$query_classes = "SELECT id, nom FROM classes WHERE section = 'secondaire' ORDER BY nom";
+$query_classes = "SELECT id, niveau FROM classes WHERE section = 'secondaire' ORDER BY nom";
 $result_classes = $mysqli->query($query_classes);
 if ($result_classes) {
     while ($row = $result_classes->fetch_assoc()) {
@@ -300,7 +300,7 @@ $mysqli->close();
                     <option value="">Sélectionner une classe</option>
                     <?php foreach ($classes as $classe): ?>
                       <option value="<?php echo $classe['id']; ?>" <?php echo (isset($classe_id) && $classe_id == $classe['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($classe['nom']); ?>
+                        <?php echo htmlspecialchars($classe['niveau']); ?>
                       </option>
                     <?php endforeach; ?>
                   </select>

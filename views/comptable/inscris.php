@@ -121,11 +121,26 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
           </a>
         </li>
+        <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
+        <li>
         <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
             <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
+
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
+            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
+          </a>
+        </li>
+
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-pencil"></i> <span>Inscription</span>
@@ -148,7 +163,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>
@@ -227,7 +242,7 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
                         <td><?php echo $eleve['adresse']; ?></td>
                         <td class="no-print">
                           <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=viewStudent&id=<?php echo $eleve['id']; ?>" class="btn btn-info btn-xs"><i class="fa fa-eye"></i> Détails</a>
-                          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement&eleve_id=<?php echo $eleve['id']; ?>" class="btn btn-success btn-xs"><i class="fa fa-money"></i> Paiement</a>
+                          
                         </td>
                       </tr>
                     <?php endforeach; ?>

@@ -1,0 +1,4 @@
+[2025-05-02 20:23:07] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-02 20:23:07] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-02 20:30:16] [INFO] [::1] [rapha] User role for redirection {"role":"prefet"}
+[2025-05-02 20:30:16] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}

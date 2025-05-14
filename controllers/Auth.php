@@ -252,15 +252,19 @@ class Auth {
             case 'admin':
                 header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=accueil');
                 break;
+
+            case'percepteur':
             case 'comptable':
                 header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=accueil');
                 break;
+            case 'director_Adjoint':   
             case 'director':
                 header('Location: ' . BASE_URL . 'index.php?controller=Director&action=accueil');
                 break;
             case 'directrice':
                 header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=accueil');
                 break;
+            case 'directeur_Etude':
             case 'prefet':
                 header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=accueil');
                 break;

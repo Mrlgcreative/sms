@@ -54,6 +54,11 @@ $result = $mysqli->query("SELECT COUNT(DISTINCT eleve_id) AS eleves_payes FROM p
 $row = $result->fetch_assoc();
 $eleves_payes = $row['eleves_payes'] ?? 0;
 
+
+$result = $mysqli->query("SELECT COUNT(*) AS total_eleves_reinscris FROM historique_reinscriptions ");
+$row = $result->fetch_assoc();
+$total_eleves_reinscris = $row['total_eleves_reinscris'];
+
 // Récupérer les statistiques des activités du système
 $result = $mysqli->query("SELECT 
     SUM(CASE WHEN action_type LIKE '%ajout%' OR action_type LIKE '%add%' OR action_type LIKE '%création%' OR action_type LIKE '%create%' THEN 1 ELSE 0 END) as add_count,
@@ -80,7 +85,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 if ($user_id>0) {
-  # code...
+  
 }
 // Initialiser les variables de session
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
@@ -115,7 +120,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>St Sofie | Tableau de bord</title>
+  <title>St Sophie | Tableau de bord</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
@@ -128,6 +133,59 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
   <link rel="stylesheet" href="bower_components/bootstrap-daterangepicker/daterangepicker.css">
   <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <style>
+    .small-box .icon {
+      transition: all 0.3s linear;
+    }
+    .small-box:hover .icon {
+      font-size: 70px;
+      transform: translateY(-10px);
+    }
+    .info-box {
+      transition: all 0.2s ease;
+    }
+    .info-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .box {
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+    .box:hover {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .table-hover tbody tr:hover {
+      background-color: rgba(0,0,0,0.03);
+    }
+    .main-header .logo {
+      transition: width 0.3s ease-in-out;
+      background-color: #222d32;
+    }
+    .main-header .navbar {
+      background-color: #3c8dbc;
+    }
+    .content-wrapper {
+      background-color: #f4f6f9;
+    }
+    .small-box h3 {
+      font-size: 32px;
+      font-weight: 600;
+    }
+    .small-box p {
+      font-size: 16px;
+    }
+    .box-title {
+      font-weight: 600;
+    }
+    .user-panel {
+      padding: 15px;
+    }
+    .user-panel .info {
+      padding-left: 10px;
+    }
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -135,16 +193,44 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
   <header class="main-header">
     <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=accueil" class="logo">
       <span class="logo-mini"><b>St</b>S</span>
-      <span class="logo-lg"><b><?php echo $role; ?></b></span>
+      <span class="logo-lg"><b>St Sophie </b> | <?php echo $role; ?></span>
     </a>
     <nav class="navbar navbar-static-top">
       <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
         <span class="sr-only">Basculer la navigation</span>
       </a>
 
-      <!-- Dans la section de l'en-tête principal -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
+          <li class="dropdown notifications-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-bell-o"></i>
+              <span class="label label-warning">3</span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="header">Vous avez 3 notifications</li>
+              <li>
+                <ul class="menu">
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-users text-aqua"></i> 5 nouveaux élèves inscrits aujourd'hui
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-warning text-yellow"></i> Rappel: échéance de paiement
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-calendar text-red"></i> Événement à venir
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="footer"><a href="#">Voir tout</a></li>
+            </ul>
+          </li>
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
@@ -152,8 +238,11 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
             </a>
             <ul class="dropdown-menu">
               <li class="user-header">
-              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/'; ?>" class="img-circle" alt="Image utilisateur">
-                <p><?php echo $role; ?></p>
+                <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
+                <p>
+                  <?php echo $username; ?> - <?php echo $role; ?>
+                  <small>Membre depuis <?php echo date('M. Y'); ?></small>
+                </p>
               </li>
               <li class="user-footer">
                 <div class="pull-left">
@@ -193,16 +282,30 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
       
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">NAVIGATION PRINCIPALE</li>
-        <li>
+        <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
             <i class="fa fa-dashboard"></i> <span>Accueil</span>
           </a>
         </li>
         <li>
+           
+           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
+             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
+           </a>
+         </li>
+
+        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
             <i class="fa fa-users"></i> <span>Élèves</span>
           </a>
         </li>
+
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
+            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
+          </a>
+        </li>
+
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
             <i class="fa fa-pencil"></i> <span>Inscription</span>
@@ -219,18 +322,13 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           </a>
         </li>
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
-          </a>
-        </li>
-        <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
             <i class="fa fa-refresh"></i> <span>Réinscription</span>
           </a>
         </li>
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
+            <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
       </ul>
@@ -251,8 +349,8 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
       <?php if (isset($showWelcomeMessage) && $showWelcomeMessage): ?>
       <style>
         #welcomeAlert {
-          width: 50%; /* Réduire la largeur à 70% */
-          margin-left: 0; /* Aligner à gauche */
+          width: 50%;
+          margin-left: 0;
           margin-right: auto;
           border-left: 5px solid #00a65a;
           background-color: #f8f9fa;
@@ -261,7 +359,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           animation: slideIn 0.5s ease-out;
         }
         
-        #welcomeAlert ,h4 {
+        #welcomeAlert h4 {
           color: #00a65a;
           margin-top: 0;
         }
@@ -319,7 +417,21 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
             <div class="icon">
               <i class="ion ion-person-add"></i>
             </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+
+
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3><?php echo $total_eleves_reinscris; ?></h3>
+              <p>Élèves reinscrits</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-person-add"></i>
+            </div>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
         
@@ -335,9 +447,22 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
             <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
-       
       
-      <div class="row">
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-purple">
+            <div class="inner">
+              <h3><?php echo $eleves_payes; ?></h3>
+              <p>Élèves ayant payé</p>
+            </div>
+            <div class="icon">
+              <i class="fa fa-check"></i>
+            </div>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements" class="small-box-footer">Voir Plus <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+     
+      
+      
         <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-red">
             <div class="inner">
@@ -351,18 +476,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
           </div>
         </div>
         
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-purple">
-            <div class="inner">
-              <h3><?php echo $eleves_payes; ?></h3>
-              <p>Élèves ayant payé</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-check"></i>
-            </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements" class="small-box-footer">Voir Plus <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
+        
       </div>
 
       <!-- Graphique des activités du système -->
@@ -466,5 +580,5 @@ $(function () {
 </div>
 </body>
 </html>
- reste de votre contenu -->
+
 
