@@ -489,12 +489,7 @@ $today = date('Y-m-d');
                         </div>
                       </div>
 
-                      <div class="form-group">
-                        <label for="reference_paiement" class="col-sm-4 control-label">Référence</label>
-                        <div class="col-sm-8">
-                          <input type="text" class="form-control" id="reference_paiement" name="reference_paiement" placeholder="Numéro de référence (optionnel)">
-                          <div class="field-help">Numéro de chèque, référence de virement, etc.</div>
-                        </div>
+                     
                       </div>
                     </div>
                   </div>
@@ -615,81 +610,130 @@ $(document).ready(function() {
     setupAutoSave();
 });
 
-// Fonction pour récupérer les détails de l'élève
-function fetchEleveDetails() {
-    var eleveId = $('#eleve_id').val();
-    if (!eleveId) {
-        clearEleveDetails();
-        return;
-    }
-    
-    showLoading(true);
-    
-    $.ajax({
-        url: '<?php echo BASE_URL; ?>index.php?controller=comptable&action=getEleveDetails',
-        type: 'POST',
+
+  // Fonction pour récupérer les détails de l'élève
+  function fetchEleveDetails() {
+    var eleveId = document.getElementById("eleve_id").value;
+
+    if (eleveId) {
+      $.ajax({
+        url: "index.php?controller=comptable&action=fetchEleveDetails",
+        method: "POST",
         data: { eleve_id: eleveId },
-        dataType: 'json',
         success: function(response) {
-            if (response.success) {
-                populateEleveDetails(response.data);
-                updatePaymentSummary();
-            } else {
-                showAlert('Erreur lors de la récupération des détails de l\'élève', 'error');
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Erreur AJAX:', error);
-            showAlert('Erreur de communication avec le serveur', 'error');
-        },
-        complete: function() {
-            showLoading(false);
-        }
-    });
-}
+          console.log("Réponse du serveur :", response);
 
-// Fonction pour récupérer le montant des frais
-function fetchFraisMontant() {
-    var fraisId = $('#frais_id').val();
-    var eleveId = $('#eleve_id').val();
-    
-    if (!fraisId || !eleveId) {
-        $('#amount_paid').val('');
-        updatePaymentSummary();
-        return;
+          if (response.includes(";")) {
+            // Découpe la réponse pour obtenir les détails
+            var details = response.split(";");
+            $("#classe_id").val(details[1]);   // Nom de la classe
+            $("#option_display").val(details[2]); // Afficher le nom de l'option
+            
+            // Récupérer l'ID de l'option à partir du nom
+            $.ajax({
+              url: "index.php?controller=comptable&action=getOptionIdByName",
+              method: "POST",
+              data: { option_name: details[2] },
+              success: function(optionId) {
+                $("#option_id_value").val(optionId);
+              }
+            });
+            
+            $("#section").val(details[3]);   // Nom de la section
+            
+            // Récupérer les mois non payés pour cet élève
+            fetchMoisNonPayes(eleveId);
+          } else {
+            alert("Erreur: " + response);
+          }
+        },
+        error: function() {
+          alert("Erreur lors de la communication avec le serveur.");
+        }
+      });
+    } else {
+      // Réinitialiser les champs si aucun élève n'est sélectionné
+      $("#classe_id").val("");
+      $("#option_display").val("");
+      $("#option_id_value").val("");
+      $("#section").val("");
+      
+      // Réinitialiser la liste des mois
+      resetMoisList();
     }
+  }
+
+
+  // Fonction pour récupérer le montant du frais sélectionné
+  function fetchFraisMontant() {
+    var fraisId = document.getElementById("frais_id").value;
     
-    showLoading(true);
-    
-    $.ajax({
-        url: '<?php echo BASE_URL; ?>index.php?controller=comptable&action=getFraisMontant',
-        type: 'POST',
-        data: { 
-            frais_id: fraisId,
-            eleve_id: eleveId 
-        },
-        dataType: 'json',
+    if (fraisId) {
+      $.ajax({
+        url: "index.php?controller=comptable&action=fetchFraisMontant",
+        method: "POST",
+        data: { frais_id: fraisId },
         success: function(response) {
-            if (response.success) {
-                $('#amount_paid').val(response.montant);
-                $('#amount_paid').addClass('validation-success');
-                updatePaymentSummary();
+          // Nettoyer la réponse en supprimant les espaces et retours à la ligne
+          var cleanResponse = response.trim();
+          console.log("Réponse brute:", response);
+          console.log("Réponse nettoyée:", cleanResponse);
+          
+          // Vérifier si la réponse nettoyée est un nombre
+          if (!isNaN(cleanResponse)) {
+            $("#amount_paid").val(cleanResponse);
+          } else {
+            alert("Erreur: La réponse n'est pas un nombre valide");
+            $("#amount_paid").val("");
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("Erreur AJAX:", status, error);
+          alert("Erreur lors de la communication avec le serveur.");
+          $("#amount_paid").val("");
+        }
+      });
+    } else {
+      // Réinitialiser le champ si aucun frais n'est sélectionné
+      $("#amount_paid").val("");
+    }
+  }
+ 
+  // Fonction pour récupérer les mois non payés par l'élève
+  function fetchMoisNonPayes(eleveId) {
+    $.ajax({
+        url: "index.php?controller=comptable&action=fetchMoisNonPayes",
+        method: "POST",
+        data: { eleve_id: eleveId },
+        dataType: "json", // Spécifier que la réponse attendue est du JSON
+        success: function(response) {
+            // Vider la liste des mois
+            var moisSelect = $("#mois");
+            moisSelect.empty();
+            moisSelect.append('<option value="">-- Sélectionner un mois --</option>');
+            
+            // Ajouter les mois non payés
+            if (response && response.length > 0) {
+                $.each(response, function(index, mois) {
+                    moisSelect.append('<option value="' + mois.id + '">' + mois.nom + '</option>');
+                });
             } else {
-                showAlert('Erreur lors de la récupération du montant', 'error');
-                $('#amount_paid').addClass('validation-error');
+                moisSelect.append('<option value="" disabled>Tous les mois ont été payés</option>');
+            }
+            
+            // Rafraîchir Select2 si vous l'utilisez
+            if ($.fn.select2) {
+                moisSelect.trigger('change.select2');
+            } else {
+                moisSelect.trigger('change');
             }
         },
         error: function(xhr, status, error) {
-            console.error('Erreur AJAX:', error);
-            showAlert('Erreur de communication avec le serveur', 'error');
-            $('#amount_paid').addClass('validation-error');
-        },
-        complete: function() {
-            showLoading(false);
+            console.error("Erreur AJAX:", status, error);
+            alert("Erreur lors de la récupération des mois non payés: " + error);
         }
     });
 }
-
 // Fonction pour peupler les détails de l'élève
 function populateEleveDetails(data) {
     $('#classe_id').val(data.classe_nom || '');
@@ -806,6 +850,29 @@ function checkUrlParameters() {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 }
+
+function resetMoisList() {
+    var moisSelect = $("#mois");
+    moisSelect.empty();
+    moisSelect.append('<option value="">-- Sélectionner un mois --</option>');
+    
+    // Récupérer tous les mois disponibles
+    $.ajax({
+      url: "index.php?controller=comptable&action=getAllMois",
+      method: "GET",
+      success: function(response) {
+        try {
+          var allMois = JSON.parse(response);
+          $.each(allMois, function(index, mois) {
+            moisSelect.append('<option value="' + mois.id + '">' + mois.nom + '</option>');
+          });
+          moisSelect.trigger('change');
+        } catch (e) {
+          console.error("Erreur lors du parsing JSON:", e);
+        }
+      }
+    });
+  }
 
 // Fonction pour la validation en temps réel
 function setupRealTimeValidation() {
