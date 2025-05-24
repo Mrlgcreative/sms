@@ -7,12 +7,17 @@ if ($mysqli->connect_error) {
 }
 
 // Récupérer le nombre d'élèves inscrits
-$result = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM eleves");
+$result = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM inscriptions");
 $row = $result->fetch_assoc();
 $total_eleves = $row['total_eleves'];
+$total_eleves_total = $total_eleves;
+
+$result = $mysqli->query("SELECT COUNT(*) AS total_eleves_nb FROM eleves");
+$row = $result->fetch_assoc();
+$total_eleves = $row['total_eleves_nb'];
 
 // Récupérer le nombre total d'élèves
-$total_eleves_total = $total_eleves;
+$total_eleves = $total_eleves;
 
 // Récupérer le nombre de professeurs
 $result = $mysqli->query("SELECT COUNT(*) AS total_professeurs FROM professeurs");
@@ -401,7 +406,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
             <div class="icon">
               <i class="fa fa-calendar"></i>
             </div>
-            <a href="#" class="small-box-footer">Plus d'informations <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=sessions_scolaires" class="small-box-footer">Plus d'informations <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
       </div>
@@ -411,13 +416,13 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
         <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-aqua">
             <div class="inner">
-              <h3><?php echo $total_eleves; ?></h3>
+              <h3><?php echo $total_eleves_total; ?></h3>
               <p>Élèves inscrits</p>
             </div>
             <div class="icon">
               <i class="ion ion-person-add"></i>
             </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
 
@@ -438,13 +443,13 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
         <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-green">
             <div class="inner">
-              <h3><?php echo $total_eleves_total; ?></h3>
+              <h3><?php echo $total_eleves; ?></h3>
               <p>Élèves total</p>
             </div>
             <div class="icon">
               <i class="fa fa-group"></i>
             </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
       

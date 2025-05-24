@@ -1,0 +1,14 @@
+[2025-05-19 07:34:56] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-19 07:34:57] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-19 07:58:32] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-05-19 07:58:32] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
+[2025-05-19 11:29:13] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-05-19 11:29:14] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
+[2025-05-19 13:15:15] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-19 13:15:15] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-19 14:18:14] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-05-19 14:18:14] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-05-19 14:33:03] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-05-19 14:33:03] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
+[2025-05-19 14:33:50] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-19 14:33:50] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}

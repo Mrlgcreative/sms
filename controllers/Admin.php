@@ -117,7 +117,7 @@ class Admin {
         $where_clause = $classe_filter > 0 ? " WHERE e.classe_id = $classe_filter" : "";
         
         // Requête pour récupérer les élèves avec les informations de classe
-        $query = "SELECT e.*, c.nom AS classe_nom, c.id AS classe_id, o.nom AS option_nom 
+        $query = "SELECT e.*, c.niveau AS classe_nom, c.id AS classe_id, o.nom AS option_nom 
                   FROM eleves e 
                   LEFT JOIN classes c ON e.classe_id = c.id 
                   LEFT JOIN options o ON e.option_id = o.id
@@ -694,6 +694,17 @@ public function editeleve() {
         $prefesModel= new PrefetModel();
         $prefets =$prefesModel->getAll();
         require 'views/admin/prefets.php';
+    }
+
+    public function achatFournitures() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue
+        require_once 'views/admin/achatFournitures.php';
     }
 
     public function addprefet(){
@@ -1643,6 +1654,16 @@ public function rapportactions() {
     }
 
     
+    public function gestionStock() {
+        // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+        if (!$this->isAdminLoggedIn()) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Charger la vue
+        require_once 'views/admin/gestionStock.php';
+    }
 
     public function supprimerAchat() {
         // Vérifier si l'utilisateur est connecté et a les droits d'administrateur

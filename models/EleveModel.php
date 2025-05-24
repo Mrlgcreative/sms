@@ -28,7 +28,7 @@ class EleveModel {
                 e.nom_mere, 
                 e.contact_pere, 
                 e.contact_mere,
-                c.nom as classe_nom,
+                c.niveau as classe_nom,
                 o.nom AS option_nom,
                 s.libelle AS annee_scolaire
             FROM eleves e
@@ -44,7 +44,7 @@ class EleveModel {
         $stmt = $this->db->prepare("
             SELECT 
                 eleves.nom AS eleve_nom,
-                classes.nom AS classe_nom,
+                classes.niveau AS classe_nom,
                 options.nom AS option_nom,
                 eleves.section AS section_nom
             FROM 
@@ -63,7 +63,7 @@ class EleveModel {
     
     
     public function getById($id) {
-        $query = "SELECT e.*, c.nom as classe_nom, o.nom as option_nom 
+        $query = "SELECT e.*, c.niveau as classe_nom, o.nom as option_nom 
                   FROM eleves e 
                   LEFT JOIN classes c ON e.classe_id = c.id
                   LEFT JOIN options o ON e.option_id = o.id 
@@ -113,37 +113,82 @@ class EleveModel {
             }
         }
         
-        // Insérer l'élève avec toutes les informations
-        $stmt = $this->db->prepare("INSERT INTO eleves (nom, post_nom, prenom, date_naissance, sexe, lieu_naissance, adresse, section, classe_id, option_id, professions, nom_pere, nom_mere, contact_pere, contact_mere, session_scolaire_id, statut, matricule, photo, inscription_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        // Vérifier si l'inscription_id existe dans la table inscriptions
+        if ($inscription_id !== null) {
+            $check_query = "SELECT id FROM inscriptions WHERE id = ?";
+            $check_stmt = $this->db->prepare($check_query);
+            $check_stmt->bind_param("i", $inscription_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            // Si l'inscription_id n'existe pas, le mettre à NULL
+            if ($check_result->num_rows == 0) {
+                $inscription_id = null;
+            }
+            $check_stmt->close();
+        }
         
-        // Correction de la chaîne de types pour correspondre exactement aux paramètres
-        $stmt->bind_param("sssssssssisssssisssi", 
-            $nom, 
-            $post_nom, 
-            $prenom, 
-            $date_naissance, 
-            $sexe, 
-            $lieu_naissance, 
-            $adresse, 
-            $section, 
-            $classe_id, 
-            $option_id, 
-            $professions, 
-            $nom_pere, 
-            $nom_mere, 
-            $contact_pere, 
-            $contact_mere, 
-            $session_scolaire_id, 
-            $statut, 
-            $matricule, 
-            $photo, 
-            $inscription_id
-        );
+        // Commencer une transaction
+        $this->db->begin_transaction();
         
-        $stmt->execute();
-        
-        // Retourner l'ID de l'élève inséré
-        return $this->db->insert_id;
+        try {
+            // Insérer l'élève avec toutes les informations
+            $stmt = $this->db->prepare("INSERT INTO eleves (nom, post_nom, prenom, date_naissance, sexe, lieu_naissance, adresse, section, classe_id, option_id, professions, nom_pere, nom_mere, contact_pere, contact_mere, session_scolaire_id, statut, matricule, photo, inscription_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            // Correction de la chaîne de types pour correspondre exactement aux paramètres
+            $stmt->bind_param("sssssssssisssssisssi", 
+                $nom, 
+                $post_nom, 
+                $prenom, 
+                $date_naissance, 
+                $sexe, 
+                $lieu_naissance, 
+                $adresse, 
+                $section, 
+                $classe_id, 
+                $option_id, 
+                $professions, 
+                $nom_pere, 
+                $nom_mere, 
+                $contact_pere, 
+                $contact_mere, 
+                $session_scolaire_id, 
+                $statut, 
+                $matricule, 
+                $photo, 
+                $inscription_id
+            );
+            
+            $stmt->execute();
+            $eleve_id = $this->db->insert_id;
+            
+            // Insérer dans la table inscriptions
+            $inscription_stmt = $this->db->prepare("INSERT INTO inscriptions (eleve_id, classe_id, option_id, session_scolaire_id, date_inscription, type, statut) VALUES (?, ?, ?, ?, ?, 'inscription', 'actif')");
+            $inscription_stmt->bind_param("iiiss", 
+                $eleve_id, 
+                $classe_id, 
+                $option_id, 
+                $session_scolaire_id, 
+                $date_inscription
+            );
+            $inscription_stmt->execute();
+            
+            // Mettre à jour l'élève avec l'ID de l'inscription
+            $inscription_id = $this->db->insert_id;
+            $update_stmt = $this->db->prepare("UPDATE eleves SET inscription_id = ? WHERE id = ?");
+            $update_stmt->bind_param("ii", $inscription_id, $eleve_id);
+            $update_stmt->execute();
+            
+            // Valider la transaction
+            $this->db->commit();
+            
+            // Retourner l'ID de l'élève inséré
+            return $eleve_id;
+        } catch (Exception $e) {
+            // En cas d'erreur, annuler la transaction
+            $this->db->rollback();
+            throw $e;
+        }
     }
 
     public function update($id, $nom, $post_nom, $prenom, $date_naissance, $sexe, $lieu_naissance, $adresse, $section, $classe_id, $option_id,$professions, $nom_pere, $nom_mere, $contact_pere, $contact_mere, $session_scolaire_id = null, $matricule = null, $photo = null, $inscription_id = null) {

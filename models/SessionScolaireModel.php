@@ -32,6 +32,11 @@ class SessionScolaireModel {
         $stmt->execute();
         return $this->db->insert_id;
     }
+    
+    // Méthode alias pour compatibilité avec le contrôleur Comptable
+    public function ajouter($annee_debut, $annee_fin, $libelle, $est_active = 0) {
+        return $this->add($annee_debut, $annee_fin, $libelle, $est_active);
+    }
 
     public function update($id, $annee_debut, $annee_fin, $libelle, $est_active) {
         // Si on active cette session, désactiver toutes les autres
@@ -50,7 +55,7 @@ class SessionScolaireModel {
         return $stmt->execute();
     }
 
-    private function desactiverTout() {
+    public function desactiverTout() {
         $this->db->query("UPDATE sessions_scolaires SET est_active = 0");
     }
     
@@ -204,6 +209,108 @@ class SessionScolaireModel {
             END
             WHERE section = 'secondaire'
         ");
+    }
+
+    /**
+     * Récupère une session scolaire par son ID
+     */
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM sessions_scolaires WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    /**
+     * Active une session scolaire spécifique
+     */
+    public function activer($id) {
+        // Désactiver toutes les sessions d'abord
+        $this->desactiverTout();
+        
+        // Puis activer celle spécifiée
+        $stmt = $this->db->prepare("UPDATE sessions_scolaires SET est_active = 1 WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
+    }
+
+    /**
+     * Vérifie si une session scolaire existe pour une année donnée
+     */
+    public function existePourAnnee($annee_debut, $annee_fin) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM sessions_scolaires WHERE annee_debut = ? AND annee_fin = ?");
+        $stmt->bind_param("ii", $annee_debut, $annee_fin);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['count'] > 0;
+    }
+
+    /**
+     * Récupère la session scolaire pour une année spécifique
+     */
+    public function getPourAnnee($annee_debut, $annee_fin) {
+        $stmt = $this->db->prepare("SELECT * FROM sessions_scolaires WHERE annee_debut = ? AND annee_fin = ? LIMIT 1");
+        $stmt->bind_param("ii", $annee_debut, $annee_fin);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    /**
+     * Récupère toutes les sessions scolaires avec pagination
+     */
+    public function getAllPaginated($page = 1, $limit = 10) {
+        $offset = ($page - 1) * $limit;
+        $query = "SELECT * FROM sessions_scolaires ORDER BY annee_debut DESC LIMIT ?, ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("ii", $offset, $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Compte le nombre total de sessions scolaires
+     */
+    public function countAll() {
+        $query = "SELECT COUNT(*) as count FROM sessions_scolaires";
+        $result = $this->db->query($query);
+        $row = $result->fetch_assoc();
+        return $row['count'];
+    }
+
+    /**
+     * Recherche des sessions scolaires par libellé
+     */
+    public function searchByLibelle($search) {
+        $search = "%$search%";
+        $stmt = $this->db->prepare("SELECT * FROM sessions_scolaires WHERE libelle LIKE ? ORDER BY annee_debut DESC");
+        $stmt->bind_param("s", $search);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Récupère les N dernières sessions scolaires
+     */
+    public function getRecent($limit = 5) {
+        $stmt = $this->db->prepare("SELECT * FROM sessions_scolaires ORDER BY annee_debut DESC LIMIT ?");
+        $stmt->bind_param("i", $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Ferme la connexion à la base de données
+     */
+    public function __destruct() {
+        if ($this->db) {
+            $this->db->close();
+        }
     }
 }
 ?>

@@ -388,6 +388,13 @@ if (isset($_SESSION['success'])) {
                         <option value="F">Féminin</option>
                       </select>
                     </div>
+                    <div class="form-group">
+                      <label for="type_inscription">Type d'inscription</label>
+                      <select class="form-control" name="type_inscription" id="type_inscription" required>
+                        <option value="Nouvelle inscription" selected>Nouvelle inscription</option>
+                       
+                      </select>
+                    </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
@@ -502,6 +509,13 @@ if (isset($_SESSION['success'])) {
                         <option value="F">Féminin</option>
                       </select>
                     </div>
+
+                    <div class="form-group">
+                      <label for="type_inscription">Type d'inscription</label>
+                      <select class="form-control" name="type_inscription" id="type_inscription" required>
+                        <option value="Nouvelle inscription" selected>Nouvelle inscription</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
@@ -608,7 +622,12 @@ if (isset($_SESSION['success'])) {
                       <label for="adresse">Adresse</label>
                       <input type="text" class="form-control" id="adresse" name="adresse" placeholder="Adresse" required>
                     </div>
-                     </div>
+                    <div class="form-group">
+                      <label for="type_inscription">Type d'inscription</label>
+                      <select class="form-control" name="type_inscription" id="type_inscription" required>
+                        <option value="Nouvelle inscription" selected>Nouvelle inscription</option>
+                      </select>
+                    </div>
                     <div class="form-group">
                       <label for="sexe">Sexe</label>
                       <select class="form-control" name="sexe" id="sexe" required>

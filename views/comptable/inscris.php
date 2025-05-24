@@ -6,24 +6,103 @@ if ($mysqli->connect_error) {
     die("Erreur de connexion: " . $mysqli->connect_error);
 }
 
-// Récupérer le nombre d'élèves inscrits
-$result = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM eleves");
-$row = $result->fetch_assoc();
-$total_eleves = $row['total_eleves'];
+// Récupérer les sessions scolaires pour le dropdown
+$sessions_scolaires_for_dropdown = [];
+$sessions_query_result = $mysqli->query("SELECT id, libelle FROM sessions_scolaires ORDER BY libelle DESC");
+if ($sessions_query_result) {
+    while ($session_data = $sessions_query_result->fetch_assoc()) {
+        $sessions_scolaires_for_dropdown[] = $session_data;
+    }
+}
+
+// Déterminer la session affichée pour le titre et le total
+$current_session_filter_id = isset($_GET['session_id']) && !empty($_GET['session_id']) ? (int)$_GET['session_id'] : null;
+$displayed_session_name = "Toutes les sessions";
+$eleves_total_for_display = 0; // Sera calculé ci-dessous
+
+// Initialiser la liste des élèves
+$eleves = [];
+
+// Préparer la requête de base pour récupérer les élèves avec les informations jointes
+$sql_eleves_base = "SELECT e.id, e.matricule, e.nom, e.post_nom, e.prenom, e.date_naissance, e.lieu_naissance, 
+                          e.section AS section, o.nom AS option_nom, c.niveau AS classe_nom, 
+                          e.adresse, e.photo 
+                   FROM eleves e
+                 
+                   LEFT JOIN options o ON e.option_id = o.id
+                   LEFT JOIN classes c ON e.classe_id = c.id";
+
+if ($current_session_filter_id) {
+    $found_sess_name = false;
+    foreach ($sessions_scolaires_for_dropdown as $sess_item) {
+        if ($sess_item['id'] == $current_session_filter_id) {
+            $displayed_session_name = htmlspecialchars($sess_item['libelle']);
+            $found_sess_name = true;
+            break;
+        }
+    }
+    // Calculer le total pour la session sélectionnée
+    $stmt_count_filtered = $mysqli->prepare("SELECT COUNT(*) AS total FROM eleves WHERE session_scolaire_id = ?");
+    if ($stmt_count_filtered) {
+        $stmt_count_filtered->bind_param("i", $current_session_filter_id);
+        $stmt_count_filtered->execute();
+        $result_filtered_count_get = $stmt_count_filtered->get_result();
+        if($result_filtered_count_get) {
+            $result_filtered_count = $result_filtered_count_get->fetch_assoc();
+            $eleves_total_for_display = $result_filtered_count['total'];
+        }
+        $stmt_count_filtered->close();
+    }
+
+    // Récupérer les élèves pour la session sélectionnée
+    $sql_eleves_session = $sql_eleves_base . " WHERE e.session_scolaire_id = ? ORDER BY e.nom, e.post_nom, e.prenom";
+    $stmt_eleves = $mysqli->prepare($sql_eleves_session);
+    if ($stmt_eleves) {
+        $stmt_eleves->bind_param("i", $current_session_filter_id);
+        $stmt_eleves->execute();
+        $result_eleves = $stmt_eleves->get_result();
+        if ($result_eleves) {
+            while ($row = $result_eleves->fetch_assoc()) {
+                $eleves[] = $row;
+            }
+        }
+        $stmt_eleves->close();
+    }
+
+} else {
+    // Si aucune session n'est sélectionnée, afficher le grand total
+    $result_grand_total_else = $mysqli->query("SELECT COUNT(*) AS total_eleves FROM eleves");
+    if($result_grand_total_else){
+        $row_grand_total_else = $result_grand_total_else->fetch_assoc();
+        $eleves_total_for_display = $row_grand_total_else['total_eleves'];
+    }
+
+    // Récupérer tous les élèves
+    $sql_tous_les_eleves = $sql_eleves_base . " ORDER BY e.nom, e.post_nom, e.prenom";
+    $result_all_eleves = $mysqli->query($sql_tous_les_eleves);
+    if ($result_all_eleves) {
+        while ($row = $result_all_eleves->fetch_assoc()) {
+            $eleves[] = $row;
+        }
+    }
+}
 
 // Fermer la connexion à la base de données
 $mysqli->close();
 
-// Vérifier si une session est déjà active
+// Vérifier si une session PHP est déjà active
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-// Initialiser les variables de session
+// Initialiser les variables de session (user info)
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
-$current_session = isset($current_session) ? $current_session : date('Y') . '-' . (date('Y') + 1);
+// $current_session (variable originale) n'est pas utilisée ici pour le filtrage.
+// La variable $eleves est supposée être passée par le contrôleur et déjà filtrée
+// en fonction de $_GET['session_id'] si celui-ci est présent.
+// La variable $total_eleves (originale) est remplacée par $eleves_total_for_display pour le titre.
 ?>
 
 <!DOCTYPE html>
@@ -183,11 +262,32 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
     </section>
 
     <section class="content">
+      <div class="row no-print" style="margin-bottom: 15px;">
+        <div class="col-md-6">
+          <form method="GET" action="<?php echo BASE_URL; ?>index.php" id="sessionFilterForm">
+            <input type="hidden" name="controller" value="comptable">
+            <input type="hidden" name="action" value="inscris">
+            <div class="form-group">
+              <label for="session_id_filter">Filtrer par session scolaire:</label>
+              <select name="session_id" id="session_id_filter" class="form-control" onchange="document.getElementById('sessionFilterForm').submit();">
+                <option value="">Toutes les sessions</option>
+                <?php if (!empty($sessions_scolaires_for_dropdown)): ?>
+                  <?php foreach ($sessions_scolaires_for_dropdown as $session_opt) : ?>
+                    <option value="<?php echo $session_opt['id']; ?>" <?php if ($current_session_filter_id == $session_opt['id']) echo 'selected'; ?>>
+                      <?php echo htmlspecialchars($session_opt['libelle']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                <?php endif; ?>
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Liste des élèves (Total: <?php echo $total_eleves; ?>)</h3>
+              <h3 class="box-title">Liste des élèves (Session: <?php echo $displayed_session_name; ?>, Total: <?php echo $eleves_total_for_display; ?>)</h3>
               <div class="box-tools">
                 <div class="input-group input-group-sm" style="width: 250px;">
                   <input type="text" id="searchInput" class="form-control pull-right" placeholder="Rechercher...">

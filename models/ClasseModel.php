@@ -44,7 +44,7 @@ class ClasseModel {
         $sql = "SELECT c.*, p.nom as prof_nom, p.prenom as prof_prenom 
                 FROM classes c 
                 LEFT JOIN professeurs p ON c.prof_id = p.id 
-                ORDER BY c.nom";
+                ORDER BY c.niveau";
         $result = $this->db->query($sql);
 
         if (!$result) {
@@ -70,14 +70,14 @@ class ClasseModel {
     }
     
     public function getClassesWithStats() {
-        $sql = "SELECT c.*, 
+        $sql = "SELECT *,c.id, c.nom, c.niveau as classe_nom, 
                 COUNT(e.id) as total_eleves,
                 p.nom as prof_nom, p.prenom as prof_prenom
                 FROM classes c
                 LEFT JOIN eleves e ON e.classe = c.id
                 LEFT JOIN professeurs p ON c.prof_id = p.id
                 GROUP BY c.id
-                ORDER BY c.nom";
+                ORDER BY c.niveau";
         $result = $this->db->query($sql);
         
         if (!$result) {
@@ -92,9 +92,9 @@ class ClasseModel {
      * @param string $nom Le nom de la classe
      * @return array|null La classe trouvée ou null
      */
-    public function getByNom($nom) {
-        $stmt = $this->db->prepare("SELECT * FROM classes WHERE nom = ?");
-        $stmt->bind_param("s", $nom);
+    public function getByNom($niveau) {
+        $stmt = $this->db->prepare("SELECT * FROM classes WHERE niveau = ?");
+        $stmt->bind_param("s", $niveau);
         $stmt->execute();
         $result = $stmt->get_result();
         

@@ -11,7 +11,7 @@ class PaiementModel {
     }
 
     public function getPaiementById($id) {
-        $stmt = $this->db->prepare("SELECT p.*, e.nom as eleve_nom, e.prenom as eleve_prenom, e.classe_id, c.nom as classe_nom, o.nom as option_nom, e.section, f.description as frais_description 
+        $stmt = $this->db->prepare("SELECT p.*, e.nom as eleve_nom, e.prenom as eleve_prenom, e.classe_id, c.niveau as classe_nom, o.nom as option_nom, e.section, f.description as frais_description 
                                 FROM paiements_frais p
                                 JOIN eleves e ON p.eleve_id = e.id
                                 LEFT JOIN classes c ON e.classe_id = c.id
@@ -31,7 +31,7 @@ class PaiementModel {
     
     public function getAllEleves() {
         $eleves = [];
-        $result = $this->db->query("SELECT e.id, e.nom, e.prenom, c.nom as classe, o.nom as option_nom, e.section 
+        $result = $this->db->query("SELECT e.id, e.nom, e.prenom, c.niveau as classe, o.nom as option_nom, e.section 
                                 FROM eleves e
                                 LEFT JOIN classes c ON e.classe_id = c.id
                                 LEFT JOIN options o ON e.option_id = o.id
@@ -91,7 +91,7 @@ class PaiementModel {
 public function getAll() {
     // The error is in this query - it's trying to use pf.mois_id which doesn't exist
     $query = "SELECT pf.*, e.nom as eleve_nom, e.post_nom as eleve_post_nom, e.prenom as eleve_prenom, 
-              c.nom as classe_nom, o.nom as option_nom, f.description as frais_description, 
+              c.niveau as classe_nom, o.nom as option_nom, f.description as frais_description, 
               m.nom as mois 
               FROM paiements_frais pf
               LEFT JOIN eleves e ON pf.eleve_id = e.id
@@ -120,7 +120,7 @@ public function getAll() {
         
         // Utilisez une requête préparée pour récupérer uniquement le paiement avec l'ID spécifié
         $query = "SELECT p.id, CONCAT(e.nom, ' ', e.post_nom, ' ', e.prenom) as eleve_nom, 
-                  c.nom as classe_nom, o.nom as option_nom, p.section, f.description as frais_description, 
+                  c.niveau as classe_nom, o.nom as option_nom, p.section, f.description as frais_description, 
                   p.amount_paid, p.payment_date, m.nom as mois 
                   FROM paiements_frais p
                   LEFT JOIN eleves e ON p.eleve_id = e.id
@@ -143,12 +143,36 @@ public function getAll() {
         return null;
     }
 
-    public function add($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $moi_id, $classe_id, $option_id, $section) {
-        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, moi_id, classe_id, option_id, section, statut) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'payé')";
+    public function add($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $session_scolaire_id = null) {
+        // Si session_scolaire_id n'est pas fourni, utiliser la session active
+        if ($session_scolaire_id === null) {
+            $sessionModel = new SessionScolaireModel();
+            $session_active = $sessionModel->getActive();
+            $session_scolaire_id = $session_active ? $session_active['id'] : null;
+        }
+        
+        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, moi_id, classe_id, option_id, section, session_scolaire_id, statut) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'payé')";
         
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("iidssiiss", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $moi_id, $classe_id, $option_id, $section);
+        $stmt->bind_param("iidssiiisi", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $session_scolaire_id);
+        
+        return $stmt->execute();
+    }
+
+    public function addWithReinscription($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $reinscription_id, $session_scolaire_id = null) {
+        // Si session_scolaire_id n'est pas fourni, utiliser la session active
+        if ($session_scolaire_id === null) {
+            $sessionModel = new SessionScolaireModel();
+            $session_active = $sessionModel->getActive();
+            $session_scolaire_id = $session_active ? $session_active['id'] : null;
+        }
+        
+        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, moi_id, classe_id, option_id, section, reinscription_id, session_scolaire_id, statut) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'payé')";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("iidssiiisii", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $reinscription_id, $session_scolaire_id);
         
         return $stmt->execute();
     }
@@ -242,16 +266,36 @@ public function getAll() {
         $stmt->close();
         return $result;
     }
-
-    public function addWithReinscription($eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $reinscription_id) {
-        $query = "INSERT INTO paiements_frais (eleve_id, frais_id, amount_paid, payment_date, created_at, mois_id, classe_id, option_id, section, reinscription_id) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+    
+    public function getPaiementsByEleveAndSession($eleve_id, $session_scolaire_id) {
+        $query = "SELECT * FROM paiements_frais WHERE eleve_id = ? AND session_scolaire_id = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("iidssiiisi", $eleve_id, $frais_id, $amount_paid, $payment_date, $created_at, $mois_id, $classe_id, $option_id, $section, $reinscription_id);
+        $stmt->bind_param("ii", $eleve_id, $session_scolaire_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         
-        return $stmt->execute();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
+
+
+    // Dans PaiementModel.php
+public function getBySessionId($session_id) {
+    $query = "SELECT * FROM paiements_frais WHERE session_scolaire_id = ?";
+    $stmt = $this->db->prepare($query);
+    $stmt->bind_param("i", $session_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+public function getByEleveId($eleve_id) {
+    $query = "SELECT * FROM paiements_frais WHERE eleve_id = ?";
+    $stmt = $this->db->prepare($query);
+    $stmt->bind_param("i", $eleve_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
 }
 ?>
 

@@ -66,6 +66,7 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
             $_SESSION['message_type'] = "danger";
         }
     }
+    
 }
 ?>
 
@@ -153,7 +154,23 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
           </a>
         </li>
 
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=achatFournitures">
+            <i class="fa fa-shopping-cart"></i> <span>Achats Fournitures</span>
+          </a>
+        </li>
         
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=gestionStock">
+            <i class="fa fa-cubes"></i> <span>Gestion de Stock</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=evenementsScolaires">
+            <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
+          </a>
+        </li>
         
         <li class="treeview">
           <a href="#">
@@ -323,7 +340,7 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
                   <?php foreach ($classes as $classe): ?>
                     <tr>
                       <td><?php echo $classe['id']; ?></td>
-                      <td><?php echo $classe['nom']; ?></td>
+                      <td><?php echo $classe['niveau']; ?></td>
                       <td><?php echo isset($classe['niveau']) ? $classe['niveau'] : 'N/A'; ?></td>
                       <td><?php echo $classe['section']; ?></td>
                       <td><?php echo isset($classe['titulaire']) ? $classe['titulaire'] : (isset($classe['prof_nom']) ? $classe['prof_nom'] : 'N/A'); ?></td>

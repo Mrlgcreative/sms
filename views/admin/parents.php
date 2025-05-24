@@ -1,4 +1,3 @@
-
 <?php
 $mysqli =  new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME) ;
 
@@ -191,6 +190,24 @@ $role = $_SESSION['role'];
             </span>
           </a>
           
+        </li>
+
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=achatFournitures">
+            <i class="fa fa-shopping-cart"></i> <span>Achats Fournitures</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=gestionStock">
+            <i class="fa fa-cubes"></i> <span>Gestion de Stock</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=evenementsScolaires">
+            <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
+          </a>
         </li>
 
         <li>

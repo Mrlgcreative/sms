@@ -259,59 +259,14 @@ $totalDepenses = $achatModel->getTotalDepenses();
             <span class="info-box-icon bg-green"><i class="fa fa-money"></i></span>
             <div class="info-box-content">
               <span class="info-box-text">Total Dépenses</span>
-              <span class="info-box-number"><?php echo number_format($totalDepenses, 2); ?> €</span>
+              <span class="info-box-number"><?php echo number_format($totalDepenses, 2); ?> $</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Formulaire d'ajout -->
-      <div class="row">
-        <div class="col-md-12">
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Ajouter un nouvel achat</h3>
-            </div>
-            <form role="form" method="post" action="<?php echo BASE_URL; ?>index.php?controller=Admin&action=ajouterAchat">
-              <div class="box-body">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="date_achat">Date d'achat</label>
-                      <input type="date" class="form-control" id="date_achat" name="date_achat" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="fournisseur">Fournisseur</label>
-                      <input type="text" class="form-control" id="fournisseur" name="fournisseur" placeholder="Nom du fournisseur" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="description">Description</label>
-                      <textarea class="form-control" id="description" name="description" rows="3" placeholder="Description des fournitures achetées" required></textarea>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="quantite">Quantité</label>
-                      <input type="number" class="form-control" id="quantite" name="quantite" min="1" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="montant">Montant (€)</label>
-                      <input type="number" class="form-control" id="montant" name="montant" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="facture_ref">Référence Facture</label>
-                      <input type="text" class="form-control" id="facture_ref" name="facture_ref" placeholder="Référence de la facture">
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+    
 
       <!-- Liste des achats -->
       <div class="row">
@@ -329,7 +284,7 @@ $totalDepenses = $achatModel->getTotalDepenses();
                     <th>Fournisseur</th>
                     <th>Description</th>
                     <th>Quantité</th>
-                    <th>Montant (€)</th>
+                    <th>Montant ($)</th>
                     <th>Référence</th>
                     <th>Actions</th>
                   </tr>
@@ -342,7 +297,7 @@ $totalDepenses = $achatModel->getTotalDepenses();
                     <td><?php echo $achat['fournisseur']; ?></td>
                     <td><?php echo $achat['description']; ?></td>
                     <td><?php echo $achat['quantite']; ?></td>
-                    <td><?php echo number_format($achat['montant'], 2); ?> €</td>
+                    <td><?php echo number_format($achat['montant'], 2); ?> $</td>
                     <td><?php echo $achat['facture_ref']; ?></td>
                     <td>
                       <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=modifierAchat&id=<?php echo $achat['id']; ?>" class="btn btn-xs btn-warning"><i class="fa fa-edit"></i> Modifier</a>

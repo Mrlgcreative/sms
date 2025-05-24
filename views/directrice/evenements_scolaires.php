@@ -20,7 +20,7 @@ if ($evenements_result) {
 
 // Récupération des classes pour le formulaire d'ajout/modification
 $classes = [];
-$classes_query = "SELECT id, nom FROM classes ORDER BY nom ASC";
+$classes_query = "SELECT nom, niveau as classe_nom FROM classes ORDER BY niveau ASC";
 $classes_result = $mysqli->query($classes_query);
 if ($classes_result) {
     while ($row = $classes_result->fetch_assoc()) {
@@ -378,7 +378,7 @@ unset($_SESSION['error_message']);
               <select class="form-control" id="classe" name="classe">
                 <option value="">Toutes les classes</option>
                 <?php foreach ($classes as $classe): ?>
-                <option value="<?php echo $classe['id']; ?>"><?php echo htmlspecialchars($classe['nom']); ?></option>
+                <option value="<?php echo $classe['nom']; ?>"><?php echo htmlspecialchars($classe['classe_nom']); ?></option>
                 <?php endforeach; ?>
               </select>
             </div>

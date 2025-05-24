@@ -64,8 +64,12 @@ class Comptable {
         // Vérification de l'existence des paramètres GET
         $paiement_id = isset($_GET['paiement_id']) ? (int)$_GET['paiement_id'] : null;
         $eleve_id = isset($_GET['eleve_id']) ? (int)$_GET['eleve_id'] : null;
-        $option_id= isset($_GET['option_id'])?(int)$_GET['option_id']:null;
+        $option_id = isset($_GET['option_id']) ? (int)$_GET['option_id'] : null;
+        $session_id = isset($_GET['session_id']) ? (int)$_GET['session_id'] : null;
     
+        // Récupérer la session scolaire active
+        $session_active = $this->sessionscolaireModel->getActive();
+        
         // Vérification et récupération des données de paiement
         $paiements = [];
         if ($paiement_id) {
@@ -76,21 +80,44 @@ class Comptable {
                 // Convertir en tableau si c'est un seul résultat
                 $paiements = [$paiements];
             }
+        } elseif ($eleve_id) {
+            // Récupérer les paiements d'un élève spécifique
+            $paiements = $this->paiementModel->getByEleveId($eleve_id);
+        } elseif ($session_id) {
+            // Récupérer les paiements d'une session scolaire spécifique
+            $paiements = $this->paiementModel->getBySessionId($session_id);
         } else {
-            $paiements = $this->paiementModel->getAll(); // Récupération de tous les paiements
+            // Récupération de tous les paiements
+            $paiements = $this->paiementModel->getAll();
         }
         
-        // Traitement des options pour chaque paiement
-        $option=null;
-            if($option_id){
-$option=$this->optionModel->getAll($option_id);
-if(!$option){
-    die("Option non defini");
-}
+        // Enrichir les données de paiement avec les informations de session scolaire
+        foreach ($paiements as &$paiement) {
+            if (isset($paiement['session_scolaire_id']) && $paiement['session_scolaire_id']) {
+                $session = $this->sessionscolaireModel->getById($paiement['session_scolaire_id']);
+                if ($session) {
+                    $paiement['libelle'] = $session['libelle'] ?? ($session['annee_debut'] . '-' . $session['annee_fin']);
+                } else {
+                    $paiement['libelle'] = 'Session inconnue';
+                }
+            } else {
+                $paiement['libelle'] = 'Session non spécifiée';
             }
-      
-       // Détruire la référence
-    
+        }
+        unset($paiement); // Détruire la référence
+        
+        // Traitement des options pour chaque paiement
+        $option = null;
+        if ($option_id) {
+            $option = $this->optionModel->getAll($option_id);
+            if (!$option) {
+                die("Option non defini");
+            }
+        }
+        
+        // Récupérer toutes les sessions scolaires pour le filtre
+        $sessions_scolaires = $this->sessionscolaireModel->getAll();
+        
         // Vérifier si l'utilisateur est connecté
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -265,50 +292,85 @@ public function verifierEleveExistant() {
  */
 
  public function ajoutPaiement() {
+    // Traitement du formulaire soumis
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $eleve_id = $_POST['eleve_id'];
-        $frai_id = $_POST['frais_id'];
-        $amount_paid = $_POST['amount_paid'];
+        // Récupération des données du formulaire
+        $eleve_id = isset($_POST['eleve_id']) ? (int)$_POST['eleve_id'] : 0;
+        $frai_id = isset($_POST['frais_id']) ? (int)$_POST['frais_id'] : 0;
+        $amount_paid = isset($_POST['amount_paid']) ? (float)$_POST['amount_paid'] : 0;
         
-        // Format the dates properly to ensure they're stored correctly
+        // Formatage des dates
         $payment_date = !empty($_POST['payment_date']) ? date('Y-m-d', strtotime($_POST['payment_date'])) : date('Y-m-d');
         $created_at = !empty($_POST['created_at']) ? date('Y-m-d', strtotime($_POST['created_at'])) : date('Y-m-d');
         
-        $moi_id = $_POST['mois'];
-        $classe_id = $_POST['classe_id'];
-        $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? $_POST['option_id'] : null;
-        $section = $_POST['section'];
+        // Autres données du formulaire
+        $moi_id = isset($_POST['mois']) ? (int)$_POST['mois'] : 0;
+        $classe_id = isset($_POST['classe_id']) ? $_POST['classe_id'] : '';
+        $option_id = isset($_POST['option_id']) && !empty($_POST['option_id']) ? (int)$_POST['option_id'] : null;
+        $section = isset($_POST['section']) ? $_POST['section'] : '';
         $reinscription_id = isset($_POST['reinscription_id']) ? (int)$_POST['reinscription_id'] : null;
         
-        // Debug information - you can remove this after fixing the issue
+        // Validation des données essentielles
+        if (empty($eleve_id) || empty($frai_id) || empty($amount_paid)) {
+            $_SESSION['error'] = "Veuillez remplir tous les champs obligatoires.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement');
+            exit();
+        }
+        
+        // Récupération de la session scolaire active
+        $sessionScolaireModel = new SessionScolaireModel();
+        $session_active = $sessionScolaireModel->getActive();
+        $session_scolaire_id = null;
+        
+        if ($session_active) {
+            $session_scolaire_id = $session_active['id'];
+            
+            // Vérification des paiements existants pour cette session
+            $paiements_existants = $this->paiementModel->getPaiementsByEleveAndSession($eleve_id, $session_scolaire_id);
+            
+            // Initialisation du mois à septembre si premier paiement
+            if (empty($paiements_existants) && empty($moi_id)) {
+                $moi_id = 9; // Septembre (à adapter selon votre configuration)
+            }
+        } else {
+            // Aucune session active trouvée
+            $_SESSION['error'] = "Aucune session scolaire active n'a été trouvée. Veuillez en activer une avant d'ajouter un paiement.";
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement');
+            exit();
+        }
+        
+        // Journalisation pour débogage
         error_log("Payment Date: " . $payment_date);
         error_log("Created At: " . $created_at);
+        error_log("Session Scolaire ID: " . $session_scolaire_id);
+        error_log("Mois ID: " . $moi_id);
         
-        // Vérifier si classe_id est une chaîne (comme "1er") et non un ID numérique
+        // Traitement de la classe (conversion nom vers ID si nécessaire)
         if (!is_numeric($classe_id)) {
-            // Utiliser la méthode getByNom pour obtenir l'ID de la classe
             $classeObj = $this->classeModel->getByNom($classe_id);
             
             if ($classeObj) {
-                $classe_id = $classeObj['id']; // Utiliser l'ID numérique de la classe
+                $classe_id = $classeObj['id'];
             } else {
-                // Si la classe n'existe pas, afficher un message d'erreur
-                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement&error=1&message=' . urlencode('La classe spécifiée n\'existe pas dans la base de données!'));
+                $_SESSION['error'] = "La classe spécifiée n'existe pas dans la base de données.";
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=ajoutpaiement');
                 exit();
             }
         }
-
-       
-        // Vérifier si l'élève existe déjà, sauf si on force l'inscription
-        if (!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1') {
-            // Générer un format de matricule similaire à celui utilisé lors de l'inscription
-            $annee = date('Y'); // Utiliser l'année courante
+        
+        // Vérification de l'existence de l'élève si des données d'inscription sont fournies
+        if ((!isset($_POST['forcer_inscription']) || $_POST['forcer_inscription'] != '1') && 
+            isset($_POST['nom']) && isset($_POST['post_nom']) && isset($_POST['prenom'])) {
+            
+            $nom = $_POST['nom'];
+            $post_nom = $_POST['post_nom'];
+            $prenom = $_POST['prenom'];
             
             $query = "SELECT COUNT(*) as count FROM eleves 
                      WHERE nom = ? AND post_nom = ? AND prenom = ?";
             
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param("sss", $nom, $post_nom, $prenom );
+            $stmt->bind_param("sss", $nom, $post_nom, $prenom);
             $stmt->execute();
             $result = $stmt->get_result();
             $row = $result->fetch_assoc();
@@ -320,72 +382,78 @@ public function verifierEleveExistant() {
             }
         }
         
-        // Vérifier si l'option_id
+        // Récupération de l'option de l'élève si non spécifiée
         if (empty($option_id)) {
-            // Récupérer l'option de l'élève si elle n'est pas spécifiée
             $eleve = $this->eleveModel->getById($eleve_id);
             if ($eleve && isset($eleve['option_id']) && !empty($eleve['option_id'])) {
                 $option_id = $eleve['option_id'];
             }
         }
         
-        // Vérifier si l'option existe
+        // Vérification de l'existence de l'option
         if (!empty($option_id)) {
             $option = $this->optionModel->getById($option_id);
             if (!$option) {
-                $option_id = null; // Réinitialiser si l'option n'existe pas
+                $option_id = null;
             }
         }
         
-        // Si c'est une réinscription, initialiser le mois (généralement septembre)
+        // Traitement spécifique pour les réinscriptions
         if ($reinscription_id) {
-            // Vérifier si le mois est déjà défini ou utiliser septembre (ID 9) par défaut
+            // Initialisation du mois à septembre si non spécifié
             if (empty($moi_id)) {
-                // ID 9 correspond généralement à septembre, le premier mois de l'année scolaire
-                // Adaptez cet ID selon votre configuration de base de données
                 $moi_id = 9;
             }
             
-            // Ajout du paiement avec l'ID de réinscription
+            // Ajout du paiement avec réinscription
             $this->paiementModel->addWithReinscription(
                 $eleve_id, $frai_id, $amount_paid, 
                 $payment_date, $created_at, $moi_id, 
-                $classe_id, $option_id, $section, $reinscription_id
+                $classe_id, $option_id, $section, $reinscription_id,
+                $session_scolaire_id
             );
         } else {
-            // Ajout du paiement normal via le modèle
+            // Ajout du paiement standard
             $this->paiementModel->add(
                 $eleve_id, $frai_id, $amount_paid, 
                 $payment_date, $created_at, $moi_id, 
-                $classe_id, $option_id, $section
+                $classe_id, $option_id, $section,
+                $session_scolaire_id
             );
         }
-
-        // Récupérer l'ID du dernier paiement inséré
+        
+        // Récupération de l'ID du paiement pour le reçu
         $paiement_id = $this->paiementModel->getLastInsertedId();
-
+        
         // Redirection avec message de succès
+        $_SESSION['success'] = "Le paiement a été ajouté avec succès!";
         header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=paiements&success=1&message=' . urlencode('Le paiement a été ajouté avec succès!'));
         exit();
-    } else {
-       
-        // Charge la vue pour ajouter un paiement
+    } 
+    // Affichage du formulaire
+    else {
+        // Récupération des données pour le formulaire
         $eleveModel = new EleveModel();
         $eleves = $eleveModel->getAll();
         
         $fraismodel = new FraisModel();
         $frais = $fraismodel->getAll();
+        
         $moisModel = new MoisModel();
         $mois = $moisModel->getAll();
         
-        // Récupérer les options pour le formulaire
         $optionModel = new OptionModel();
         $options = $optionModel->getAll();
         
-        // Vérifier si c'est une réinscription
+        // Récupération de la session scolaire active
+        $sessionScolaireModel = new SessionScolaireModel();
+        $session_active = $sessionScolaireModel->getActive();
+        
+        // Vérification des paramètres de réinscription
         $reinscription_id = isset($_GET['reinscription_id']) ? (int)$_GET['reinscription_id'] : null;
         $eleve_id = isset($_GET['eleve_id']) ? (int)$_GET['eleve_id'] : null;
         
+        // Chargement de la vue
         require 'views/comptable/ajout_paiement.php';
     }
 }
@@ -777,6 +845,7 @@ public function logAction($action) {
         require 'views/comptable/inscriptions.php';
     }
 
+
     public function enregistrerEleve() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Récupérer les données du formulaire
@@ -791,11 +860,12 @@ public function logAction($action) {
             $section = $_POST['section'];
             $option_id = isset($_POST['option_id']) ? $_POST['option_id'] : null;
             $sexe = isset($_POST['sexe']) ? $_POST['sexe'] : 'M';
-            $profession = isset($_POST['professions']) ? $_POST['professions']: '';
+            $profession = isset($_POST['profession']) ? $_POST['profession'] : '';
             $nom_pere = $_POST['nom_pere'];
             $nom_mere = $_POST['nom_mere'];
             $contact_pere = $_POST['contact_pere'];
             $contact_mere = $_POST['contact_mere'];
+            $inscription_id = isset($_POST['inscription_id']) ? $_POST['inscription_id'] : 1; // Ajout du type d'inscription (1 = Inscription par défaut)
             
             // Traitement de l'upload de photo
             $photo_path = 'dist/img/default-student.png'; // Chemin par défaut
@@ -835,7 +905,7 @@ public function logAction($action) {
             // Statut par défaut
             $statut = 'actif';
             
-            // Enregistrer l'élève avec la photo et le matricule
+            // Enregistrer l'élève avec la photo, le matricule et le type d'inscription
             $eleve_id = $this->eleveModel->add(
                 $nom, 
                 $post_nom, 
@@ -856,12 +926,16 @@ public function logAction($action) {
                 $nom_pere,
                 $nom_mere,
                 $contact_pere,
-                $contact_mere
+                $contact_mere,
+                $inscription_id // Ajout du paramètre inscription_id
             );
             
             // Journaliser l'activité si l'inscription a réussi
             if ($eleve_id) {
-                $this->logActivity('add', 'Ajout d\'un nouvel élève: ' . $nom . ' ' . $prenom . ' avec matricule: ' . $matricule);
+                // Message simple pour tous les types d'inscription
+                $type_inscription_texte = "Inscription";
+                
+                $this->logActivity('add', $type_inscription_texte . ' d\'un élève: ' . $nom . ' ' . $prenom . ' avec matricule: ' . $matricule);
                 
                 // Redirection avec message de succès
                 header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=inscris&success=1&message=' . urlencode('L\'élève a été inscrit avec succès!'));
@@ -1609,8 +1683,9 @@ public function viewStudent() {
     
     // Récupérer les informations de l'élève
     $stmt = $mysqli->prepare("
-        SELECT e.*, c. nom as classe_nom, e. section, o.nom AS option_nom
+        SELECT e.*, c. niveau as niveau, e. section, o.nom AS option_nom, s.libelle
         FROM eleves e
+        LEFT JOIN sessions_scolaires s ON e.session_scolaire_id= s.id
         LEFT JOIN classes c ON e. classe_id = c.id
         LEFT JOIN options o ON e.option_id = o.id
         WHERE e.id = ?
@@ -1632,9 +1707,7 @@ public function viewStudent() {
     }
     
     // Récupérer les paiements de l'élève
-    // Récupérer les paiements de l'élève
-// Récupérer les paiements de l'élève
-// Récupérer les paiements de l'élève
+ 
 $paiements = [];
 $stmt = $mysqli->prepare("
     SELECT p.*, p.payment_date AS date_paiement, f.description AS type_paiement, m.nom AS mois ,
@@ -2016,8 +2089,155 @@ public function reinscrireEleve() {
     }
 }
 
+    // Afficher la page de gestion des sessions scolaires
+    public function sessions_scolaires() {
+        // Récupérer toutes les sessions scolaires
+        $sessions = $this->sessionscolaireModel->getAll();
+        
+        // Récupérer la session active
+        $session_active = $this->sessionscolaireModel->getActive();
+        
+        // Charger la vue
+        require 'views/comptable/sessions_scolaires.php';
+    }
+    
+    // Ajouter une nouvelle session scolaire
+    public function ajouterSessionScolaire() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupérer les données du formulaire
+            $libelle = isset($_POST['libelle']) ? $_POST['libelle'] : '';
+            $annee_debut = isset($_POST['annee_debut']) ? (int)$_POST['annee_debut'] : 0;
+            $annee_fin = isset($_POST['annee_fin']) ? (int)$_POST['annee_fin'] : 0;
+           
+            $est_active = isset($_POST['est_active']) ? 1 : 0;
+            
+            // Valider les données
+            if (empty($libelle) || $annee_debut <= 0 || $annee_fin <= 0 ) {
+                $_SESSION['error'] = "Tous les champs sont obligatoires.";
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+                exit;
+            }
+            
+            // Ajouter la session
+            $result = $this->sessionscolaireModel->add($annee_debut, $annee_fin, $libelle, $est_active);
+            
+            if ($result) {
+                $_SESSION['success'] = "La session scolaire a été ajoutée avec succès.";
+            } else {
+                $_SESSION['error'] = "Une erreur est survenue lors de l'ajout de la session scolaire.";
+            }
+            
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+            exit;
+        }
+    }
+    
+    // Activer une session scolaire
+    public function activerSessionScolaire() {
+        if (isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+            
+            // Désactiver toutes les sessions
+            $this->sessionscolaireModel->desactiverTout();
+            
+            // Activer la session spécifiée
+            $result = $this->sessionscolaireModel->activer($id);
+            
+            if ($result) {
+                $_SESSION['success'] = "La session scolaire a été activée avec succès.";
+            } else {
+                $_SESSION['error'] = "Une erreur est survenue lors de l'activation de la session scolaire.";
+            }
+            
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+            exit;
+        }
+    }
+    
+    // Modifier une session scolaire
+    public function modifierSessionScolaire() {
+        if (isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+            
+            // Si c'est une soumission de formulaire
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Récupérer les données du formulaire
+                $libelle = isset($_POST['libelle']) ? $_POST['libelle'] : '';
+                $annee_debut = isset($_POST['annee_debut']) ? (int)$_POST['annee_debut'] : 0;
+                $annee_fin = isset($_POST['annee_fin']) ? (int)$_POST['annee_fin'] : 0;
+                $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : '';
+                $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '';
+                $est_active = isset($_POST['est_active']) ? 1 : 0;
+                
+                // Valider les données
+                if (empty($libelle) || $annee_debut <= 0 || $annee_fin <= 0 || empty($date_debut) || empty($date_fin)) {
+                    $_SESSION['error'] = "Tous les champs sont obligatoires.";
+                    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=modifierSessionScolaire&id=' . $id);
+                    exit;
+                }
+                
+                // Si la session doit être active, désactiver toutes les autres sessions
+                if ($est_active) {
+                    $this->sessionscolaireModel->desactiverTout();
+                }
+                
+                // Mettre à jour la session
+                $result = $this->sessionscolaireModel->update($id, $annee_debut, $annee_fin, $libelle, $est_active);
+                
+                if ($result) {
+                    $_SESSION['success'] = "La session scolaire a été modifiée avec succès.";
+                    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+                } else {
+                    $_SESSION['error'] = "Une erreur est survenue lors de la modification de la session scolaire.";
+                    header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=modifierSessionScolaire&id=' . $id);
+                }
+                exit;
+            }
+            
+            // Récupérer les données de la session à modifier
+            $session = $this->sessionscolaireModel->getById($id);
+            
+            if (!$session) {
+                $_SESSION['error'] = "Session scolaire introuvable.";
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+                exit;
+            }
+            
+            // Charger la vue de modification
+            require 'views/comptable/modifier_session_scolaire.php';
+        } else {
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+            exit;
+        }
+    }
+    
+    // Supprimer une session scolaire
+    public function supprimerSessionScolaire() {
+        if (isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+            
+            // Vérifier si la session est active
+            $session = $this->sessionscolaireModel->getById($id);
+            
+            if ($session && $session['est_active'] == 1) {
+                $_SESSION['error'] = "Impossible de supprimer une session scolaire active.";
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+                exit;
+            }
+            
+            // Supprimer la session
+            $result = $this->sessionscolaireModel->delete($id);
+            
+            if ($result) {
+                $_SESSION['success'] = "La session scolaire a été supprimée avec succès.";
+            } else {
+                $_SESSION['error'] = "Une erreur est survenue lors de la suppression de la session scolaire.";
+            }
+            
+            header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=sessions_scolaires');
+            exit;
+        }
+    }
 
-
-
-
-}?>
+}
+?>

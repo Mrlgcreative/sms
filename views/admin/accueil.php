@@ -96,6 +96,7 @@ $success_message = isset($_GET['success']) && isset($_GET['message']) ? $_GET['m
 $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['message'] : '';
 ?>
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -112,9 +113,9 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
+  
 <div class="wrapper">
-
-  <header class="main-header">
+   <header class="main-header">
     <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=accueil" class="logo">
       <span class="logo-mini"><b>SGS</b></span>
       <span class="logo-lg"><b>Système</b> Gestion</span>
@@ -509,6 +510,8 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
         </div>
       </div>
 
+  
+
       
       <!-- Graphique des statistiques détaillées -->
       <div class="row">
@@ -629,43 +632,7 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
       </div>
 
       <!-- Actions par utilisateur (code existant) -->
-      <div class="row">
-        <div class="col-md-12">
-          <div class="box box-info">
-            <div class="box-header with-border">
-              <h3 class="box-title">Actions par utilisateur</h3>
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-              </div>
-            </div>
-            <div class="box-body">
-              <?php if (empty($actions_labels) || (count($actions_labels) == 1 && $actions_labels[0] == 'Aucune donnée')): ?>
-                <div class="alert alert-info">
-                  <h4><i class="icon fa fa-info"></i> Information</h4>
-                  Aucune donnée d'action utilisateur n'est disponible pour le moment.
-                </div>
-              <?php else: ?>
-                <div class="chart">
-                  <canvas id="actionsChart" style="height:250px"></canvas>
-                </div>
-              <?php endif; ?>
-            </div>
-            <div class="box-footer">
-              <div class="row">
-                <div class="col-sm-3 col-xs-6">
-                  <div class="description-block border-right">
-                    <h5 class="description-header text-info">Actions</h5>
-                    <span class="description-text">ACTIVITÉS DES UTILISATEURS</span>
-                  </div>
-                </div>
-                <div class="col-sm-9">
-                  <p class="text-muted">Ce graphique montre le nombre total d'actions effectuées par chaque utilisateur dans le système.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+     
     </section>
   </div>
 
