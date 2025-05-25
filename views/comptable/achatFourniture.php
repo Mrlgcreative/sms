@@ -41,6 +41,12 @@ $totalDepenses = $achatModel->getTotalDepenses();
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <style>
+    .info-box, .ifo-box1{
+      border-radius: 10px;
+    }
+   
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -180,7 +186,7 @@ $totalDepenses = $achatModel->getTotalDepenses();
       <div class="row">
         <div class="col-md-3 col-sm-6 col-xs-12">
           <div class="info-box">
-            <span class="info-box-icon bg-aqua"><i class="fa fa-shopping-cart"></i></span>
+            <span class="info-box-icon bg-aqua"><i class="fa fa-shopping-cart info-box1"></i></span>
             <div class="info-box-content">
               <span class="info-box-text">Total Achats</span>
               <span class="info-box-number"><?php echo count($achats); ?></span>

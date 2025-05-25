@@ -139,6 +139,12 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
   <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
   <style>
+    .small-box {
+      border-radius: 10px; /* Ajout de la bordure arrondie */
+    }
+    #dropdown user user-menu{
+      border-radius: 10px;
+    }
     .small-box .icon {
       transition: all 0.3s linear;
     }
@@ -169,7 +175,7 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
       background-color: #222d32;
     }
     .main-header .navbar {
-      background-color: #3c8dbc;
+      background-color:rgb(69, 176, 209);
     }
     .content-wrapper {
       background-color: #f4f6f9;
@@ -177,6 +183,8 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
     .small-box h3 {
       font-size: 32px;
       font-weight: 600;
+      /* Ajout de la bordure arrondie ici aussi si vous voulez que l'intérieur suive */
+      /* border-radius: 15px 15px 0 0; */ /* Exemple pour le haut seulement */
     }
     .small-box p {
       font-size: 16px;

@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 /**
  * Script de sauvegarde automatique de la base de données
  * À exécuter via une tâche CRON ou une tâche planifiée Windows
@@ -34,11 +38,14 @@ if (count($files) > 10) {
 }
 
 // Exécuter la commande de sauvegarde
-$command = "mysqldump -h {$db_host} -u {$db_user}";
+$mysqldump_path = 'c:\xampp\mysql\bin\mysqldump.exe'; // Assurez-vous que ce chemin est correct
+// $command = "mysqldump -h {$db_host} -u {$db_user}"; // Ancienne ligne
+$command = "\"{$mysqldump_path}\" -h {$db_host} -u {$db_user}"; // Nouvelle ligne
+
 if ($db_pass) {
     $command .= " -p'{$db_pass}'";
 }
-$command .= " {$db_name} > {$backup_file}";
+$command .= " {$db_name} > \"{$backup_file}\""; // Ajout de guillemets autour de backup_file aussi
 
 exec($command, $output, $return_var);
 

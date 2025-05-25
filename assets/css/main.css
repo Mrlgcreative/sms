@@ -1,0 +1,227 @@
+/* ... existing code ... */
+
+/* Styles améliorés pour la page de connexion */
+
+body, html {
+    height: 100%;
+    font-family: 'Poppins', sans-serif; /* Assurez-vous d'importer Poppins ou choisissez une autre police moderne */
+}
+
+.limiter {
+    width: 100%;
+    margin: 0 auto;
+    background: linear-gradient(-135deg, #c850c0, #4158d0); /* Nouveau dégradé vibrant */
+    /* Ou une image de fond :
+    background-image: url('../images/votre-belle-image-de-fond.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat; 
+    */
+}
+
+.container-login100 {
+    width: 100%;  
+    min-height: 100vh;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    /* Si vous utilisez une image de fond pour .limiter, vous pouvez ajouter une superposition ici :
+    background: rgba(0, 0, 0, 0.1); 
+    */
+}
+
+.wrap-login100 {
+    width: 960px;
+    background: #fff;
+    border-radius: 15px; /* Coins plus arrondis */
+    overflow: hidden;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 100px 130px 100px 95px; /* Ajustez le padding si nécessaire */
+    box-shadow: 0 10px 30px 0px rgba(0, 0, 0, 0.15); /* Ombre plus douce et diffuse */
+}
+
+/* Amélioration de l'image (si vous la conservez) */
+.login100-pic {
+  width: 316px;
+  padding-top: 50px; /* Ajuster pour mieux centrer l'image si besoin */
+}
+
+.login100-pic img {
+  max-width: 100%;
+  border-radius: 10px; /* Coins arrondis pour l'image aussi */
+}
+
+
+.login100-form {
+  width: 290px;
+}
+
+.login100-form-title {
+    font-family: 'Poppins-Bold', sans-serif; /* Assurez-vous que cette police est chargée */
+    font-size: 28px; /* Taille de police légèrement augmentée */
+    color: #333333;
+    line-height: 1.2;
+    text-align: center;
+    width: 100%;
+    display: block;
+    padding-bottom: 40px; /* Plus d'espace en bas */
+}
+
+
+.input100 {
+  font-family: 'Poppins-Medium', sans-serif;
+  font-size: 16px;
+  color: #555555; /* Couleur de texte plus foncée pour un meilleur contraste */
+  line-height: 1.2;
+  display: block;
+  width: 100%;
+  height: 55px; /* Hauteur légèrement augmentée */
+  background: #e6e6e6; /* Fond de champ plus clair */
+  border-radius: 27px; /* Coins plus arrondis pour les champs */
+  padding: 0 35px 0 35px;
+}
+
+.focus-input100 {
+  display: block;
+  position: absolute;
+  border-radius: 27px;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0px 0px 0px 0px;
+  color: rgba(199, 80, 192, 0.8); /* Couleur du focus (ajustée au dégradé) */
+}
+
+.input100:focus + .focus-input100 {
+  -webkit-animation: anim-shadow 0.5s ease-in-out forwards;
+  animation: anim-shadow 0.5s ease-in-out forwards;
+}
+
+@-webkit-keyframes anim-shadow {
+  to {
+    box-shadow: 0px 0px 70px 25px;
+    opacity: 0;
+  }
+}
+
+@keyframes anim-shadow {
+  to {
+    box-shadow: 0px 0px 70px 25px;
+    opacity: 0;
+  }
+}
+
+.symbol-input100 {
+  font-size: 16px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  border-radius: 25px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding-left: 30px; /* Ajustement pour l'icône */
+  pointer-events: none;
+  color: #666666;
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+.input100:focus + .focus-input100 + .symbol-input100 {
+  color: #c750c0; /* Couleur de l'icône au focus */
+  padding-left: 23px; /* Animation subtile de l'icône */
+}
+
+
+.container-login100-form-btn {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.login100-form-btn {
+  font-family: 'Poppins-Medium', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  line-height: 1.2;
+  text-transform: uppercase; /* Texte en majuscules pour le bouton */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(to right, #4158d0, #c850c0, #ffcc70); /* Dégradé pour le bouton */
+  background-size: 200% auto; /* Pour l'animation du dégradé */
+  border-radius: 25px;
+  box-shadow: 0 5px 20px 0px rgba(65, 88, 208, 0.3); /* Ombre pour le bouton */
+
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+.login100-form-btn:hover {
+  background-position: right center; /* Changement de direction du dégradé au survol */
+  box-shadow: 0 10px 30px 0px rgba(199, 80, 192, 0.4); /* Ombre plus prononcée au survol */
+}
+
+
+/* Styles pour les liens texte */
+.txt1 {
+  font-family: 'Poppins-Regular', sans-serif;
+  font-size: 14px;
+  color: #999999; /* Couleur de texte plus claire */
+  line-height: 1.5;
+}
+
+.txt2 {
+  font-family: 'Poppins-Regular', sans-serif;
+  font-size: 14px;
+  color: #4158d0; /* Couleur de lien (coordonnée avec le dégradé) */
+  line-height: 1.5;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.txt2:hover {
+  color: #c850c0; /* Couleur de lien au survol */
+  text-decoration: underline;
+}
+
+/* Ajustements pour la responsivité si nécessaire (le modèle original est déjà responsive) */
+/* ... */
+
+/* ... existing code ... */

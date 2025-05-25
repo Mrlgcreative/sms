@@ -1,0 +1,19 @@
+[2025-05-25 09:52:57] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-25 09:52:57] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-25 14:34:07] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-25 14:34:08] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-25 14:48:23] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"nkjlj","ip":"::1"}
+[2025-05-25 14:48:31] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"nkjlj","ip":"::1"}
+[2025-05-25 14:48:36] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"nkjlj","ip":"::1"}
+[2025-05-25 15:05:58] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"nkjlj","ip":"::1"}
+[2025-05-25 15:27:31] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"Mael","ip":"::1"}
+[2025-05-25 15:37:40] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"Mael","role":"prefet"}
+[2025-05-25 15:37:53] [INFO] [::1] [Mael] User role for redirection {"role":"prefet"}
+[2025-05-25 15:37:53] [INFO] [::1] [Mael] Connexion réussie {"username":"Mael","ip":"::1"}
+[2025-05-25 15:45:57] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-25 15:45:57] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-25 16:42:34] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-25 16:42:34] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-25 14:55:28] [ERROR] [] [Anonyme] Échec de la sauvegarde de la base de données {"error":""}
+[2025-05-25 15:01:00] [ERROR] [] [Anonyme] Échec de la sauvegarde de la base de données {"error":""}
+[2025-05-25 15:16:52] [INFO] [] [Anonyme] Sauvegarde de la base de données réussie {"file":"C:\\xampp\\htdocs\\sms\\scripts\/..\/backups\/backup_2025-05-25_15-16-48.sql"}
