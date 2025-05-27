@@ -1,0 +1,34 @@
+[2025-05-26 07:33:11] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-05-26 07:33:12] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
+[2025-05-26 08:28:21] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"malika","role":"director"}
+[2025-05-26 08:28:36] [INFO] [::1] [malika] User role for redirection {"role":"director"}
+[2025-05-26 08:28:36] [INFO] [::1] [malika] Connexion réussie {"username":"malika","ip":"::1"}
+[2025-05-26 08:33:50] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-05-26 08:33:50] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-05-26 08:44:16] [INFO] [::1] [chris] User role for redirection {"role":"directrice"}
+[2025-05-26 08:44:16] [INFO] [::1] [chris] Connexion réussie {"username":"chris","ip":"::1"}
+[2025-05-26 08:55:42] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-05-26 08:55:42] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
+[2025-05-26 09:55:55] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-26 09:55:55] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-26 10:07:13] [INFO] [::1] [Anonyme] Nouvel utilisateur enregistré {"username":"Noella","role":"directeur_Etude"}
+[2025-05-26 10:07:25] [INFO] [::1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-05-26 10:07:25] [INFO] [::1] [Noella] Connexion réussie {"username":"Noella","ip":"::1"}
+[2025-05-26 10:09:15] [INFO] [::1] [diredi] User role for redirection {"role":"percepteur"}
+[2025-05-26 10:09:15] [INFO] [::1] [diredi] Connexion réussie {"username":"diredi","ip":"::1"}
+[2025-05-26 10:11:57] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-26 10:11:57] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-26 10:59:35] [INFO] [::1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-05-26 10:59:35] [INFO] [::1] [Noella] Connexion réussie {"username":"noella","ip":"::1"}
+[2025-05-26 11:02:02] [INFO] [::1] [diredi] User role for redirection {"role":"percepteur"}
+[2025-05-26 11:02:02] [INFO] [::1] [diredi] Connexion réussie {"username":"diredi","ip":"::1"}
+[2025-05-26 11:15:45] [INFO] [::1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-05-26 11:15:45] [INFO] [::1] [Noella] Connexion réussie {"username":"Noella","ip":"::1"}
+[2025-05-26 11:31:45] [INFO] [::1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-05-26 11:31:45] [INFO] [::1] [Noella] Connexion réussie {"username":"Noella","ip":"::1"}
+[2025-05-26 16:45:15] [INFO] [::1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-05-26 16:45:16] [INFO] [::1] [Noella] Connexion réussie {"username":"Noella","ip":"::1"}
+[2025-05-26 19:24:15] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-05-26 19:24:15] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-05-26 21:40:05] [INFO] [::1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-05-26 21:40:05] [INFO] [::1] [Noella] Connexion réussie {"username":"Noella","ip":"::1"}

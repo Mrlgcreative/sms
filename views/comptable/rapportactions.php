@@ -316,10 +316,26 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
             </div>
             
             <div class="box-body">
+              <?php 
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
+                if (isset($_SESSION['backup_message'])): ?>
+                <div class="alert alert-<?php echo $_SESSION['backup_status'] == 'success' ? 'success' : ($_SESSION['backup_status'] == 'warning' ? 'warning' : 'danger'); ?> alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <h4><i class="icon fa fa-<?php echo $_SESSION['backup_status'] == 'success' ? 'check' : ($_SESSION['backup_status'] == 'warning' ? 'exclamation-triangle' : 'ban'); ?>"></i> <?php echo ucfirst($_SESSION['backup_status']); ?>!</h4>
+                    <?php echo $_SESSION['backup_message']; ?>
+                </div>
+                <?php 
+                    unset($_SESSION['backup_message']);
+                    unset($_SESSION['backup_status']);
+                endif; 
+              ?>
               <div class="row no-print" style="margin-bottom: 15px;">
                 <div class="col-xs-12">
                   <button type="button" class="btn btn-success" onclick="window.print()"><i class="fa fa-print"></i> Imprimer</button>
                   <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=exportLogs" class="btn btn-primary"><i class="fa fa-file-excel-o"></i> Exporter Excel</a>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=backupDatabase" class="btn btn-warning"><i class="fa fa-database"></i> Backup Database</a>
                 </div>
               </div>
               

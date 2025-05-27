@@ -226,8 +226,8 @@ if (!defined('BASE_URL')) {
           <option value="prefet">Prefet</option>
           <option value="director">Directeur</option>
           <option value="directrice">Directrice</option>
-          <option value="enseignant">Enseignant</option>
-          <option value="etudiant">Etudiant</option>
+          <option value="percepteur">Pecepteur</option>
+          <option value="directeur_Etude">Drecteur Etude</option>
 
           </option>
         </select>

@@ -22,7 +22,7 @@ if ($mysqli->connect_error) {
 }
 
 // Récupérer les informations de l'élève
-$query = "SELECT e.*, o.nom as option_nom, c.nom as classe_nom
+$query = "SELECT e.*, o.nom as option_nom, c.niveau as classe_nom
           FROM eleves e 
           LEFT JOIN classes c ON e.classe_id = c.id
           LEFT JOIN options o ON e.option_id = o.id 

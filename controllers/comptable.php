@@ -2239,5 +2239,75 @@ public function reinscrireEleve() {
         }
     }
 
+    
+    public function backupDatabase() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Vérifier si l'utilisateur a le rôle 'comptable'
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'comptable') {
+            // Rediriger ou afficher un message d'erreur si l'utilisateur n'est pas autorisé
+            header('Location: ' . BASE_URL . 'index.php?controller=auth&action=login&error=unauthorized');
+            exit;
+        }
+
+        $dbHost = DB_HOST;
+        $dbUser = DB_USER;
+        $dbPass = DB_PASS;
+        $dbName = DB_NAME;
+        $backupDir = 'c:\\xampp\\htdocs\\sms\\backups\\'; // Chemin absolu vers le dossier de sauvegarde
+
+        // S'assurer que le dossier de sauvegarde existe, sinon le créer
+        if (!is_dir($backupDir)) {
+            if (!mkdir($backupDir, 0777, true)) {
+                $_SESSION['backup_message'] = 'Erreur : Impossible de créer le dossier de sauvegarde.';
+                $_SESSION['backup_status'] = 'error';
+                header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=rapportactions');
+                exit;
+            }
+        }
+
+        $backupFile = $backupDir . 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+
+        // Commande mysqldump
+        // Assurez-vous que mysqldump est dans le PATH de votre système ou spécifiez le chemin complet
+        $command = sprintf(
+            'mysqldump --host=%s --user=%s --password=%s %s > %s',
+            escapeshellarg($dbHost),
+            escapeshellarg($dbUser),
+            escapeshellarg($dbPass),
+            escapeshellarg($dbName),
+            escapeshellarg($backupFile)
+        );
+
+        // Exécuter la commande
+        system($command, $returnValue);
+
+        if ($returnValue === 0) {
+            // Compression du fichier de sauvegarde (optionnel)
+            $zipFile = $backupFile . '.zip';
+            $zip = new ZipArchive();
+            if ($zip->open($zipFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                $zip->addFile($backupFile, basename($backupFile));
+                $zip->close();
+                unlink($backupFile); // Supprimer le fichier .sql non compressé
+                $_SESSION['backup_message'] = 'Sauvegarde de la base de données effectuée avec succès et compressée : ' . basename($zipFile);
+                $_SESSION['backup_status'] = 'success';
+            } else {
+                $_SESSION['backup_message'] = 'Sauvegarde de la base de données effectuée avec succès, mais la compression a échoué : ' . basename($backupFile);
+                $_SESSION['backup_status'] = 'warning';
+            }
+        } else {
+            $_SESSION['backup_message'] = 'Erreur lors de la sauvegarde de la base de données. Code de retour : ' . $returnValue;
+            $_SESSION['backup_status'] = 'error';
+        }
+
+        // Rediriger vers la page des rapports avec un message
+        header('Location: ' . BASE_URL . 'index.php?controller=comptable&action=rapportactions');
+        exit;
+    }
+
 }
 ?>
+

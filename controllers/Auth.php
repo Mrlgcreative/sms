@@ -265,6 +265,8 @@ class Auth {
                 header('Location: ' . BASE_URL . 'index.php?controller=Directrice&action=accueil');
                 break;
             case 'directeur_Etude':
+                header('Location: ' . BASE_URL . 'index.php?controller=DirecteurEtude&action=accueil');
+                break;
             case 'prefet':
                 header('Location: ' . BASE_URL . 'index.php?controller=Prefet&action=accueil');
                 break;
