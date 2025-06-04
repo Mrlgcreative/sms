@@ -1,0 +1,6 @@
+[2025-05-30 08:45:31] [INFO] [::1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-05-30 08:45:31] [INFO] [::1] [Noella] Connexion réussie {"username":"Noella","ip":"::1"}
+[2025-05-30 08:47:45] [INFO] [::1] [rapha] User role for redirection {"role":"prefet"}
+[2025-05-30 08:47:46] [INFO] [::1] [rapha] Connexion réussie {"username":"rapha","ip":"::1"}
+[2025-05-30 08:49:28] [INFO] [::1] [ciella] User role for redirection {"role":"admin"}
+[2025-05-30 08:49:28] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}

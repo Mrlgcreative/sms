@@ -90,7 +90,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 <div class="wrapper">
 
   <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=accueil" class="logo">
+    <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=accueil" class="logo">
       <span class="logo-mini"><b>SGS</b></span>
       <span class="logo-lg"><b>Système</b> Gestion</span>
     </a>
@@ -112,11 +112,10 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                 <p>
                   <?php echo $username; ?> - <?php echo $role; ?>
                   <small><?php echo $email; ?></small>
-                </p>
-              </li>
+                </p>              </li>
               <li class="user-footer">
                 <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=profil" class="btn btn-default btn-flat">Profil</a>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=profil" class="btn btn-default btn-flat">Profil</a>
                 </div>
                 <div class="pull-right">
                   <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
@@ -140,75 +139,80 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
           <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
         </div>
       </div>
-      
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">MENU PRINCIPAL - DIRECTEUR ETUDES</li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=accueil">
+        <ul class="sidebar-menu" data-widget="tree">
+        <li class="header">MENU PRINCIPAL</li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=accueil">
             <i class="fa fa-dashboard"></i> <span>Tableau de bord</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=eleves">
-            <i class="fa fa-users"></i> <span>Gestion des Élèves</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=eleves">
+            <i class="fa fa-graduation-cap"></i> <span>Gestion des Élèves</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=professeurs">
-            <i class="fa fa-black-tie"></i> <span>Gestion des Professeurs</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=programmesScolaires">
-            <i class="fa fa-university"></i> <span>Programmes Scolaires</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=professeurs">
+            <i class="fa fa-users"></i> <span>Gestion des Professeurs</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=classes">
-            <i class="fa fa-sitemap"></i> <span>Gestion des Classes</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=programmesScolaires">
+            <i class="fa fa-book"></i> <span>Programmes Scolaires</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=cours">
-            <i class="fa fa-book"></i> <span>Gestion des Cours</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=classes">
+            <i class="fa fa-university"></i> <span>Gestion des Classes</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=examens">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=cours">
+            <i class="fa fa-calendar"></i> <span>Gestion des Cours</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=examens">
             <i class="fa fa-edit"></i> <span>Gestion des Examens</span>
           </a>
         </li>
-
+        
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=resultatsScolaires">
-            <i class="fa fa-line-chart"></i> <span>Résultats Scolaires</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=resultatsScolaires">
+            <i class="fa fa-bar-chart"></i> <span>Résultats Scolaires</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=emploiDuTempsGeneral">
-            <i class="fa fa-calendar-alt"></i> <span>Emplois du temps</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTemps">
+            <i class="fa fa-table"></i> <span>Emplois du temps</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=evenementsScolaires">
-            <i class="fa fa-calendar-check"></i> <span>Événements Scolaires</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=evenementsScolaires">
+            <i class="fa fa-calendar-check-o"></i> <span>Événements Scolaires</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=rapportsGlobaux">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapportsGlobaux">
             <i class="fa fa-pie-chart"></i> <span>Rapports Globaux</span>
           </a>
         </li>
-
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=communications">
+            <i class="fa fa-envelope"></i> <span>Communications</span>
+          </a>
+        </li>
       </ul>
     </section>
   </aside>
@@ -236,7 +240,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
             <div class="icon">
               <i class="ion ion-ios-people"></i>
             </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=eleves" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=eleves" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
         
@@ -249,7 +253,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
             <div class="icon">
               <i class="ion ion-university"></i>
             </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=professeurs" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=professeurs" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
 
@@ -262,7 +266,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
             <div class="icon">
               <i class="ion ion-easel"></i>
             </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=classes" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=classes" class="small-box-footer">Plus d'infos <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
       </div>
@@ -395,7 +399,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
               <?php endif; ?>
             </div>
             <div class="box-footer text-center">
-              <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=evenementsScolaires" class="uppercase">Voir tous les événements</a>
+              <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=evenementsScolaires" class="uppercase">Voir tous les événements</a>
             </div>
           </div>
         </div>
@@ -409,9 +413,8 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
               <h3 class="box-title">Accès rapides</h3>
             </div>
             <div class="box-body">
-              <div class="row">
-                <div class="col-md-3 col-sm-6 col-xs-12">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=programmesScolaires" class="info-box">
+              <div class="row">                <div class="col-md-3 col-sm-6 col-xs-12">
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=programmesScolaires" class="info-box">
                     <span class="info-box-icon bg-aqua"><i class="fa fa-university"></i></span>
                     <div class="info-box-content">
                       <span class="info-box-text">Programmes</span>
@@ -421,7 +424,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                 </div>
                 
                 <div class="col-md-3 col-sm-6 col-xs-12">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=examens" class="info-box">
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=examens" class="info-box">
                     <span class="info-box-icon bg-green"><i class="fa fa-edit"></i></span>
                     <div class="info-box-content">
                       <span class="info-box-text">Gestion des</span>
@@ -430,7 +433,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                   </a>
                 </div>
                 <div class="col-md-3 col-sm-6 col-xs-12">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=resultatsScolaires" class="info-box">
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=resultatsScolaires" class="info-box">
                     <span class="info-box-icon bg-yellow"><i class="fa fa-line-chart"></i></span>
                     <div class="info-box-content">
                       <span class="info-box-text">Résultats</span>
@@ -439,7 +442,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
                   </a>
                 </div>
                  <div class="col-md-3 col-sm-6 col-xs-12">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtudes&action=rapportsGlobaux" class="info-box">
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapportsGlobaux" class="info-box">
                     <span class="info-box-icon bg-red"><i class="fa fa-pie-chart"></i></span>
                     <div class="info-box-content">
                       <span class="info-box-text">Rapports</span>
