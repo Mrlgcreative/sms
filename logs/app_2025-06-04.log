@@ -6,3 +6,7 @@
 [2025-06-04 11:27:13] [INFO] [::1] [ciella] Connexion réussie {"username":"Ciella","ip":"::1"}
 [2025-06-04 11:33:03] [INFO] [::1] [Daniel] User role for redirection {"role":"comptable"}
 [2025-06-04 11:33:03] [INFO] [::1] [Daniel] Connexion réussie {"username":"Daniel","ip":"::1"}
+[2025-06-04 17:27:25] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"hermine","ip":"::1"}
+[2025-06-04 17:27:30] [WARNING] [::1] [Anonyme] Échec de connexion {"username":"hermine","ip":"::1"}
+[2025-06-04 17:30:57] [INFO] [::1] [hermine] User role for redirection {"role":"director"}
+[2025-06-04 17:30:57] [INFO] [::1] [hermine] Connexion réussie {"username":"hermine","ip":"::1"}
