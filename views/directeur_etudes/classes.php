@@ -11,13 +11,14 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Récupération des classes avec informations sur les élèves
+// Récupération des classes secondaires avec informations sur les élèves
 $query = "SELECT c.*, 
           COUNT(e.id) as nb_eleves,
           COUNT(CASE WHEN e.sexe = 'M' THEN 1 END) as nb_garcons,
           COUNT(CASE WHEN e.sexe = 'F' THEN 1 END) as nb_filles
           FROM classes c 
-          LEFT JOIN eleves e ON c.id = e.classe_id AND ( e.section = 'secondaire')
+          LEFT JOIN eleves e ON c.id = e.classe_id AND e.section = 'secondaire'
+          WHERE c.section = 'secondaire'
           GROUP BY c.id
           ORDER BY c.niveau, c.nom";
 $result = $mysqli->query($query);
@@ -112,46 +113,39 @@ $classes_total = count($classes);
             <i class="fa fa-dashboard"></i> <span>Tableau de bord</span>
           </a>
         </li>
-        
-        <li>
+          <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=eleves">
-            <i class="fa fa-graduation-cap"></i> <span>Gestion des Élèves</span>
+            <i class="fa fa-graduation-cap"></i> <span>Élèves</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=professeurs">
-            <i class="fa fa-users"></i> <span>Gestion des Professeurs</span>
+            <i class="fa fa-users"></i> <span>Professeurs</span>
           </a>
         </li>
         
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=programmesScolaires">
-            <i class="fa fa-book"></i> <span>Programmes Scolaires</span>
-          </a>
-        </li>
-        
-        <li>
+        <li class="active">
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=classes">
-            <i class="fa fa-university"></i> <span>Gestion des Classes</span>
+            <i class="fa fa-university"></i> <span>Classes</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=cours">
-            <i class="fa fa-calendar"></i> <span>Gestion des Cours</span>
+            <i class="fa fa-calendar"></i> <span>Cours</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=examens">
-            <i class="fa fa-edit"></i> <span>Gestion des Examens</span>
+            <i class="fa fa-edit"></i> <span>Examens</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=resultatsScolaires">
-            <i class="fa fa-bar-chart"></i> <span>Résultats Scolaires</span>
+            <i class="fa fa-bar-chart"></i> <span>Résultats</span>
           </a>
         </li>
         
@@ -163,13 +157,13 @@ $classes_total = count($classes);
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=evenementsScolaires">
-            <i class="fa fa-calendar-check-o"></i> <span>Événements Scolaires</span>
+            <i class="fa fa-calendar-check-o"></i> <span>Événements</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapportsGlobaux">
-            <i class="fa fa-pie-chart"></i> <span>Rapports Globaux</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapports">
+            <i class="fa fa-pie-chart"></i> <span>Rapports</span>
           </a>
         </li>
         
@@ -286,7 +280,7 @@ $classes_total = count($classes);
                             <span class="badge bg-red"><?php echo $classe['nb_filles']; ?></span>
                           </td>
                           <td>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=voirClasse&id=<?php echo $classe['id']; ?>" class="btn btn-info btn-xs" title="Voir détails">
+                            <!-- <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=voirClasse&id=<?php echo $classe['id']; ?>" class="btn btn-info btn-xs" title="Voir détails"> -->
                               <i class="fa fa-eye"></i>
                             </a>
                             <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=elevesClasse&id=<?php echo $classe['id']; ?>" class="btn btn-success btn-xs" title="Élèves de la classe">

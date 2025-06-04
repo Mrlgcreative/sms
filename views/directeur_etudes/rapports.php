@@ -74,31 +74,71 @@ $stats['cours'] = $result_cours->fetch_assoc();
 $query_repartition = "SELECT c.niveau, COUNT(e.id) as nb_eleves
                       FROM classes c
                       LEFT JOIN eleves e ON c.id = e.classe_id AND e.section = 'secondaire'
+                      WHERE c.section = 'secondaire'
                       GROUP BY c.niveau
                       ORDER BY c.niveau";
 $result_repartition = $mysqli->query($query_repartition);
 $repartition_niveaux = [];
-if ($result_repartition) {
+
+// Debug - Vérifier la requête
+echo "<!-- Debug requête: " . $query_repartition . " -->\n";
+if (!$result_repartition) {
+    echo "<!-- Erreur SQL: " . $mysqli->error . " -->\n";
+} else {
+    echo "<!-- Nombre de lignes retournées: " . $result_repartition->num_rows . " -->\n";
     while ($row = $result_repartition->fetch_assoc()) {
         $repartition_niveaux[] = $row;
+        echo "<!-- Niveau trouvé: " . $row['niveau'] . " avec " . $row['nb_eleves'] . " élèves -->\n";
     }
 }
 
-// Moyennes par niveau (si la table notes existe)
-// $query_moyennes = "SELECT c.niveau, AVG(n.note) as moyenne_niveau, COUNT(n.id) as nb_notes
-//                    FROM notes n
-//                    JOIN eleves e ON n.eleve_id = e.id
-//                    JOIN classes c ON e.classe_id = c.id
-//                    WHERE e.section = 'secondaire'
-//                    GROUP BY c.niveau
-//                    ORDER BY c.niveau";
-// $result_moyennes = $mysqli->query($query_moyennes);
-// $moyennes_niveaux = [];
-// if ($result_moyennes) {
-//     while ($row = $result_moyennes->fetch_assoc()) {
-//         $moyennes_niveaux[] = $row;
-//     }
-// }
+// Debugging: Vérifier si on a des données
+echo "<!-- Debug: Nombre de niveaux trouvés: " . count($repartition_niveaux) . " -->\n";
+
+// Si aucune donnée avec la première requête, essayer une requête simplifiée
+if (empty($repartition_niveaux)) {
+    echo "<!-- Tentative avec requête simplifiée -->\n";
+    $query_repartition_simple = "SELECT c.niveau, 
+                                  (SELECT COUNT(*) FROM eleves e WHERE e.classe_id = c.id AND e.section = 'secondaire') as nb_eleves
+                                  FROM classes c 
+                                  WHERE c.section = 'secondaire'
+                                  ORDER BY c.niveau";
+    $result_simple = $mysqli->query($query_repartition_simple);
+    if ($result_simple) {
+        while ($row = $result_simple->fetch_assoc()) {
+            if ($row['nb_eleves'] > 0) { // Ne prendre que les niveaux avec des élèves
+                $repartition_niveaux[] = $row;
+                echo "<!-- Niveau (simple): " . $row['niveau'] . " avec " . $row['nb_eleves'] . " élèves -->\n";
+            }
+        }
+    }
+}
+
+// Moyennes par niveau (initialisation par défaut)
+// Vérifier si la table notes existe
+$moyennes_niveaux = [];
+$table_notes_exists = false;
+
+// Vérifier l'existence de la table notes
+$check_table = $mysqli->query("SHOW TABLES LIKE 'notes'");
+if ($check_table && $check_table->num_rows > 0) {
+    $table_notes_exists = true;
+    
+    // Si la table notes existe, récupérer les moyennes
+    $query_moyennes = "SELECT c.niveau, AVG(n.note) as moyenne_niveau, COUNT(n.id) as nb_notes
+                       FROM notes n
+                       JOIN eleves e ON n.eleve_id = e.id
+                       JOIN classes c ON e.classe_id = c.id
+                       WHERE e.section = 'secondaire'
+                       GROUP BY c.niveau
+                       ORDER BY c.niveau";
+    $result_moyennes = $mysqli->query($query_moyennes);
+    if ($result_moyennes) {
+        while ($row = $result_moyennes->fetch_assoc()) {
+            $moyennes_niveaux[] = $row;
+        }
+    }
+}
 
 $mysqli->close();
 ?>
@@ -180,8 +220,7 @@ $mysqli->close();
           <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
         </div>
       </div>
-      
-      <ul class="sidebar-menu" data-widget="tree">
+        <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MENU PRINCIPAL</li>
         
         <li>
@@ -192,61 +231,61 @@ $mysqli->close();
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=eleves">
-            <i class="fa fa-graduation-cap"></i> <span>Gestion des Élèves</span>
+            <i class="fa fa-graduation-cap"></i> <span>Élèves</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=professeurs">
-            <i class="fa fa-users"></i> <span>Gestion des Professeurs</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=programmesScolaires">
-            <i class="fa fa-book"></i> <span>Programmes Scolaires</span>
+            <i class="fa fa-users"></i> <span>Professeurs</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=classes">
-            <i class="fa fa-university"></i> <span>Gestion des Classes</span>
+            <i class="fa fa-university"></i> <span>Classes</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=cours">
-            <i class="fa fa-chalkboard-teacher"></i> <span>Gestion des Cours</span>
+            <i class="fa fa-calendar"></i> <span>Cours</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=examens">
-            <i class="fa fa-edit"></i> <span>Gestion des Examens</span>
+            <i class="fa fa-edit"></i> <span>Examens</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=resultatsScolaires">
-            <i class="fa fa-trophy"></i> <span>Résultats Scolaires</span>
+            <i class="fa fa-bar-chart"></i> <span>Résultats</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTempsGeneral">
-            <i class="fa fa-calendar-alt"></i> <span>Emplois du temps</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTemps">
+            <i class="fa fa-table"></i> <span>Emplois du temps</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=evenementsScolaires">
-            <i class="fa fa-calendar-check"></i> <span>Événements Scolaires</span>
+            <i class="fa fa-calendar-check-o"></i> <span>Événements</span>
           </a>
         </li>
         
         <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapportsGlobaux">
-            <i class="fa fa-pie-chart"></i> <span>Rapports Globaux</span>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapports">
+            <i class="fa fa-pie-chart"></i> <span>Rapports</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=communications">
+            <i class="fa fa-envelope"></i> <span>Communications</span>
           </a>
         </li>
 
@@ -373,10 +412,7 @@ $mysqli->close();
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Répartition des élèves par niveau -->
-      <?php if (!empty($repartition_niveaux)): ?>
+      </div>      <!-- Répartition des élèves par niveau -->
       <div class="row">
         <div class="col-md-12">
           <div class="box box-info">
@@ -384,12 +420,19 @@ $mysqli->close();
               <h3 class="box-title">Répartition des Élèves par Niveau</h3>
             </div>
             <div class="box-body">
-              <canvas id="barChartNiveaux" style="height:300px"></canvas>
+              <?php if (!empty($repartition_niveaux)): ?>
+                <canvas id="barChartNiveaux" style="height:300px"></canvas>
+              <?php else: ?>
+                <div class="alert alert-info">
+                  <h4><i class="icon fa fa-info-circle"></i> Information</h4>
+                  Aucune donnée de répartition disponible pour le moment. 
+                  Vérifiez que les classes et élèves sont correctement configurés dans le système.
+                </div>
+              <?php endif; ?>
             </div>
           </div>
         </div>
       </div>
-      <?php endif; ?>
 
       <!-- Moyennes par niveau -->
       <?php if (!empty($moyennes_niveaux)): ?>
@@ -424,43 +467,53 @@ $mysqli->close();
                       <th>Moyenne Générale</th>
                       <th>Statut</th>
                     </tr>
-                  </thead>
-                  <tbody>
-                    <!-- <?php 
-                    foreach ($repartition_niveaux as $niveau): 
-                      $moyenne = 0;
-                      foreach ($moyennes_niveaux as $moy) {
-                        if ($moy['niveau'] == $niveau['niveau']) {
-                          $moyenne = round($moy['moyenne_niveau'], 2);
-                          break;
+                  </thead>                  <tbody>
+                    <?php if (!empty($repartition_niveaux)): ?>
+                      <?php 
+                      foreach ($repartition_niveaux as $niveau): 
+                        $moyenne = 0;
+                        if (!empty($moyennes_niveaux)) {
+                          foreach ($moyennes_niveaux as $moy) {
+                            if ($moy['niveau'] == $niveau['niveau']) {
+                              $moyenne = round($moy['moyenne_niveau'], 2);
+                              break;
+                            }
+                          }
                         }
-                      }
-                    ?> -->
+                      ?>
+                        <tr>
+                          <td><strong><?php echo htmlspecialchars($niveau['niveau']); ?></strong></td>
+                          <td><span class="badge bg-blue"><?php echo $niveau['nb_eleves']; ?></span></td>
+                          <td>
+                            <?php if ($moyenne > 0): ?>
+                              <span class="badge <?php echo $moyenne >= 10 ? 'bg-green' : 'bg-red'; ?>"><?php echo $moyenne; ?>/20</span>
+                            <?php else: ?>
+                              <span class="text-muted">Non disponible</span>
+                            <?php endif; ?>
+                          </td>
+                          <td>
+                            <?php if ($moyenne >= 15): ?>
+                              <span class="label label-success">Excellent</span>
+                            <?php elseif ($moyenne >= 12): ?>
+                              <span class="label label-info">Bien</span>
+                            <?php elseif ($moyenne >= 10): ?>
+                              <span class="label label-warning">Passable</span>
+                            <?php elseif ($moyenne > 0): ?>
+                              <span class="label label-danger">À améliorer</span>
+                            <?php else: ?>
+                              <span class="label label-default">N/A</span>
+                            <?php endif; ?>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    <?php else: ?>
                       <tr>
-                        <td><strong><?php echo htmlspecialchars($niveau['niveau']); ?></strong></td>
-                        <td><span class="badge bg-blue"><?php echo $niveau['nb_eleves']; ?></span></td>
-                        <td>
-                          <?php if ($moyenne > 0): ?>
-                            <span class="badge <?php echo $moyenne >= 10 ? 'bg-green' : 'bg-red'; ?>"><?php echo $moyenne; ?>/20</span>
-                          <?php else: ?>
-                            <span class="text-muted">Non disponible</span>
-                          <?php endif; ?>
-                        </td>
-                        <td>
-                          <?php if ($moyenne >= 15): ?>
-                            <span class="label label-success">Excellent</span>
-                          <?php elseif ($moyenne >= 12): ?>
-                            <span class="label label-info">Bien</span>
-                          <?php elseif ($moyenne >= 10): ?>
-                            <span class="label label-warning">Passable</span>
-                          <?php elseif ($moyenne > 0): ?>
-                            <span class="label label-danger">À améliorer</span>
-                          <?php else: ?>
-                            <span class="label label-default">N/A</span>
-                          <?php endif; ?>
+                        <td colspan="4" class="text-center text-muted">
+                          <i class="fa fa-info-circle"></i> Aucune donnée de répartition disponible pour le moment.
+                          <br><small>Vérifiez la configuration des classes et l'inscription des élèves.</small>
                         </td>
                       </tr>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                   </tbody>
                 </table>
               </div>

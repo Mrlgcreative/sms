@@ -130,10 +130,9 @@ $mysqli->close();
             <i class="fa fa-university"></i> <span>Gestion des Classes</span>
           </a>
         </li>
-        
-        <li>
+          <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=cours">
-            <i class="fa fa-chalkboard-teacher"></i> <span>Gestion des Cours</span>
+            <i class="fa fa-calendar"></i> <span>Gestion des Cours</span>
           </a>
         </li>
         
@@ -142,28 +141,32 @@ $mysqli->close();
             <i class="fa fa-edit"></i> <span>Gestion des Examens</span>
           </a>
         </li>
-        
-        <li>
+          <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=resultatsScolaires">
-            <i class="fa fa-trophy"></i> <span>Résultats Scolaires</span>
+            <i class="fa fa-bar-chart"></i> <span>Résultats Scolaires</span>
           </a>
         </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTempsGeneral">
-            <i class="fa fa-calendar-alt"></i> <span>Emplois du temps</span>
+          <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTemps">
+            <i class="fa fa-table"></i> <span>Emplois du temps</span>
           </a>
         </li>
         
         <li>
           <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=evenementsScolaires">
-            <i class="fa fa-calendar-check"></i> <span>Événements Scolaires</span>
+            <i class="fa fa-calendar-check-o"></i> <span>Événements Scolaires</span>
           </a>
         </li>
         
         <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapportsGlobaux">
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=rapports">
             <i class="fa fa-pie-chart"></i> <span>Rapports Globaux</span>
+          </a>
+        </li>
+        
+        <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=communications">
+            <i class="fa fa-envelope"></i> <span>Communications</span>
           </a>
         </li>
 

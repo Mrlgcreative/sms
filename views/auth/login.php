@@ -2,8 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>St JEAN-HENRY | Log in</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">  <title>Établissement Scolaire | Connexion</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -26,21 +25,57 @@
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    /* Custom Login Page Styles */
+  <style>    /* Custom Login Page Styles */
 body.login-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 50%, #1e40af 100%);
+    background-image: 
+        url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'),
+        radial-gradient(circle at 20% 50%, rgba(30, 64, 175, 0.8) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(30, 64, 175, 0.6) 0%, transparent 50%);
+    background-size: cover, auto, auto;
+    background-position: center, center, center;
+    background-blend-mode: overlay;
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+}
+
+body.login-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    filter: blur(3px);
+    z-index: -1;
+}
+
+body.login-page::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(44, 90, 160, 0.85) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(30, 64, 175, 0.85) 100%);
+    z-index: -1;
 }
 
 .login-box {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    width: 380px; /* Slightly wider for a modern feel */
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
 }
 
 .login-logo a {
@@ -69,13 +104,13 @@ body.login-page {
 }
 
 .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: #1e40af;
+    box-shadow: 0 0 0 0.2rem rgba(30, 64, 175, 0.25);
 }
 
 .btn.btn-primary.btn-flat {
-    background-color: #667eea;
-    border-color: #667eea;
+    background-color: #1e40af;
+    border-color: #1e40af;
     border-radius: 5px;
     padding: 10px 15px;
     font-size: 16px;
@@ -84,8 +119,8 @@ body.login-page {
 }
 
 .btn.btn-primary.btn-flat:hover, .btn.btn-primary.btn-flat:focus {
-    background-color: #5a67d8;
-    border-color: #5a67d8;
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 .btn.btn-default.btn-flat {
@@ -116,13 +151,12 @@ body.login-page {
   </style>
 </head>
 <body class="hold-transition login-page">
-<div class="login-box">
-  <div class="login-logo">
-    <a href="#"><b>SYSTEME SCOLAIRE</b></a>
+<div class="login-box">  <div class="login-logo">
+    <a href="#"><i class="fa fa-graduation-cap"></i> <b>ÉTABLISSEMENT SCOLAIRE</b></a>
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
-    <p class="login-box-msg">Connectez-vous pour démarrer votre session</p>
+    <p class="login-box-msg">Accès au système de gestion scolaire</p>
 
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger">
@@ -134,7 +168,7 @@ body.login-page {
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <div class="form-group has-feedback">
         
-        <input type="text" class="form-control" id="username" name="username"  placeholder="Nom utilisateur"required>
+        <input type="text" class="form-control" id="username" name="username" placeholder="Nom d'utilisateur" required>
         </div>
         
        <div class="form-group has-feedback">
@@ -143,7 +177,7 @@ body.login-page {
 
   </div>
         
-        <button  class="btn btn-primary btn-block btn-flat"type="submit">Se connecter</button>
+        <button class="btn btn-primary btn-block btn-flat" type="submit">Se connecter</button>
     </form>
 
     <!-- Add this registration link -->

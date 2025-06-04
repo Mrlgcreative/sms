@@ -37,7 +37,7 @@ $query = "SELECT e.*,
           DATE_FORMAT(e.date_fin, '%d/%m/%Y') as date_fin_fr,
           TIME_FORMAT(e.heure_debut, '%H:%i') as heure_debut_fr,
           TIME_FORMAT(e.heure_fin, '%H:%i') as heure_fin_fr
-          FROM evenements_scolaires
+          FROM evenements_scolaires e
           WHERE 1=1";
 
 $params = [];
@@ -94,7 +94,7 @@ $stats_query = "SELECT
                 COUNT(CASE WHEN type = 'reunion' THEN 1 END) as reunions,
                 COUNT(CASE WHEN type = 'formation' THEN 1 END) as formations,
                 COUNT(CASE WHEN type = 'ceremonie' THEN 1 END) as ceremonies
-                FROM evenements";
+                FROM evenements_scolaires";
 $stats_result = $mysqli->query($stats_query);
 $stats = $stats_result ? $stats_result->fetch_assoc() : [];
 
