@@ -106,9 +106,10 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
   <!-- DataTables -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
-  <!-- AdminLTE Skins -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">  <!-- AdminLTE Skins -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
+  <!-- Résultats Scolaires Styles -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/resultats-scolaires.css">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -271,194 +272,289 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
     <!-- Main content -->
     <section class="content">
-      <!-- Info boxes -->
-      <div class="row">
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-aqua"><i class="fa fa-users"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Élèves Évalués</span>
-              <span class="info-box-number"><?php echo $stats['total_eleves_notes']; ?></span>
-            </div>
+      <!-- En-tête moderne -->
+      <div class="results-header">
+        <div class="header-content">
+          <h1>Résultats Scolaires</h1>
+          <p>Analyse complète des performances académiques</p>
+        </div>
+        <div class="header-actions">
+          <button class="action-btn primary" onclick="exportResults()">
+            <i class="fa fa-download"></i>
+            Exporter PDF
+          </button>
+          <button class="action-btn secondary" onclick="printResults()">
+            <i class="fa fa-print"></i>
+            Imprimer
+          </button>
+          <button class="action-btn success" onclick="generateReport()">
+            <i class="fa fa-chart-line"></i>
+            Générer Rapport
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistiques principales -->
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">
+            <i class="fa fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['total_eleves_notes']; ?></div>
+            <div class="stat-label">Élèves Évalués</div>
+          </div>
+          <div class="stat-progress">
+            <div class="progress-bar" style="width: 85%"></div>
+            <span class="progress-text">85% des élèves</span>
+          </div>
+        </div>
+
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <i class="fa fa-file-text"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['total_notes']; ?></div>
+            <div class="stat-label">Total Notes</div>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fa fa-arrow-up"></i>
+            <span>+15%</span>
+          </div>
+        </div>
+
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <i class="fa fa-star"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo number_format($stats['moyenne_generale'], 2); ?>/20</div>
+            <div class="stat-label">Moyenne Générale</div>
+          </div>
+          <div class="stat-indicator <?php echo $stats['moyenne_generale'] >= 12 ? 'good' : ($stats['moyenne_generale'] >= 10 ? 'average' : 'poor'); ?>">
+            <?php echo $stats['moyenne_generale'] >= 12 ? 'Excellent' : ($stats['moyenne_generale'] >= 10 ? 'Correct' : 'À améliorer'); ?>
+          </div>
+        </div>
+
+        <div class="stat-card info">
+          <div class="stat-icon">
+            <i class="fa fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo number_format($stats['taux_reussite'], 1); ?>%</div>
+            <div class="stat-label">Taux de Réussite</div>
+          </div>
+          <div class="stat-circle">
+            <svg class="progress-ring" width="60" height="60">
+              <circle class="progress-ring-circle" 
+                      cx="30" cy="30" r="25" 
+                      style="stroke-dasharray: <?php echo 2 * 3.14159 * 25; ?>; stroke-dashoffset: <?php echo 2 * 3.14159 * 25 * (1 - $stats['taux_reussite']/100); ?>;">
+              </circle>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtres et recherche -->
+      <div class="filters-container">
+        <div class="search-box">
+          <input type="text" id="searchResults" placeholder="Rechercher un élève...">
+          <i class="fa fa-search"></i>
+        </div>
+        <div class="filter-selects">
+          <select class="filter-select" id="filterClasse">
+            <option value="">Toutes les classes</option>
+            <option value="6eme">6ème</option>
+            <option value="5eme">5ème</option>
+            <option value="4eme">4ème</option>
+            <option value="3eme">3ème</option>
+            <option value="2nde">2nde</option>
+            <option value="1ere">1ère</option>
+            <option value="Tale">Terminale</option>
+          </select>
+          <select class="filter-select" id="filterNote">
+            <option value="">Toutes les notes</option>
+            <option value="excellent">Excellent (≥16)</option>
+            <option value="bon">Bon (14-15.99)</option>
+            <option value="correct">Correct (12-13.99)</option>
+            <option value="passable">Passable (10-11.99)</option>
+            <option value="insuffisant">Insuffisant (<10)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Top des élèves -->
+      <div class="top-students">
+        <div class="section-header">
+          <h2><i class="fa fa-trophy"></i> Top 10 des Meilleurs Élèves</h2>
+          <div class="section-actions">
+            <button class="view-btn active" data-view="grid">
+              <i class="fa fa-th"></i>
+            </button>
+            <button class="view-btn" data-view="list">
+              <i class="fa fa-list"></i>
+            </button>
           </div>
         </div>
         
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-green"><i class="fa fa-file-text"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Total Notes</span>
-              <span class="info-box-number"><?php echo $stats['total_notes']; ?></span>
+        <div class="students-grid">
+          <?php foreach ($classement as $index => $eleve): ?>
+          <div class="student-card rank-<?php echo $index + 1; ?>">
+            <div class="rank-badge">
+              <?php if ($index == 0): ?>
+                <i class="fa fa-crown gold"></i>
+              <?php elseif ($index == 1): ?>
+                <i class="fa fa-medal silver"></i>
+              <?php elseif ($index == 2): ?>
+                <i class="fa fa-medal bronze"></i>
+              <?php else: ?>
+                <span class="rank-number"><?php echo $index + 1; ?></span>
+              <?php endif; ?>
             </div>
+            
+            <div class="student-avatar">
+              <img src="<?php echo BASE_URL; ?>assets/images/avatars/student-default.png" alt="Avatar">
+            </div>
+            
+            <div class="student-info">
+              <h3><?php echo htmlspecialchars($eleve['prenom'] . ' ' . $eleve['nom']); ?></h3>
+              <p class="student-class"><?php echo htmlspecialchars($eleve['classe_nom']); ?></p>
+              <p class="student-matricule"><?php echo htmlspecialchars($eleve['matricule']); ?></p>
+            </div>
+            
+            <div class="student-score">
+              <div class="score-circle <?php echo $eleve['moyenne'] >= 16 ? 'excellent' : ($eleve['moyenne'] >= 14 ? 'bon' : ($eleve['moyenne'] >= 12 ? 'correct' : ($eleve['moyenne'] >= 10 ? 'passable' : 'insuffisant'))); ?>">
+                <?php echo number_format($eleve['moyenne'], 2); ?>
+              </div>
+              <span class="score-label">/ 20</span>
+            </div>
+            
+            <div class="student-stats">
+              <span class="stat-item">
+                <i class="fa fa-file-text"></i>
+                <?php echo $eleve['nb_notes']; ?> notes
+              </span>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <!-- Tableau des résultats détaillés -->
+      <div class="results-table-container">
+        <div class="table-header">
+          <h2><i class="fa fa-table"></i> Résultats Détaillés</h2>
+          <div class="table-actions">
+            <button class="action-btn-small" onclick="expandAllRows()">
+              <i class="fa fa-expand"></i>
+              Tout Développer
+            </button>
+            <button class="action-btn-small" onclick="collapseAllRows()">
+              <i class="fa fa-compress"></i>
+              Tout Réduire
+            </button>
           </div>
         </div>
         
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-yellow"><i class="fa fa-star"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Moyenne Générale</span>
-              <span class="info-box-number"><?php echo number_format($stats['moyenne_generale'], 2); ?>/20</span>
+        <div class="table-responsive">
+          <table class="results-table" id="resultsTable">
+            <thead>
+              <tr>
+                <th><i class="fa fa-user"></i> Élève</th>
+                <th><i class="fa fa-university"></i> Classe</th>
+                <th><i class="fa fa-book"></i> Matière</th>
+                <th><i class="fa fa-calendar"></i> Date Examen</th>
+                <th><i class="fa fa-edit"></i> Type</th>
+                <th><i class="fa fa-star"></i> Note</th>
+                <th><i class="fa fa-comment"></i> Appréciation</th>
+                <th><i class="fa fa-chart-line"></i> Moyenne Matière</th>
+                <th><i class="fa fa-trophy"></i> Moyenne Générale</th>
+                <th><i class="fa fa-cogs"></i> Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($resultats as $resultat): ?>
+              <tr class="result-row">
+                <td class="student-cell">
+                  <div class="student-info-mini">
+                    <strong><?php echo htmlspecialchars($resultat['prenom'] . ' ' . $resultat['nom']); ?></strong>
+                    <small><?php echo htmlspecialchars($resultat['matricule']); ?></small>
+                  </div>
+                </td>
+                <td>
+                  <span class="class-badge">
+                    <?php echo htmlspecialchars($resultat['classe_nom']); ?>
+                  </span>
+                </td>
+                <td><?php echo htmlspecialchars($resultat['matiere_nom']); ?></td>
+                <td><?php echo date('d/m/Y', strtotime($resultat['date_examen'])); ?></td>
+                <td>
+                  <span class="exam-type-badge <?php echo strtolower($resultat['type_examen']); ?>">
+                    <?php echo htmlspecialchars($resultat['type_examen']); ?>
+                  </span>
+                </td>
+                <td>
+                  <div class="note-display <?php echo $resultat['note'] >= 16 ? 'excellent' : ($resultat['note'] >= 14 ? 'bon' : ($resultat['note'] >= 12 ? 'correct' : ($resultat['note'] >= 10 ? 'passable' : 'insuffisant'))); ?>">
+                    <?php echo number_format($resultat['note'], 2); ?>/20
+                  </div>
+                </td>
+                <td>
+                  <span class="appreciation">
+                    <?php echo htmlspecialchars($resultat['appreciation'] ?: 'Aucune'); ?>
+                  </span>
+                </td>
+                <td>
+                  <div class="average-display">
+                    <?php echo number_format($resultat['moyenne_matiere'], 2); ?>/20
+                  </div>
+                </td>
+                <td>
+                  <div class="general-average <?php echo $resultat['moyenne_generale'] >= 12 ? 'good' : ($resultat['moyenne_generale'] >= 10 ? 'average' : 'poor'); ?>">
+                    <?php echo number_format($resultat['moyenne_generale'], 2); ?>/20
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn-mini primary" onclick="viewStudentDetails('<?php echo $resultat['matricule']; ?>')">
+                      <i class="fa fa-eye"></i>
+                    </button>
+                    <button class="action-btn-mini warning" onclick="editNote(<?php echo $resultat['note']; ?>)">
+                      <i class="fa fa-edit"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Graphiques d'analyse -->
+      <div class="charts-section">
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3><i class="fa fa-bar-chart"></i> Distribution des Notes</h3>
+            </div>
+            <div class="chart-body">
+              <canvas id="notesDistributionChart"></canvas>
             </div>
           </div>
-        </div>
-        
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-<?php echo $stats['taux_reussite'] >= 70 ? 'green' : ($stats['taux_reussite'] >= 50 ? 'yellow' : 'red'); ?>">
-              <i class="fa fa-trophy"></i>
-            </span>
-            <div class="info-box-content">
-              <span class="info-box-text">Taux de Réussite</span>
-              <span class="info-box-number"><?php echo number_format($stats['taux_reussite'], 1); ?>%</span>
+          
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3><i class="fa fa-line-chart"></i> Évolution des Moyennes</h3>
+            </div>
+            <div class="chart-body">
+              <canvas id="averageEvolutionChart"></canvas>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Main row -->
-      <div class="row">
-        <!-- Tableau des résultats -->
-        <div class="col-md-8">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Détail des Résultats</h3>
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-primary btn-sm">
-                  <i class="fa fa-print"></i> Imprimer Bulletin
-                </button>
-                <button type="button" class="btn btn-success btn-sm">
-                  <i class="fa fa-download"></i> Exporter Excel
-                </button>
-              </div>
-            </div>
-            <div class="box-body">
-              <table id="resultatsTable" class="table table-bordered table-striped">
-                <thead>
-                  <tr>
-                    <th>Élève</th>
-                    <th>Classe</th>
-                    <th>Matière</th>
-                    <th>Type Examen</th>
-                    <th>Date</th>
-                    <th>Note</th>
-                    <th>Appréciation</th>
-                    <th>Moy. Matière</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($resultats as $resultat): ?>
-                  <tr>
-                    <td>
-                      <strong><?php echo htmlspecialchars($resultat['nom'] . ' ' . $resultat['prenom']); ?></strong>
-                      <br><small class="text-muted"><?php echo htmlspecialchars($resultat['matricule']); ?></small>
-                    </td>
-                    <td>
-                      <span class="label label-<?php echo $resultat['section'] == 'primaire' ? 'success' : 'info'; ?>">
-                        <?php echo htmlspecialchars($resultat['classe_nom']); ?>
-                      </span>
-                    </td>
-                    <td><?php echo htmlspecialchars($resultat['matiere_nom']); ?></td>
-                    <td>
-                      <span class="label label-default"><?php echo htmlspecialchars($resultat['type_examen']); ?></span>
-                    </td>
-                    <td><?php echo date('d/m/Y', strtotime($resultat['date_examen'])); ?></td>
-                    <td>
-                      <span class="badge bg-<?php echo $resultat['note'] >= 16 ? 'green' : ($resultat['note'] >= 14 ? 'blue' : ($resultat['note'] >= 10 ? 'yellow' : 'red')); ?>">
-                        <?php echo number_format($resultat['note'], 2); ?>/20
-                      </span>
-                    </td>
-                    <td>
-                      <small><?php echo htmlspecialchars($resultat['appreciation'] ?: 'Aucune'); ?></small>
-                    </td>
-                    <td>
-                      <strong><?php echo number_format($resultat['moyenne_matiere'], 2); ?>/20</strong>
-                    </td>
-                  </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Classement des meilleurs -->
-        <div class="col-md-4">
-          <div class="box box-warning">
-            <div class="box-header with-border">
-              <h3 class="box-title">Top 10 - Meilleurs Élèves</h3>
-            </div>
-            <div class="box-body">
-              <div class="table-responsive">
-                <table class="table table-condensed">
-                  <thead>
-                    <tr>
-                      <th>Rang</th>
-                      <th>Élève</th>
-                      <th>Moyenne</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php foreach ($classement as $index => $eleve): ?>
-                    <tr>
-                      <td>
-                        <?php if ($index == 0): ?>
-                          <i class="fa fa-trophy text-yellow"></i> 1er
-                        <?php elseif ($index == 1): ?>
-                          <i class="fa fa-medal text-gray"></i> 2ème
-                        <?php elseif ($index == 2): ?>
-                          <i class="fa fa-medal text-orange"></i> 3ème
-                        <?php else: ?>
-                          <?php echo $index + 1; ?>ème
-                        <?php endif; ?>
-                      </td>
-                      <td>
-                        <strong><?php echo htmlspecialchars($eleve['prenom'] . ' ' . $eleve['nom']); ?></strong>
-                        <br><small class="text-muted"><?php echo htmlspecialchars($eleve['classe_nom']); ?></small>
-                      </td>
-                      <td>
-                        <span class="badge bg-<?php echo $eleve['moyenne'] >= 16 ? 'green' : ($eleve['moyenne'] >= 14 ? 'blue' : 'yellow'); ?>">
-                          <?php echo number_format($eleve['moyenne'], 2); ?>/20
-                        </span>
-                      </td>
-                    </tr>
-                    <?php endforeach; ?>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Statistiques de distribution -->
-          <div class="box box-info">
-            <div class="box-header with-border">
-              <h3 class="box-title">Distribution des Notes</h3>
-            </div>
-            <div class="box-body">
-              <div class="row">
-                <div class="col-xs-6">
-                  <div class="description-block border-right">
-                    <span class="description-percentage text-green">
-                      <i class="fa fa-caret-up"></i> Note Max
-                    </span>
-                    <h5 class="description-header"><?php echo number_format($stats['note_max'], 2); ?>/20</h5>
-                    <span class="description-text">MAXIMUM</span>
-                  </div>
-                </div>
-                <div class="col-xs-6">
-                  <div class="description-block">
-                    <span class="description-percentage text-red">
-                      <i class="fa fa-caret-down"></i> Note Min
-                    </span>
-                    <h5 class="description-header"><?php echo number_format($stats['note_min'], 2); ?>/20</h5>
-                    <span class="description-text">MINIMUM</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- ...existing code... -->
     </section>
   </div>
 

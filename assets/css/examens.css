@@ -1,0 +1,546 @@
+/* Variables CSS pour examens */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2c3e50;
+  --success-color: #27ae60;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --info-color: #17a2b8;
+  --light-color: #ecf0f1;
+  --dark-color: #2c3e50;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  --transition: all 0.3s ease;
+  --grid-gap: 20px;
+  --card-padding: 20px;
+}
+
+/* Layout général */
+.examens-container {
+  padding: 20px 0;
+}
+
+/* Statistiques modernes */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--grid-gap);
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+  border-left: 4px solid var(--primary-color);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-card.bg-primary { border-left-color: var(--primary-color); }
+.stat-card.bg-success { border-left-color: var(--success-color); }
+.stat-card.bg-warning { border-left-color: var(--warning-color); }
+.stat-card.bg-danger { border-left-color: var(--danger-color); }
+.stat-card.bg-info { border-left-color: var(--info-color); }
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  font-size: 24px;
+  color: white;
+}
+
+.stat-card.bg-primary .stat-icon { background: var(--primary-color); }
+.stat-card.bg-success .stat-icon { background: var(--success-color); }
+.stat-card.bg-warning .stat-icon { background: var(--warning-color); }
+.stat-card.bg-danger .stat-icon { background: var(--danger-color); }
+.stat-card.bg-info .stat-icon { background: var(--info-color); }
+
+.stat-content h3 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--dark-color);
+}
+
+.stat-content p {
+  margin: 5px 0 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Actions et filtres */
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.filters-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-group label {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.filter-select,
+.search-input {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  transition: var(--transition);
+  min-width: 150px;
+}
+
+.filter-select:focus,
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Grille des examens */
+.examens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--grid-gap);
+  animation: fadeInUp 0.6s ease;
+}
+
+.examen-card {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  transition: var(--transition);
+  border-left: 4px solid var(--primary-color);
+  animation: slideInUp 0.6s ease;
+  animation-fill-mode: both;
+  position: relative;
+}
+
+.examen-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.examen-card.status-futur { border-left-color: var(--info-color); }
+.examen-card.status-passe { border-left-color: var(--success-color); }
+.examen-card.status-aujourd-hui { border-left-color: var(--warning-color); }
+
+.examen-header {
+  padding: 20px 20px 15px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.examen-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dark-color);
+  line-height: 1.3;
+}
+
+.examen-matiere {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(52, 152, 219, 0.1);
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.examen-status {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-futur {
+  background: rgba(23, 162, 184, 0.1);
+  color: var(--info-color);
+}
+
+.status-passe {
+  background: rgba(39, 174, 96, 0.1);
+  color: var(--success-color);
+}
+
+.status-aujourd-hui {
+  background: rgba(243, 156, 18, 0.1);
+  color: var(--warning-color);
+}
+
+.examen-content {
+  padding: var(--card-padding);
+}
+
+.examen-date {
+  background: linear-gradient(45deg, var(--primary-color), #3742fa);
+  color: white;
+  padding: 12px;
+  border-radius: var(--border-radius);
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.examen-date .date-main {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.examen-date .date-time {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+.examen-details {
+  display: grid;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.detail-item i {
+  width: 16px;
+  color: var(--primary-color);
+}
+
+.detail-label {
+  font-weight: 500;
+  color: var(--dark-color);
+  min-width: 80px;
+}
+
+.detail-value {
+  color: #666;
+  flex: 1;
+}
+
+.examen-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.metric {
+  text-align: center;
+}
+
+.metric-value {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.metric-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.examen-actions {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-view {
+  background: var(--info-color);
+  color: white;
+}
+
+.btn-edit {
+  background: var(--warning-color);
+  color: white;
+}
+
+.btn-notes {
+  background: var(--success-color);
+  color: white;
+}
+
+.btn-delete {
+  background: var(--danger-color);
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  text-decoration: none;
+  color: white;
+}
+
+/* État vide */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  grid-column: 1 / -1;
+}
+
+.empty-state i {
+  font-size: 64px;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  margin: 20px 0 10px 0;
+  color: var(--dark-color);
+}
+
+/* Badges spéciaux */
+.coefficient-badge {
+  background: linear-gradient(45deg, var(--warning-color), #ff9f43);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.duree-badge {
+  background: linear-gradient(45deg, var(--info-color), #74b9ff);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Indicateur de moyenne */
+.moyenne-indicator {
+  position: relative;
+  background: #f8f9fa;
+  border-radius: var(--border-radius);
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.moyenne-bar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.moyenne-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.moyenne-fill.excellent { background: var(--success-color); }
+.moyenne-fill.bon { background: var(--info-color); }
+.moyenne-fill.moyen { background: var(--warning-color); }
+.moyenne-fill.faible { background: var(--danger-color); }
+
+.moyenne-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+  text-align: center;
+}
+
+/* Animation de chargement */
+.examen-card.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.examen-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .examens-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filters-container {
+    justify-content: center;
+  }
+  
+  .stat-card {
+    text-align: center;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .stat-icon {
+    margin-right: 0;
+  }
+  
+  .examen-metrics {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+  
+  .metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal styles */
+.modal-content {
+  border-radius: var(--border-radius);
+  border: none;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--primary-color), #3742fa);
+  color: white;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: var(--dark-color);
+  margin-bottom: 5px;
+}
+
+.form-control {
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  padding: 10px 12px;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Bouton d'action principal */
+.add-exam-btn {
+  background: var(--success-color);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-exam-btn:hover {
+  background: #229954;
+  transform: translateY(-1px);
+  color: white;
+  text-decoration: none;
+}

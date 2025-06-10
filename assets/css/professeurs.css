@@ -1,0 +1,651 @@
+/* ==========================================
+   FEUILLE DE STYLE - GESTION DES PROFESSEURS
+   Directeur des Études - Système de Gestion Scolaire
+   ========================================== */
+
+/* ===== VARIABLES CSS ===== */
+:root {
+  --primary-color: #3c8dbc;
+  --primary-light: #5dade2;
+  --primary-dark: #2874a6;
+  --secondary-color: #605ca8;
+  --secondary-light: #7b68ee;
+  --success-color: #00a65a;
+  --warning-color: #f39c12;
+  --danger-color: #dd4b39;
+  --info-color: #00c0ef;
+  --light-gray: #f4f4f4;
+  --border-color: #ddd;
+  --text-muted: #777;
+  --white: #ffffff;
+  --shadow: 0 2px 10px rgba(0,0,0,0.1);
+  --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+/* ===== STYLES GÉNÉRAUX ===== */
+.professeurs-container {
+  padding: 20px;
+}
+
+.page-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--white);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 2.5em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.page-header p {
+  margin: 10px 0 0;
+  opacity: 0.9;
+  font-size: 1.2em;
+}
+
+/* ===== CARTES DE STATISTIQUES ===== */
+.stats-row {
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  border-top: 4px solid var(--primary-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.stat-card:hover::before {
+  left: 100%;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.stat-icon {
+  font-size: 3em;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+.stat-number {
+  font-size: 2.5em;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 1px;
+}
+
+/* ===== BOUTONS D'ACTION ===== */
+.action-buttons {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.modern-btn {
+  display: inline-block;
+  padding: 12px 25px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+  font-size: 1em;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+
+.modern-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-primary-modern {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(60, 141, 188, 0.3);
+}
+
+.btn-primary-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(60, 141, 188, 0.4);
+  color: var(--white);
+  text-decoration: none;
+}
+
+.btn-success-modern {
+  background: linear-gradient(135deg, var(--success-color), #00d68f);
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(0, 166, 90, 0.3);
+}
+
+.btn-success-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 166, 90, 0.4);
+  color: var(--white);
+  text-decoration: none;
+}
+
+/* ===== GRILLE DES PROFESSEURS ===== */
+.professeurs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.professeur-card {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  border-left: 5px solid var(--primary-color);
+}
+
+.professeur-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  border-radius: 0 0 0 100px;
+  opacity: 0.1;
+}
+
+.professeur-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-left-color: var(--secondary-color);
+}
+
+.professeur-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.professeur-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-right: 15px;
+  border: 3px solid var(--white);
+  box-shadow: var(--shadow);
+}
+
+.professeur-info h3 {
+  margin: 0 0 5px;
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 1.3em;
+}
+
+.professeur-info .specialite {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  margin-bottom: 5px;
+}
+
+.professeur-info .email {
+  color: var(--info-color);
+  font-size: 0.85em;
+}
+
+.professeur-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 15px;
+  background: var(--light-gray);
+  border-radius: var(--border-radius);
+}
+
+.stat-item-number {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.stat-item-label {
+  font-size: 0.9em;
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
+.professeur-subjects {
+  margin-bottom: 20px;
+}
+
+.subjects-title {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-bottom: 10px;
+}
+
+.subject-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.subject-tag {
+  background: linear-gradient(135deg, var(--secondary-color), var(--secondary-light));
+  color: var(--white);
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.professeur-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.professeur-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-info-prof {
+  background: linear-gradient(135deg, var(--info-color), #17a2b8);
+  color: var(--white);
+}
+
+.btn-warning-prof {
+  background: linear-gradient(135deg, var(--warning-color), #ffc107);
+  color: var(--white);
+}
+
+.btn-danger-prof {
+  background: linear-gradient(135deg, var(--danger-color), #dc3545);
+  color: var(--white);
+}
+
+.professeur-btn:hover {
+  transform: scale(1.05);
+  text-decoration: none;
+  color: var(--white);
+}
+
+/* ===== FILTRES ET RECHERCHE ===== */
+.filters-container {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: var(--shadow);
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  align-items: end;
+}
+
+.form-group-modern {
+  margin-bottom: 15px;
+}
+
+.form-label-modern {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  font-size: 1em;
+}
+
+.form-control-modern {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1em;
+  transition: var(--transition);
+  background: var(--white);
+}
+
+.form-control-modern:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(60, 141, 188, 0.1);
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-input {
+  padding-right: 45px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1.2em;
+}
+
+/* ===== TABLEAU MODERNE (OPTIONNEL) ===== */
+.modern-table-container {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.modern-table th {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--white);
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  border: none;
+  position: relative;
+}
+
+.modern-table th:first-child {
+  border-radius: var(--border-radius) 0 0 0;
+}
+
+.modern-table th:last-child {
+  border-radius: 0 var(--border-radius) 0 0;
+}
+
+.modern-table td {
+  padding: 15px 12px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--white);
+  transition: var(--transition);
+}
+
+.modern-table tr:hover td {
+  background: #f8fafc;
+}
+
+.modern-table tr:last-child td:first-child {
+  border-radius: 0 0 0 var(--border-radius);
+}
+
+.modern-table tr:last-child td:last-child {
+  border-radius: 0 0 var(--border-radius) 0;
+}
+
+/* ===== ÉTAT VIDE ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.empty-state-title {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.empty-state-description {
+  font-size: 1.1em;
+  margin-bottom: 25px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .professeurs-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .filters-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .professeur-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .professeur-actions {
+    flex-wrap: wrap;
+  }
+  
+  .page-header h1 {
+    font-size: 2em;
+  }
+  
+  .modern-btn {
+    display: block;
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .professeurs-container {
+    padding: 15px;
+  }
+  
+  .page-header {
+    padding: 20px;
+  }
+  
+  .professeur-card {
+    padding: 20px;
+  }
+  
+  .professeur-stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .stat-card {
+    padding: 20px;
+  }
+}
+
+/* ===== STYLES D'IMPRESSION ===== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .professeur-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+  }
+  
+  .page-header {
+    background: none !important;
+    color: var(--primary-dark) !important;
+    box-shadow: none;
+  }
+}
+
+/* ===== BADGES ET STATUTS ===== */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-actif {
+  background: linear-gradient(135deg, var(--success-color), #00d68f);
+  color: var(--white);
+}
+
+.status-inactif {
+  background: linear-gradient(135deg, var(--danger-color), #dc3545);
+  color: var(--white);
+}
+
+.status-conge {
+  background: linear-gradient(135deg, var(--warning-color), #ffc107);
+  color: var(--white);
+}
+
+/* ===== DÉTAILS PROFESSEUR ===== */
+.professeur-detail-card {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  padding: 30px;
+  box-shadow: var(--shadow);
+  margin-bottom: 25px;
+}
+
+.detail-section {
+  margin-bottom: 25px;
+}
+
+.detail-title {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  color: var(--primary-dark);
+  font-size: 1.1em;
+}

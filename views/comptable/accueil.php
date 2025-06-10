@@ -127,277 +127,63 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>St Sophie | Tableau de bord</title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="bower_components/Ionicons/css/ionicons.min.css">
-  <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
-  <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
-  <link rel="stylesheet" href="bower_components/morris.js/morris.css">
-  <link rel="stylesheet" href="bower_components/jvectormap/jquery-jvectormap.css">
-  <link rel="stylesheet" href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
-  <link rel="stylesheet" href="bower_components/bootstrap-daterangepicker/daterangepicker.css">
-  <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+  
+  <!-- CSS de base AdminLTE -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/Ionicons/css/ionicons.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
+  
+  <!-- CSS modulaires personnalisés -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/variables.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/animations.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/navigation.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/components.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/dashboard-admin.css">
+    <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
+  
+  <!-- CSS additionnels -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/jvectormap/jquery-jvectormap.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap-daterangepicker/daterangepicker.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+  
+  <!-- Polices Google -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    .small-box {
-      border-radius: 10px; /* Ajout de la bordure arrondie */
-    }
-    #dropdown user user-menu{
-      border-radius: 10px;
-    }
-    .small-box .icon {
-      transition: all 0.3s linear;
-    }
-    .small-box:hover .icon {
-      font-size: 70px;
-      transform: translateY(-10px);
-    }
-    .info-box {
-      transition: all 0.2s ease;
-    }
-    .info-box:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    .box {
-      border-radius: 5px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      transition: all 0.3s ease;
-    }
-    .box:hover {
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    .table-hover tbody tr:hover {
-      background-color: rgba(0,0,0,0.03);
-    }
-    .main-header .logo {
-      transition: width 0.3s ease-in-out;
-      background-color: #222d32;
-    }
-    .main-header .navbar {
-      background-color:rgb(69, 176, 209);
-    }
-    .content-wrapper {
-      background-color: #f4f6f9;
-    }
-    .small-box h3 {
-      font-size: 32px;
-      font-weight: 600;
-      /* Ajout de la bordure arrondie ici aussi si vous voulez que l'intérieur suive */
-      /* border-radius: 15px 15px 0 0; */ /* Exemple pour le haut seulement */
-    }
-    .small-box p {
-      font-size: 16px;
-    }
-    .box-title {
-      font-weight: 600;
-    }
-    .user-panel {
-      padding: 15px;
-    }
-    .user-panel .info {
-      padding-left: 10px;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini enable-fixed-layout">
 <div class="wrapper">
 
-  <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=accueil" class="logo">
-      <span class="logo-mini"><b>St</b>S</span>
-      <span class="logo-lg"><b>St Sophie </b> | <?php echo $role; ?></span>
-    </a>
-    <nav class="navbar navbar-static-top">
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Basculer la navigation</span>
-      </a>
+  <?php include 'navbar.php'; ?>
 
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <li class="dropdown notifications-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <i class="fa fa-bell-o"></i>
-              <span class="label label-warning">3</span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="header">Vous avez 3 notifications</li>
-              <li>
-                <ul class="menu">
-                  <li>
-                    <a href="#">
-                      <i class="fa fa-users text-aqua"></i> 5 nouveaux élèves inscrits aujourd'hui
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i class="fa fa-warning text-yellow"></i> Rappel: échéance de paiement
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i class="fa fa-calendar text-red"></i> Événement à venir
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <li class="footer"><a href="#">Voir tout</a></li>
-            </ul>
-          </li>
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
-              <span class="hidden-xs"><?php echo $username; ?></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="user-header">
-                <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-                <p>
-                  <?php echo $username; ?> - <?php echo $role; ?>
-                  <small>Membre depuis <?php echo date('M. Y'); ?></small>
-                </p>
-              </li>
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=profil" class="btn btn-default btn-flat">Profil</a>
-                </div>
-                <div class="pull-right">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-  
-  <aside class="main-sidebar">
-    <section class="sidebar">
-      <div class="user-panel">
-        <div class="pull-left image">
-          <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-        </div>
-        <div class="pull-left info">
-          <p><?php echo $username; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
-        </div>
-      </div>
-      
-      <form action="#" method="get" class="sidebar-form">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Rechercher...">
-          <span class="input-group-btn">
-            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
-          </span>
-        </div>
-      </form>
-      
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">NAVIGATION PRINCIPALE</li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
-            <i class="fa fa-dashboard"></i> <span>Accueil</span>
-          </a>
-        </li>
-        <li>
-           
-           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
-             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
-           </a>
-         </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-users"></i> <span>Élèves</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
-            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
-            <i class="fa fa-pencil"></i> <span>Inscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement">
-            <i class="fa fa-money"></i> <span>Paiement frais</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file-text"></i> <span>Rapports</span>
-          </a>
-        </li>
-      </ul>
-    </section>
-  </aside>
+  <?php include 'sidebar.php'; ?>
 
   <div class="content-wrapper">
-    <section class="content-header">
-      <h1>
+    <section class="content-header animate-slideInFromTop">
+      <h1 class="animate-fadeInUp">
+        <i class="fa fa-dashboard animate-pulse"></i>
         Tableau de bord
-        <small>Panneau de contrôle</small>
+        <small class="animate-slideInRight">Panneau de contrôle</small>
       </h1>
-      <ol class="breadcrumb">
+      <ol class="breadcrumb animate-slideInRight">
         <li><a href="#"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Tableau de bord</li>
       </ol>
 
       <?php if (isset($showWelcomeMessage) && $showWelcomeMessage): ?>
-      <style>
-        #welcomeAlert {
-          width: 50%;
-          margin-left: 0;
-          margin-right: auto;
-          border-left: 5px solid #00a65a;
-          background-color: #f8f9fa;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          margin-bottom: 20px;
-          animation: slideIn 0.5s ease-out;
-        }
-        
-        #welcomeAlert h4 {
-          color: #00a65a;
-          margin-top: 0;
-        }
-        
-        @keyframes slideIn {
-          from {
-            transform: translateX(-20px);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-      </style>
-      <div class="alert alert-success alert-dismissible" id="welcomeAlert">
+      <div class="alert alert-success alert-dismissible animate-zoomIn" id="welcomeAlert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-check"></i> Bienvenue !</h4>
+        <h4><i class="icon fa fa-check animate-bounce"></i> Bienvenue !</h4>
         <strong><?php echo htmlspecialchars($username); ?> !</strong> Vous êtes maintenant connecté en tant que <?php echo htmlspecialchars($role); ?>.
       </div>
       <script>
         // Faire disparaître l'alerte après 10 secondes
         setTimeout(function() {
           $('#welcomeAlert').fadeOut('slow');
-        }, 10000); // 10000 ms = 10 secondes
+        }, 10000);
       </script>
       <?php endif; ?>
     </section>
@@ -406,13 +192,13 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
       <!-- Année scolaire actuelle -->
       <div class="row">
         <div class="col-lg-12 col-xs-12">
-          <div class="small-box bg-purple">
+          <div class="small-box bg-purple animate-slideInLeft">
             <div class="inner">
               <h3>Année Scolaire <?php echo $current_session; ?></h3>
               <p>Session Actuelle</p>
             </div>
             <div class="icon">
-              <i class="fa fa-calendar"></i>
+              <i class="fa fa-calendar animate-float"></i>
             </div>
             <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=sessions_scolaires" class="small-box-footer">Plus d'informations <i class="fa fa-arrow-circle-right"></i></a>
           </div>
@@ -422,80 +208,78 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
       <!-- Statistiques -->
       <div class="row">
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
+          <div class="small-box bg-aqua animate-slideInLeft" style="animation-delay: 0.1s;">
             <div class="inner">
               <h3><?php echo $total_eleves_total; ?></h3>
               <p>Élèves inscrits</p>
             </div>
             <div class="icon">
-              <i class="ion ion-person-add"></i>
+              <i class="ion ion-person-add animate-pulse"></i>
             </div>
-            <a href="#" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
 
-
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
+          <div class="small-box bg-aqua animate-slideInLeft" style="animation-delay: 0.2s;">
             <div class="inner">
               <h3><?php echo $total_eleves_reinscris; ?></h3>
-              <p>Élèves reinscrits</p>
+              <p>Élèves réinscrits</p>
             </div>
             <div class="icon">
-              <i class="ion ion-person-add"></i>
+              <i class="ion ion-person-add animate-bounce"></i>
             </div>
             <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
         
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-green">
+          <div class="small-box bg-green animate-slideInLeft" style="animation-delay: 0.3s;">
             <div class="inner">
               <h3><?php echo $total_eleves; ?></h3>
               <p>Élèves total</p>
             </div>
             <div class="icon">
-              <i class="fa fa-group"></i>
+              <i class="fa fa-group animate-float"></i>
             </div>
             <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris" class="small-box-footer">Voir plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
       
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-purple">
+          <div class="small-box bg-purple animate-slideInLeft" style="animation-delay: 0.4s;">
             <div class="inner">
               <h3><?php echo $eleves_payes; ?></h3>
               <p>Élèves ayant payé</p>
             </div>
             <div class="icon">
-              <i class="fa fa-check"></i>
+              <i class="fa fa-check animate-glow"></i>
             </div>
             <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements" class="small-box-footer">Voir Plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
-     
-      
-      
+        
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-red">
+          <div class="small-box bg-red animate-slideInLeft" style="animation-delay: 0.5s;">
             <div class="inner">
-              <h3><?php echo $total_frais; ?></h3>
+              <h3><?php echo number_format($total_frais, 0, ',', ' '); ?> €</h3>
               <p>Frais de paiement</p>
             </div>
             <div class="icon">
-              <i class="fa fa-dollar"></i>
+              <i class="fa fa-dollar animate-pulse"></i>
             </div>
-            <a href="#" class="small-box-footer">Voir Plus <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement" class="small-box-footer">Voir Plus <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
-        
-        
       </div>
 
       <!-- Graphique des activités du système -->
-      <div class="box box-success">
+      <div class="box box-success animate-zoomIn">
         <div class="box-header with-border">
-          <h3 class="box-title">Statistiques des Activités du Système</h3>
+          <h3 class="box-title">
+            <i class="fa fa-line-chart animate-float"></i>
+            Statistiques des Activités du Système
+          </h3>
           <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
             <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
@@ -510,11 +294,11 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
     </section>
   </div>
 
-  <footer class="main-footer">
+  <footer class="main-footer animate-slideInFromTop">
     <div class="pull-right hidden-xs">
       <b>Version</b> 1.0.0
     </div>
-    <strong>Copyright &copy; <?php echo date('Y'); ?> <a href="#">St Sofie</a>.</strong> Tous droits réservés.
+    <strong>Copyright &copy; <?php echo date('Y'); ?> <a href="#" class="gradient-text">St Sophie</a>.</strong> Tous droits réservés.
   </footer>
 </div>
 
@@ -533,7 +317,14 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
 
 <script>
 $(function () {
-  // Graphique des activités
+  // Initialisation des animations
+  setTimeout(() => {
+    $('.animate-slideInLeft, .animate-slideInRight, .animate-fadeInUp').each(function(index) {
+      $(this).css('animation-delay', (index * 0.1) + 's');
+    });
+  }, 100);
+
+  // Graphique des activités avec design amélioré
   var ctx = document.getElementById('activityChart').getContext('2d');
   var activityChart = new Chart(ctx, {
     type: 'line',
@@ -542,31 +333,90 @@ $(function () {
       datasets: [{
         label: 'Statistiques du système',
         data: [<?php echo $add_count; ?>, <?php echo $edit_count; ?>, <?php echo $delete_count; ?>, <?php echo $login_count; ?>, <?php echo $logout_count; ?>, <?php echo $payment_count; ?>],
-        backgroundColor: 'rgba(60, 141, 188, 0.2)',
-        borderColor: '#3c8dbc',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        borderColor: '#6366f1',
         borderWidth: 3,
-        pointRadius: 5,
-        pointBackgroundColor: '#3c8dbc',
+        pointRadius: 6,
+        pointBackgroundColor: '#6366f1',
         pointBorderColor: '#fff',
+        pointBorderWidth: 2,
         pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: '#3c8dbc',
-        tension: 0.3
+        pointHoverBorderColor: '#6366f1',
+        pointHoverRadius: 8,
+        tension: 0.4,
+        fill: true
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: true,
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            padding: 20,
+            font: {
+              family: 'Inter',
+              size: 14,
+              weight: '500'
+            }
           }
-        }]
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.1)',
+            borderDash: [5, 5]
+          },
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 12
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            font: {
+              family: 'Inter',
+              size: 12
+            }
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      animation: {
+        duration: 2000,
+        easing: 'easeInOutQuart'
       }
     }
   });
+
+  // Animation des small-boxes au survol
+  $('.small-box').hover(
+    function() {
+      $(this).addClass('animate-pulse');
+    },
+    function() {
+      $(this).removeClass('animate-pulse');
+    }
+  );
+
+  // Animation des icônes
+  $('.small-box .icon i').addClass('animate-float');
 });
 </script>
+
 <!-- Modal pour changer la photo de profil -->
 <div class="modal fade" id="changePhotoModal" tabindex="-1" role="dialog" aria-labelledby="changePhotoModalLabel">
   <div class="modal-dialog" role="document">

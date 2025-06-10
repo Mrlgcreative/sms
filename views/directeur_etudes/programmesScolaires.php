@@ -66,9 +66,10 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
   <!-- DataTables -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
-  <!-- AdminLTE Skins -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">  <!-- AdminLTE Skins -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
+  <!-- Programmes Scolaires Styles -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/programmes-scolaires.css">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -229,244 +230,428 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
     <!-- Main content -->
     <section class="content">
-      <!-- Info boxes -->
-      <div class="row">
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-aqua"><i class="fa fa-book"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Total Programmes</span>
-              <span class="info-box-number"><?php echo $stats['total_programmes']; ?></span>
-            </div>
+      <!-- En-tête moderne -->
+      <div class="programs-header">
+        <div class="header-content">
+          <h1>Programmes Scolaires</h1>
+          <p>Gestion complète des curricula et matières d'enseignement</p>
+        </div>
+        <div class="header-actions">
+          <button class="action-btn primary" data-toggle="modal" data-target="#nouveauProgrammeModal">
+            <i class="fa fa-plus"></i>
+            Nouveau Programme
+          </button>
+          <button class="action-btn secondary" onclick="importPrograms()">
+            <i class="fa fa-upload"></i>
+            Importer
+          </button>
+          <button class="action-btn info" onclick="exportPrograms()">
+            <i class="fa fa-download"></i>
+            Exporter
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">
+            <i class="fa fa-book"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['total_programmes']; ?></div>
+            <div class="stat-label">Total Programmes</div>
+          </div>
+          <div class="stat-indicator active">
+            <span>Actifs</span>
           </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-green"><i class="fa fa-graduation-cap"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Primaire</span>
-              <span class="info-box-number"><?php echo $stats['programmes_primaire']; ?></span>
-            </div>
+
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <i class="fa fa-child"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['programmes_primaire']; ?></div>
+            <div class="stat-label">Primaire</div>
+          </div>
+          <div class="stat-progress">
+            <div class="progress-bar" style="width: <?php echo $stats['total_programmes'] > 0 ? ($stats['programmes_primaire']/$stats['total_programmes'])*100 : 0; ?>%"></div>
           </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-yellow"><i class="fa fa-university"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Secondaire</span>
-              <span class="info-box-number"><?php echo $stats['programmes_secondaire']; ?></span>
-            </div>
+
+        <div class="stat-card info">
+          <div class="stat-icon">
+            <i class="fa fa-graduation-cap"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['programmes_secondaire']; ?></div>
+            <div class="stat-label">Secondaire</div>
+          </div>
+          <div class="stat-progress">
+            <div class="progress-bar" style="width: <?php echo $stats['total_programmes'] > 0 ? ($stats['programmes_secondaire']/$stats['total_programmes'])*100 : 0; ?>%"></div>
           </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-red"><i class="fa fa-clock-o"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Total Heures/Semaine</span>
-              <span class="info-box-number"><?php echo $stats['total_heures_semaine']; ?>h</span>
-            </div>
+
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <i class="fa fa-clock-o"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['total_heures_semaine']; ?>h</div>
+            <div class="stat-label">Heures/Semaine</div>
+          </div>
+          <div class="stat-trend stable">
+            <i class="fa fa-minus"></i>
+            <span>Stable</span>
           </div>
         </div>
       </div>
 
-      <!-- Main row -->
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Liste des Programmes Scolaires</h3>
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addProgrammeModal">
-                  <i class="fa fa-plus"></i> Créer un Programme
-                </button>
+      <!-- Filtres et vue -->
+      <div class="filters-container">
+        <div class="search-box">
+          <input type="text" id="searchPrograms" placeholder="Rechercher un programme...">
+          <i class="fa fa-search"></i>
+        </div>
+        <div class="filter-controls">
+          <select class="filter-select" id="filterSection">
+            <option value="">Toutes les sections</option>
+            <option value="primaire">Primaire</option>
+            <option value="secondaire">Secondaire</option>
+          </select>
+          <select class="filter-select" id="filterNiveau">
+            <option value="">Tous les niveaux</option>
+            <option value="CP">CP</option>
+            <option value="CE1">CE1</option>
+            <option value="CE2">CE2</option>
+            <option value="CM1">CM1</option>
+            <option value="CM2">CM2</option>
+            <option value="6eme">6ème</option>
+            <option value="5eme">5ème</option>
+            <option value="4eme">4ème</option>
+            <option value="3eme">3ème</option>
+            <option value="2nde">2nde</option>
+            <option value="1ere">1ère</option>
+            <option value="Tale">Terminale</option>
+          </select>
+        </div>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="cards">
+            <i class="fa fa-th"></i>
+          </button>
+          <button class="view-btn" data-view="table">
+            <i class="fa fa-table"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vue en cartes des programmes -->
+      <div class="programs-grid" id="programsCards">
+        <?php foreach ($programmes as $programme): ?>
+        <div class="program-card" data-section="<?php echo $programme['section']; ?>" data-niveau="<?php echo $programme['classe_nom']; ?>">
+          <div class="card-header">
+            <div class="program-badge <?php echo $programme['section']; ?>">
+              <?php echo ucfirst($programme['section']); ?>
+            </div>
+            <div class="card-actions">
+              <button class="card-action-btn" onclick="editProgram(<?php echo $programme['id']; ?>)">
+                <i class="fa fa-edit"></i>
+              </button>
+              <button class="card-action-btn" onclick="duplicateProgram(<?php echo $programme['id']; ?>)">
+                <i class="fa fa-copy"></i>
+              </button>
+              <button class="card-action-btn danger" onclick="deleteProgram(<?php echo $programme['id']; ?>)">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-content">
+            <h3 class="program-title"><?php echo htmlspecialchars($programme['nom']); ?></h3>
+            <p class="program-class">
+              <i class="fa fa-university"></i>
+              <?php echo htmlspecialchars($programme['classe_nom']); ?>
+            </p>
+            <p class="program-description">
+              <?php echo htmlspecialchars(substr($programme['description'], 0, 100)) . '...'; ?>
+            </p>
+
+            <div class="program-stats">
+              <div class="stat-item">
+                <i class="fa fa-book"></i>
+                <span><?php echo $programme['nb_matieres']; ?> Matières</span>
+              </div>
+              <div class="stat-item">
+                <i class="fa fa-clock-o"></i>
+                <span><?php echo $programme['total_heures']; ?>h/sem</span>
+              </div>
+              <div class="stat-item">
+                <i class="fa fa-star"></i>
+                <span>Coeff. <?php echo number_format($programme['coefficient_moyen'], 1); ?></span>
               </div>
             </div>
-            <div class="box-body">
-              <table id="programmesTable" class="table table-bordered table-striped">
-                <thead>
-                  <tr>
-                    <th>Classe</th>
-                    <th>Section</th>
-                    <th>Année Scolaire</th>
-                    <th>Matières</th>
-                    <th>Total Heures</th>
-                    <th>Coefficient Moyen</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($programmes as $programme): ?>
-                  <tr>
-                    <td>
-                      <strong><?php echo htmlspecialchars($programme['classe_nom']); ?></strong>
-                    </td>
-                    <td>
-                      <span class="label label-<?php echo $programme['section'] == 'primaire' ? 'success' : 'info'; ?>">
-                        <?php echo ucfirst($programme['section']); ?>
-                      </span>
-                    </td>
-                    <td><?php echo htmlspecialchars($programme['annee_scolaire']); ?></td>
-                    <td>
-                      <span class="badge bg-blue"><?php echo $programme['nb_matieres']; ?> matières</span>
-                    </td>
-                    <td>
-                      <strong><?php echo $programme['total_heures']; ?>h</strong>/semaine
-                    </td>
-                    <td>
-                      <?php if ($programme['coefficient_moyen']): ?>
-                        <?php echo number_format($programme['coefficient_moyen'], 1); ?>
-                      <?php else: ?>
-                        <span class="text-muted">N/A</span>
-                      <?php endif; ?>
-                    </td>
-                    <td>
-                      <?php if ($programme['statut'] == 'actif'): ?>
-                        <span class="label label-success">Actif</span>
-                      <?php elseif ($programme['statut'] == 'brouillon'): ?>
-                        <span class="label label-warning">Brouillon</span>
-                      <?php else: ?>
-                        <span class="label label-default">Archivé</span>
-                      <?php endif; ?>
-                    </td>
-                    <td>
-                      <div class="btn-group">
-                        <button type="button" class="btn btn-info btn-xs" title="Voir détails">
-                          <i class="fa fa-eye"></i>
-                        </button>
-                        <button type="button" class="btn btn-primary btn-xs" title="Voir matières">
-                          <i class="fa fa-list"></i>
-                        </button>
-                        <button type="button" class="btn btn-warning btn-xs" title="Modifier">
-                          <i class="fa fa-edit"></i>
-                        </button>
-                        <button type="button" class="btn btn-success btn-xs" title="Dupliquer">
-                          <i class="fa fa-copy"></i>
-                        </button>
-                        <button type="button" class="btn btn-danger btn-xs" title="Supprimer">
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
+          </div>
+
+          <div class="card-footer">
+            <button class="action-btn-small primary" onclick="viewProgramDetails(<?php echo $programme['id']; ?>)">
+              <i class="fa fa-eye"></i>
+              Voir Détails
+            </button>
+            <button class="action-btn-small success" onclick="assignTeachers(<?php echo $programme['id']; ?>)">
+              <i class="fa fa-users"></i>
+              Affecter Profs
+            </button>
+            <div class="program-status <?php echo $programme['statut'] ?? 'actif'; ?>">
+              <i class="fa fa-circle"></i>
+              <?php echo ucfirst($programme['statut'] ?? 'Actif'); ?>
             </div>
           </div>
         </div>
+        <?php endforeach; ?>
       </div>
 
-      <!-- Programme par Section -->
-      <div class="row">
-        <div class="col-md-6">
-          <div class="box box-success">
-            <div class="box-header with-border">
-              <h3 class="box-title">Programmes Primaire</h3>
+      <!-- Vue tableau détaillée -->
+      <div class="programs-table-container" id="programsTable" style="display: none;">
+        <div class="table-header">
+          <h2><i class="fa fa-table"></i> Vue Détaillée des Programmes</h2>
+          <div class="table-actions">
+            <button class="action-btn-small" onclick="exportTableData()">
+              <i class="fa fa-download"></i>
+              Exporter
+            </button>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th><i class="fa fa-book"></i> Programme</th>
+                <th><i class="fa fa-university"></i> Classe</th>
+                <th><i class="fa fa-tag"></i> Section</th>
+                <th><i class="fa fa-list"></i> Matières</th>
+                <th><i class="fa fa-clock-o"></i> Heures/Sem</th>
+                <th><i class="fa fa-star"></i> Coeff. Moy.</th>
+                <th><i class="fa fa-calendar"></i> Année</th>
+                <th><i class="fa fa-circle"></i> Statut</th>
+                <th><i class="fa fa-cogs"></i> Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($programmes as $programme): ?>
+              <tr>
+                <td>
+                  <div class="program-info">
+                    <strong><?php echo htmlspecialchars($programme['nom']); ?></strong>
+                    <small><?php echo htmlspecialchars(substr($programme['description'], 0, 50)) . '...'; ?></small>
+                  </div>
+                </td>
+                <td>
+                  <span class="class-badge">
+                    <?php echo htmlspecialchars($programme['classe_nom']); ?>
+                  </span>
+                </td>
+                <td>
+                  <span class="section-badge <?php echo $programme['section']; ?>">
+                    <?php echo ucfirst($programme['section']); ?>
+                  </span>
+                </td>
+                <td>
+                  <span class="number-badge">
+                    <?php echo $programme['nb_matieres']; ?>
+                  </span>
+                </td>
+                <td>
+                  <span class="hours-display">
+                    <?php echo $programme['total_heures']; ?>h
+                  </span>
+                </td>
+                <td>
+                  <span class="coefficient-display">
+                    <?php echo number_format($programme['coefficient_moyen'], 1); ?>
+                  </span>
+                </td>
+                <td>
+                  <?php echo $programme['annee_scolaire'] ?? '2024-2025'; ?>
+                </td>
+                <td>
+                  <span class="status-badge <?php echo $programme['statut'] ?? 'actif'; ?>">
+                    <?php echo ucfirst($programme['statut'] ?? 'Actif'); ?>
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn-mini primary" onclick="viewProgramDetails(<?php echo $programme['id']; ?>)">
+                      <i class="fa fa-eye"></i>
+                    </button>
+                    <button class="action-btn-mini warning" onclick="editProgram(<?php echo $programme['id']; ?>)">
+                      <i class="fa fa-edit"></i>
+                    </button>
+                    <button class="action-btn-mini info" onclick="duplicateProgram(<?php echo $programme['id']; ?>)">
+                      <i class="fa fa-copy"></i>
+                    </button>
+                    <button class="action-btn-mini danger" onclick="deleteProgram(<?php echo $programme['id']; ?>)">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <div class="quick-actions">
+        <h3>Actions Rapides</h3>
+        <div class="quick-actions-grid">
+          <button class="quick-action-btn" onclick="createStandardProgram('primaire')">
+            <i class="fa fa-child"></i>
+            <span>Programme Type Primaire</span>
+          </button>
+          <button class="quick-action-btn" onclick="createStandardProgram('secondaire')">
+            <i class="fa fa-graduation-cap"></i>
+            <span>Programme Type Secondaire</span>
+          </button>
+          <button class="quick-action-btn" onclick="massAssignTeachers()">
+            <i class="fa fa-users"></i>
+            <span>Affectation en Masse</span>
+          </button>
+          <button class="quick-action-btn" onclick="generateSchedules()">
+            <i class="fa fa-calendar"></i>
+            <span>Générer Emplois du Temps</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modals -->
+      <!-- Modal pour nouveau programme -->
+      <div class="modal fade" id="nouveauProgrammeModal" tabindex="-1" role="dialog" aria-labelledby="nouveauProgrammeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="nouveauProgrammeModalLabel">Créer un Nouveau Programme Scolaire</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-            <div class="box-body">
-              <div class="table-responsive">
-                <table class="table table-condensed">
-                  <thead>
-                    <tr>
-                      <th>Classe</th>
-                      <th>Matières</th>
-                      <th>Heures</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php foreach ($programmes as $programme): ?>
-                      <?php if ($programme['section'] == 'primaire'): ?>
-                      <tr>
-                        <td><?php echo htmlspecialchars($programme['classe_nom']); ?></td>
-                        <td><span class="badge bg-green"><?php echo $programme['nb_matieres']; ?></span></td>
-                        <td><?php echo $programme['total_heures']; ?>h</td>
-                      </tr>
-                      <?php endif; ?>
+            <div class="modal-body">
+              <form id="formNouveauProgramme">
+                <div class="form-group">
+                  <label for="nomProgramme">Nom du Programme</label>
+                  <input type="text" class="form-control" id="nomProgramme" name="nomProgramme" required>
+                </div>
+                <div class="form-group">
+                  <label for="descriptionProgramme">Description</label>
+                  <textarea class="form-control" id="descriptionProgramme" name="descriptionProgramme"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="classeProgramme">Classe</label>
+                  <select class="form-control" id="classeProgramme" name="classeProgramme" required>
+                    <option value="">Sélectionner une classe</option>
+                    <?php foreach ($classes as $classe): ?>
+                    <option value="<?php echo $classe['id']; ?>"><?php echo htmlspecialchars($classe['nom']); ?></option>
                     <?php endforeach; ?>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="box box-info">
-            <div class="box-header with-border">
-              <h3 class="box-title">Programmes Secondaire</h3>
-            </div>
-            <div class="box-body">
-              <div class="table-responsive">
-                <table class="table table-condensed">
-                  <thead>
-                    <tr>
-                      <th>Classe</th>
-                      <th>Matières</th>
-                      <th>Heures</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php foreach ($programmes as $programme): ?>
-                      <?php if ($programme['section'] == 'secondaire'): ?>
-                      <tr>
-                        <td><?php echo htmlspecialchars($programme['classe_nom']); ?></td>
-                        <td><span class="badge bg-blue"><?php echo $programme['nb_matieres']; ?></span></td>
-                        <td><?php echo $programme['total_heures']; ?>h</td>
-                      </tr>
-                      <?php endif; ?>
-                    <?php endforeach; ?>
-                  </tbody>
-                </table>
-              </div>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="sectionProgramme">Section</label>
+                  <select class="form-control" id="sectionProgramme" name="sectionProgramme" required>
+                    <option value="">Sélectionner une section</option>
+                    <option value="primaire">Primaire</option>
+                    <option value="secondaire">Secondaire</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="anneeScolaireProgramme">Année Scolaire</label>
+                  <input type="text" class="form-control" id="anneeScolaireProgramme" name="anneeScolaireProgramme" value="<?php echo date('Y'); ?>-<?php echo date('y', strtotime('+1 year')); ?>" readonly>
+                </div>
+                <div class="form-group">
+                  <label for="statutProgramme">Statut</label>
+                  <select class="form-control" id="statutProgramme" name="statutProgramme" required>
+                    <option value="actif">Actif</option>
+                    <option value="brouillon">Brouillon</option>
+                    <option value="archive">Archivé</option>
+                  </select>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                  <button type="submit" class="btn btn-primary">Créer le Programme</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Modal pour importation de programmes -->
+      <div class="modal fade" id="importProgramsModal" tabindex="-1" role="dialog" aria-labelledby="importProgramsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="importProgramsModalLabel">Importer des Programmes Scolaires</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="formImportPrograms" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label for="fileImportPrograms">Fichier à importer</label>
+                  <input type="file" class="form-control-file" id="fileImportPrograms" name="fileImportPrograms" accept=".csv, .xlsx, .xls" required>
+                </div>
+                <div class="form-group">
+                  <label for="anneeScolaireImport">Année Scolaire</label>
+                  <input type="text" class="form-control" id="anneeScolaireImport" name="anneeScolaireImport" value="<?php echo date('Y'); ?>-<?php echo date('y', strtotime('+1 year')); ?>" readonly>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                  <button type="submit" class="btn btn-primary">Importer les Programmes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal pour exportation de programmes -->
+      <div class="modal fade" id="exportProgramsModal" tabindex="-1" role="dialog" aria-labelledby="exportProgramsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exportProgramsModalLabel">Exporter des Programmes Scolaires</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="formExportPrograms">
+                <div class="form-group">
+                  <label for="formatExport">Format d'exportation</label>
+                  <select class="form-control" id="formatExport" name="formatExport" required>
+                    <option value="csv">CSV</option>
+                    <option value="xlsx">Excel (.xlsx)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="anneeScolaireExport">Année Scolaire</label>
+                  <input type="text" class="form-control" id="anneeScolaireExport" name="anneeScolaireExport" value="<?php echo date('Y'); ?>-<?php echo date('y', strtotime('+1 year')); ?>" readonly>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                  <button type="submit" class="btn btn-primary">Exporter les Programmes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
   </div>
 
   <!-- Main Footer -->
   <footer class="main-footer">
     <div class="pull-right hidden-xs">
-      <b>Version</b> 1.0.0
-    </div>
-    <strong>Copyright &copy; 2024 <a href="#">School Management System</a>.</strong> Tous droits réservés.
-  </footer>
-</div>
-
-<!-- jQuery 3 -->
-<script src="<?php echo BASE_URL; ?>bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- DataTables -->
-<script src="<?php echo BASE_URL; ?>bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-<!-- AdminLTE App -->
-<script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
-
-<script>
-$(function () {
-  $('#programmesTable').DataTable({
-    'paging'      : true,
-    'lengthChange': true,
-    'searching'   : true,
-    'ordering'    : true,
-    'info'        : true,
-    'autoWidth'   : false,
-    'language'    : {
-      'url': '//cdn.datatables.net/plug-ins/1.10.21/i18n/French.json'
-    }
-  });
-});
-</script>
-
-</body>
-</html>
-
-<?php
-$mysqli->close();
-?>

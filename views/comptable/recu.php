@@ -92,6 +92,10 @@
     </style>
 </head>
 <body>
+
+ <?php include 'navbar.php'; ?>
+
+  <?php include 'sidebar.php'; ?>
     <div class="receipt">
         <div class="receipt-header">
             <h1>REÇU DE PAIEMENT</h1>

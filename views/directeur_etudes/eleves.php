@@ -50,30 +50,14 @@ $eleves_total_for_display = count($eleves);
   <!-- Font Awesome -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
   <!-- Ionicons -->
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/Ionicons/css/ionicons.min.css">
-  <!-- DataTables -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/Ionicons/css/ionicons.min.css">  <!-- DataTables -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
   <!-- Google Font -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    @media print {
-      .no-print, .no-print * {
-        display: none !important;
-      }
-      .content-wrapper, .main-footer, .main-header {
-        margin-left: 0 !important;
-        padding-top: 0 !important;
-        -webkit-transform: none !important;
-        transform: none !important;
-      }
-      .box-header .box-title, .content-header h1 {
-        font-size: 18px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">  <!-- CSS externe pour la gestion des élèves -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/eleves.css">
 </head>
 <body class="hold-transition skin-purple sidebar-mini">
 <div class="wrapper">

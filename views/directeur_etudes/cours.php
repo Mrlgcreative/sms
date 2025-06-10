@@ -57,10 +57,11 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directeur des Études';
   <!-- Font Awesome -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
   <!-- DataTables -->
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-  <!-- Theme style -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">  <!-- Theme style -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
+  <!-- Cours CSS -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/cours.css">
 </head>
 <body class="hold-transition skin-purple sidebar-mini">
 <div class="wrapper">
@@ -202,130 +203,135 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directeur des Études';
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Cours</li>
       </ol>
-    </section>
-
-    <section class="content">
-      <!-- Statistiques -->
-      <div class="row">
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
-            <div class="inner">
-              <h3><?php echo $stats['total_cours'] ?? 0; ?></h3>
-              <p>Total Cours</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-book"></i>
-            </div>
+    </section>    <section class="content">
+      <!-- Statistiques modernes -->
+      <div class="stats-container">
+        <div class="stat-card bg-primary">
+          <div class="stat-icon">
+            <i class="fa fa-book"></i>
+          </div>
+          <div class="stat-content">
+            <h3><?php echo $stats['total_cours'] ?? 0; ?></h3>
+            <p>Total Cours</p>
           </div>
         </div>
         
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-green">
-            <div class="inner">
-              <h3><?php echo $stats['cours_primaire'] ?? 0; ?></h3>
-              <p>Cours Primaire</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-child"></i>
-            </div>
+        <div class="stat-card bg-success">
+          <div class="stat-icon">
+            <i class="fa fa-child"></i>
+          </div>
+          <div class="stat-content">
+            <h3><?php echo $stats['cours_primaire'] ?? 0; ?></h3>
+            <p>Cours Primaire</p>
           </div>
         </div>
 
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-yellow">
-            <div class="inner">
-              <h3><?php echo $stats['cours_secondaire'] ?? 0; ?></h3>
-              <p>Cours Secondaire</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-graduation-cap"></i>
-            </div>
+        <div class="stat-card bg-warning">
+          <div class="stat-icon">
+            <i class="fa fa-graduation-cap"></i>
+          </div>
+          <div class="stat-content">
+            <h3><?php echo $stats['cours_secondaire'] ?? 0; ?></h3>
+            <p>Cours Secondaire</p>
           </div>
         </div>
 
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-red">
-            <div class="inner">
-              <h3><?php echo $stats['total_heures'] ?? 0; ?>h</h3>
-              <p>Total Heures/Semaine</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-clock-o"></i>
-            </div>
+        <div class="stat-card bg-danger">
+          <div class="stat-icon">
+            <i class="fa fa-clock-o"></i>
+          </div>
+          <div class="stat-content">
+            <h3><?php echo $stats['total_heures'] ?? 0; ?>h</h3>
+            <p>Total Heures/Semaine</p>
           </div>
         </div>
       </div>
 
-      <!-- Liste des cours -->
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Liste des Cours</h3>
-            </div>
-            <div class="box-body">
-              <div class="table-responsive">
-                <table id="coursTable" class="table table-bordered table-striped">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Titre</th>
-                      <th>Description</th>
-                      <th>Professeur</th>
-                      <th>Classe</th>
-                      <th>Section</th>
-                      <th>Coefficient</th>
-                      <th>Heures/Semaine</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php if (!empty($cours)): ?>
-                      <?php foreach ($cours as $cour): ?>
-                        <tr>
-                          <td><?php echo htmlspecialchars($cour['id']); ?></td>
-                          <td><?php echo htmlspecialchars($cour['titre']); ?></td>
-                          <td><?php echo htmlspecialchars(substr($cour['description'], 0, 50)) . (strlen($cour['description']) > 50 ? '...' : ''); ?></td>
-                          <td>
-                            <?php if ($cour['professeur_nom']): ?>
-                              <?php echo htmlspecialchars($cour['professeur_nom'] . ' ' . $cour['professeur_prenom']); ?>
-                            <?php else: ?>
-                              <span class="text-muted">Non assigné</span>
-                            <?php endif; ?>
-                          </td>
-                          <td><?php echo htmlspecialchars($cour['classe_nom'] ?? 'Non assigné'); ?></td>
-                          <td>
-                            <span class="label <?php echo ($cour['section'] == 'primaire') ? 'label-primary' : 'label-success'; ?>">
-                              <?php echo ucfirst($cour['section']); ?>
-                            </span>
-                          </td>
-                          <td>
-                            <span class="badge bg-blue"><?php echo $cour['coefficient']; ?></span>
-                          </td>
-                          <td>
-                            <span class="badge bg-orange"><?php echo $cour['heures_semaine']; ?>h</span>
-                          </td>
-                          <td>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=voirCours&id=<?php echo $cour['id']; ?>" class="btn btn-info btn-xs" title="Voir détails">
-                              <i class="fa fa-eye"></i>
-                            </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTemps&cours_id=<?php echo $cour['id']; ?>" class="btn btn-success btn-xs" title="Emploi du temps">
-                              <i class="fa fa-calendar"></i>
-                            </a>
-                          </td>
-                        </tr>
-                      <?php endforeach; ?>
+      <!-- Filtres et recherche -->
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="sectionFilter">Section :</label>
+          <select id="sectionFilter" class="filter-select">
+            <option value="">Toutes les sections</option>
+            <option value="primaire">Primaire</option>
+            <option value="secondaire">Secondaire</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="searchCours">Rechercher :</label>
+          <input type="text" id="searchCours" placeholder="Titre du cours, professeur..." class="search-input">
+        </div>
+      </div>
+
+      <!-- Grille des cours -->
+      <div class="cours-grid">
+        <?php if (!empty($cours)): ?>
+          <?php foreach ($cours as $cour): ?>
+            <div class="cours-card" data-section="<?php echo $cour['section']; ?>">
+              <div class="cours-header">
+                <h3 class="cours-title"><?php echo htmlspecialchars($cour['titre']); ?></h3>
+                <span class="section-badge <?php echo $cour['section']; ?>">
+                  <?php echo ucfirst($cour['section']); ?>
+                </span>
+              </div>
+              
+              <div class="cours-description">
+                <p><?php echo htmlspecialchars(substr($cour['description'], 0, 100)) . (strlen($cour['description']) > 100 ? '...' : ''); ?></p>
+              </div>
+              
+              <div class="cours-details">
+                <div class="detail-item">
+                  <i class="fa fa-user"></i>
+                  <span class="detail-label">Professeur :</span>
+                  <span class="detail-value">
+                    <?php if ($cour['professeur_nom']): ?>
+                      <?php echo htmlspecialchars($cour['professeur_nom'] . ' ' . $cour['professeur_prenom']); ?>
                     <?php else: ?>
-                      <tr>
-                        <td colspan="9" class="text-center">Aucun cours trouvé.</td>
-                      </tr>
+                      <span class="text-muted">Non assigné</span>
                     <?php endif; ?>
-                  </tbody>
-                </table>
+                  </span>
+                </div>
+                
+                <div class="detail-item">
+                  <i class="fa fa-university"></i>
+                  <span class="detail-label">Classe :</span>
+                  <span class="detail-value"><?php echo htmlspecialchars($cour['classe_nom'] ?? 'Non assigné'); ?></span>
+                </div>
+                
+                <div class="cours-metrics">
+                  <div class="metric">
+                    <span class="metric-value"><?php echo $cour['coefficient']; ?></span>
+                    <span class="metric-label">Coefficient</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-value"><?php echo $cour['heures_semaine']; ?>h</span>
+                    <span class="metric-label">Par semaine</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="cours-actions">
+                <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=voirCours&id=<?php echo $cour['id']; ?>" 
+                   class="action-btn btn-view" title="Voir détails">
+                  <i class="fa fa-eye"></i>
+                  Détails
+                </a>
+                <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTemps&cours_id=<?php echo $cour['id']; ?>" 
+                   class="action-btn btn-schedule" title="Emploi du temps">
+                  <i class="fa fa-calendar"></i>
+                  Planning
+                </a>
               </div>
             </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="empty-state">
+            <i class="fa fa-book"></i>
+            <h3>Aucun cours trouvé</h3>
+            <p>Il n'y a actuellement aucun cours dans le système.</p>
           </div>
-        </div>
+        <?php endif; ?>
       </div>
     </section>
   </div>
@@ -349,17 +355,52 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Directeur des Études';
 <script src="<?php echo BASE_URL; ?>dist/js/adminlte.min.js"></script>
 
 <script>
+// Fonctionnalités de filtrage et recherche
 $(function () {
-  $('#coursTable').DataTable({
-    'paging': true,
-    'lengthChange': true,
-    'searching': true,
-    'ordering': true,
-    'info': true,
-    'autoWidth': false,
-    'language': {
-      'url': '//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json'
-    }
+  // Filtrage par section
+  $('#sectionFilter').on('change', function() {
+    const selectedSection = $(this).val();
+    filterCours();
+  });
+  
+  // Recherche en temps réel
+  $('#searchCours').on('keyup', function() {
+    filterCours();
+  });
+  
+  function filterCours() {
+    const sectionFilter = $('#sectionFilter').val();
+    const searchTerm = $('#searchCours').val().toLowerCase();
+    
+    $('.cours-card').each(function() {
+      const card = $(this);
+      const section = card.data('section');
+      const title = card.find('.cours-title').text().toLowerCase();
+      const professor = card.find('.detail-value').first().text().toLowerCase();
+      
+      let showCard = true;
+      
+      // Filtrage par section
+      if (sectionFilter && section !== sectionFilter) {
+        showCard = false;
+      }
+      
+      // Filtrage par recherche
+      if (searchTerm && !title.includes(searchTerm) && !professor.includes(searchTerm)) {
+        showCard = false;
+      }
+      
+      if (showCard) {
+        card.removeClass('hidden').addClass('visible');
+      } else {
+        card.removeClass('visible').addClass('hidden');
+      }
+    });
+  }
+  
+  // Animation des cartes au chargement
+  $('.cours-card').each(function(index) {
+    $(this).css('animation-delay', (index * 0.1) + 's');
   });
 });
 </script>

@@ -1,12 +1,37 @@
 <?php
-// Cette vue est appelée par le contrôleur ComptableController::modifierPaiement()
-// Les variables suivantes sont disponibles:
-// $paiement - Les informations du paiement à modifier
-// $eleves - La liste de tous les élèves
-// $frais - La liste de tous les types de frais
-// $mois - La liste des mois
-?>
+// Connexion à la base de données
+$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
+if ($mysqli->connect_error) {
+    die("Erreur de connexion: " . $mysqli->connect_error);
+}
+
+// Récupérer le nombre total de paiements
+$result = $mysqli->query("SELECT COUNT(*) AS total_paiements FROM paiements_frais");
+$row = $result->fetch_assoc();
+$total_paiements = $row['total_paiements'];
+
+// Récupérer le montant total des paiements
+$result = $mysqli->query("SELECT SUM(amount_paid) AS montant_total FROM paiements_frais");
+$row = $result->fetch_assoc();
+$montant_total = $row['montant_total'] ?? 0;
+
+// Fermer la connexion à la base de données
+$mysqli->close();
+
+// Vérifier si une session est déjà active
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
+// Initialiser les variables de session
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
+$email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
+$current_session = isset($current_session) ? $current_session : date('Y') . '-' . (date('Y') + 1);
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,97 +50,9 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  <!-- En-tête principal -->
-  <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=accueil" class="logo">
-      <span class="logo-mini"><b>St</b>S</span>
-      <span class="logo-lg"><b>Comptable</b></span>
-    </a>
-    <nav class="navbar navbar-static-top">
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Basculer la navigation</span>
-      </a>
+  <?php include 'navbar.php'; ?>
 
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
-              <span class="hidden-xs"><?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur'; ?></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="user-header">
-                <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-                <p><?php echo isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur'; ?></p>
-              </li>
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=profil" class="btn btn-default btn-flat">Profil</a>
-                </div>
-                <div class="pull-right">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-  
-  <!-- Barre latérale gauche -->
-  <aside class="main-sidebar">
-    <section class="sidebar">
-      <div class="user-panel">
-        <div class="pull-left image">
-          <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-        </div>
-        <div class="pull-left info">
-          <p><?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur'; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
-        </div>
-      </div>
-      
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">NAVIGATION PRINCIPALE</li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
-            <i class="fa fa-dashboard"></i> <span>Accueil</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-users"></i> <span>Élèves</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
-            <i class="fa fa-pencil"></i> <span>Inscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement">
-            <i class="fa fa-money"></i> <span>Paiement frais</span>
-          </a>
-        </li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file"></i> <span>Rapports</span>
-          </a>
-        </li>
-      </ul>
-    </section>
-  </aside>
+  <?php include 'sidebar.php'; ?>
 
   <!-- Contenu principal -->
   <div class="content-wrapper">

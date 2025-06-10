@@ -34,6 +34,8 @@ $success_message = isset($_SESSION['success']) ? $_SESSION['success'] : '';
 if (isset($_SESSION['success'])) {
   unset($_SESSION['success']);
 }
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -53,216 +55,21 @@ if (isset($_SESSION['success'])) {
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
   <!-- AdminLTE Skins. Choose a skin from the css/skins folder instead of downloading all of them to reduce the load. -->
-  <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
-  
+ 
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/dashboard-admin.css">
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
   <style>
-    .section-button {
-      padding: 30px;
-      margin: 20px;
-      font-size: 24px;
-      border-radius: 10px;
-    }
-    .maternelle {
-      background-color: #3c8dbc;
-      color: white;
-    }
-    .primaire {
-      background-color: #00a65a;
-      color: white;
-    }
-    .secondaire {
-      background-color: #f39c12;
-      color: white;
-    }
     
-    /* Style pour les notifications toast */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-    }
-    
-    .toast {
-      min-width: 300px;
-      margin-bottom: 10px;
-      padding: 15px;
-      border-radius: 4px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      animation: fadeIn 0.5s, fadeOut 0.5s 4.5s;
-      opacity: 0;
-      animation-fill-mode: forwards;
-    }
-    
-    .toast-success {
-      background-color: #00a65a;
-      color: white;
-    }
-    
-    .toast-error {
-      background-color: #dd4b39;
-      color: white;
-    }
-    
-    .toast-info {
-      background-color: #00c0ef;
-      color: white;
-    }
-    
-    .toast-warning {
-      background-color: #f39c12;
-      color: white;
-    }
-    
-    .toast-close {
-      float: right;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(-20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    
-    @keyframes fadeOut {
-      from {opacity: 1;}
-      to {opacity: 0; display: none;}
-    }
   </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
-<!-- Conteneur pour les notifications toast -->
-<div class="toast-container" id="toast-container"></div>
 <div class="wrapper">
 
-  <header class="main-header">
-    <!-- Logo -->
-    <a href="<?php echo BASE_URL; ?>index.php?controller=Comptable&action=accueil" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>St</b>S</span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b><?php echo $role; ?></b></span>
-    </a>
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Toggle navigation</span>
-      </a>
+  <?php include 'navbar.php'; ?>
 
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <!-- User Account: style can be found in dropdown.less -->
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
-              <span class="hidden-xs"><?php echo $username; ?></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="user-header">
-                <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-                <p><?php echo $role; ?></p>
-              </li>
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=profil" class="btn btn-default btn-flat">Profil</a>
-                </div>
-                <div class="pull-right">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-  
-  <!-- Left side column. contains the logo and sidebar -->
-  <aside class="main-sidebar">
-    <!-- sidebar: style can be found in sidebar.less -->
-    <section class="sidebar">
-      <!-- Sidebar user panel -->
-      <div class="user-panel">
-        <div class="pull-left image">
-          <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-        </div>
-        <div class="pull-left info">
-          <p><?php echo $username; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
-        </div>
-      </div>
-      <!-- search form -->
-      <form action="#" method="get" class="sidebar-form">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Rechercher...">
-          <span class="input-group-btn">
-            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
-          </span>
-        </div>
-      </form>
-      <!-- sidebar menu: : style can be found in sidebar.less -->
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">NAVIGATION PRINCIPALE</li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
-            <i class="fa fa-dashboard"></i> <span>Accueil</span>
-          </a>
-        </li>
-        <li>
-           
-           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
-             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
-           </a>
-         </li>
+  <?php include 'sidebar.php'; ?>
 
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-users"></i> <span>Élèves</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
-            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
-          </a>
-        </li>
-
-        <li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
-            <i class="fa fa-pencil"></i> <span>Inscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement">
-            <i class="fa fa-money"></i> <span>Paiement frais</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file-text"></i> <span>Rapports</span>
-          </a>
-        </li>
-      </ul>
-    </section>
-    <!-- /.sidebar -->
-  </aside>
-
-  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">

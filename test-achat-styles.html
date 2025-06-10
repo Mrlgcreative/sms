@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Styles Achat Fournitures</title>
+    <link rel="stylesheet" href="../../assets/css/achat-fournitures.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="achat-wrapper">
+        <div class="achat-container">
+            <h1 style="text-align: center; margin-bottom: 2rem; color: var(--achat-text-primary);">
+                Test des Styles Achat Fournitures
+            </h1>
+            
+            <!-- Test des cartes d'information -->
+            <div class="achat-info-boxes-grid">
+                <div class="achat-info-card animate-slideInLeft">
+                    <div class="achat-info-card-icon achat-info-card-icon-primary">
+                        <i class="fa fa-shopping-cart animate-pulse"></i>
+                    </div>
+                    <div class="achat-info-card-content">
+                        <div class="achat-info-card-title">Total Achats</div>
+                        <div class="achat-info-card-value">125</div>
+                        <div class="achat-info-card-description">Nombre total d'achats</div>
+                    </div>
+                    <div class="achat-info-card-footer">
+                        <div class="achat-progress-bar">
+                            <div class="achat-progress-fill" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="achat-info-card animate-slideInLeft" style="animation-delay: 0.2s;">
+                    <div class="achat-info-card-icon achat-info-card-icon-success">
+                        <i class="fa fa-money animate-float"></i>
+                    </div>
+                    <div class="achat-info-card-content">
+                        <div class="achat-info-card-title">Total Dépenses</div>
+                        <div class="achat-info-card-value">15,647.50 €</div>
+                        <div class="achat-info-card-description">Montant total des dépenses</div>
+                    </div>
+                    <div class="achat-info-card-footer">
+                        <div class="achat-progress-bar">
+                            <div class="achat-progress-fill achat-progress-success" style="width: 65%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test du formulaire -->
+            <div class="achat-form-section animate-slideInRight">
+                <div class="achat-card achat-form-card">
+                    <div class="achat-card-header">
+                        <div class="achat-card-title">
+                            <i class="fa fa-plus-circle animate-pulse"></i>
+                            Test du Formulaire
+                        </div>
+                        <div class="achat-card-subtitle">Exemple de formulaire avec styles</div>
+                    </div>
+                    <div class="achat-card-body">
+                        <div class="achat-form-grid">
+                            <div class="achat-form-group">
+                                <label class="achat-form-label">
+                                    <i class="fa fa-calendar"></i>
+                                    Date d'achat
+                                </label>
+                                <input type="date" class="achat-form-input" value="2023-12-01">
+                            </div>
+                            <div class="achat-form-group">
+                                <label class="achat-form-label">
+                                    <i class="fa fa-truck"></i>
+                                    Fournisseur
+                                </label>
+                                <input type="text" class="achat-form-input" placeholder="Nom du fournisseur" value="Test Fournisseur">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="achat-card-footer">
+                        <button type="button" class="achat-btn achat-btn-primary">
+                            <i class="fa fa-save"></i>
+                            Enregistrer
+                        </button>
+                        <button type="button" class="achat-btn achat-btn-secondary">
+                            <i class="fa fa-refresh"></i>
+                            Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test du tableau -->
+            <div class="achat-table-section animate-zoomIn">
+                <div class="achat-card achat-table-card">
+                    <div class="achat-card-header">
+                        <div class="achat-card-title">
+                            <i class="fa fa-list animate-float"></i>
+                            Test du Tableau
+                        </div>
+                        <div class="achat-card-subtitle">Exemple de tableau avec styles</div>
+                    </div>
+                    <div class="achat-card-body">
+                        <div class="achat-table-wrapper">
+                            <table class="achat-table">
+                                <thead class="achat-table-header">
+                                    <tr>
+                                        <th class="achat-table-th">
+                                            <div class="achat-table-header-content">
+                                                <i class="fa fa-hashtag"></i>
+                                                <span>ID</span>
+                                            </div>
+                                        </th>
+                                        <th class="achat-table-th">
+                                            <div class="achat-table-header-content">
+                                                <i class="fa fa-truck"></i>
+                                                <span>Fournisseur</span>
+                                            </div>
+                                        </th>
+                                        <th class="achat-table-th">
+                                            <div class="achat-table-header-content">
+                                                <i class="fa fa-money"></i>
+                                                <span>Montant</span>
+                                            </div>
+                                        </th>
+                                        <th class="achat-table-th achat-table-th-actions">
+                                            <div class="achat-table-header-content">
+                                                <i class="fa fa-cogs"></i>
+                                                <span>Actions</span>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="achat-table-body">
+                                    <tr class="achat-table-row">
+                                        <td class="achat-table-td">
+                                            <div class="achat-table-cell">
+                                                <span class="achat-badge achat-badge-outline">001</span>
+                                            </div>
+                                        </td>
+                                        <td class="achat-table-td">
+                                            <div class="achat-table-cell">
+                                                <i class="fa fa-building-o achat-table-icon"></i>
+                                                <span class="achat-table-text-primary">Fournisseur Test</span>
+                                            </div>
+                                        </td>
+                                        <td class="achat-table-td">
+                                            <div class="achat-table-cell">
+                                                <span class="achat-table-amount">1,250.00 €</span>
+                                            </div>
+                                        </td>
+                                        <td class="achat-table-td achat-table-td-actions">
+                                            <div class="achat-table-actions">
+                                                <button class="achat-btn achat-btn-sm achat-btn-warning achat-tooltip" data-tooltip="Modifier">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button class="achat-btn achat-btn-sm achat-btn-danger achat-tooltip" data-tooltip="Supprimer">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test des badges -->
+            <div style="margin: 2rem 0; text-align: center;">
+                <h3>Test des Badges</h3>
+                <span class="achat-badge achat-badge-primary">Primary</span>
+                <span class="achat-badge achat-badge-success">Success</span>
+                <span class="achat-badge achat-badge-warning">Warning</span>
+                <span class="achat-badge achat-badge-outline">Outline</span>
+            </div>
+            
+            <!-- Test des boutons -->
+            <div style="margin: 2rem 0; text-align: center;">
+                <h3>Test des Boutons</h3>
+                <button class="achat-btn achat-btn-primary animate-glow">
+                    <i class="fa fa-check"></i>
+                    Primary
+                </button>
+                <button class="achat-btn achat-btn-secondary">
+                    <i class="fa fa-times"></i>
+                    Secondary
+                </button>
+                <button class="achat-btn achat-btn-outline">
+                    <i class="fa fa-info"></i>
+                    Outline
+                </button>
+                <button class="achat-btn achat-btn-danger achat-btn-sm">
+                    <i class="fa fa-trash"></i>
+                    Small
+                </button>
+            </div>
+        </div>
+        
+        <!-- Footer de test -->
+        <footer class="achat-footer">
+            <div class="achat-footer-content">
+                <div class="achat-footer-info">
+                    <strong>Test des Styles CSS - Module Achat Fournitures</strong>
+                </div>
+                <div class="achat-footer-version">
+                    <span class="achat-badge achat-badge-outline">Version 1.0.0</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // Test des animations au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Styles CSS chargés avec succès !');
+            
+            // Test des tooltips
+            document.querySelectorAll('.achat-tooltip').forEach(function(element) {
+                element.addEventListener('mouseenter', function() {
+                    const tooltip = this.getAttribute('data-tooltip');
+                    console.log('Tooltip:', tooltip);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

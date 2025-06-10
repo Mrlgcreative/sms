@@ -1,0 +1,398 @@
+/* Variables CSS pour les réinscriptions */
+:root {
+    --primary-color: #3c8dbc;
+    --secondary-color: #f4f4f4;
+    --success-color: #00a65a;
+    --warning-color: #f39c12;
+    --danger-color: #dd4b39;
+    --info-color: #00c0ef;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Conteneur principal des réinscriptions */
+.reinscription-container {
+    margin-top: 20px;
+}
+
+/* Actions de réinscription */
+.reinscription-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.reinscription-actions .btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.reinscription-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+/* Grille des élèves */
+.students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* Carte d'élève */
+.student-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 20px;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.student-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--info-color));
+}
+
+.student-card:hover,
+.student-card.hovered {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    border-color: var(--primary-color);
+}
+
+.student-card.selected {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, #fff 0%, #f8fff8 100%);
+}
+
+/* En-tête de la carte élève */
+.student-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.student-selection {
+    position: relative;
+}
+
+.student-checkbox {
+    display: none;
+}
+
+.checkbox-label {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.checkbox-label::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    color: white;
+    font-weight: bold;
+    transition: var(--transition);
+}
+
+.student-checkbox:checked + .checkbox-label {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.student-checkbox:checked + .checkbox-label::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.student-avatar {
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+/* Informations de l'élève */
+.student-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.student-name {
+    color: var(--dark-color);
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.student-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.student-details span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+    padding: 4px 8px;
+    border-radius: 15px;
+    background: var(--light-color);
+}
+
+.student-details i {
+    color: var(--primary-color);
+    width: 16px;
+}
+
+.current-class {
+    background: linear-gradient(135deg, #e8f5e8, #d4edda) !important;
+    color: var(--success-color) !important;
+    font-weight: 500;
+}
+
+.student-parent {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+    color: var(--info-color) !important;
+}
+
+.student-age {
+    background: linear-gradient(135deg, #fff3e0, #ffcc80) !important;
+    color: var(--warning-color) !important;
+}
+
+/* Sélection de nouvelle classe */
+.new-class-selection {
+    margin-top: 15px;
+}
+
+.new-class-selection label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.class-select {
+    border-radius: var(--border-radius);
+    border: 2px solid #ddd;
+    transition: var(--transition);
+    padding: 8px 12px;
+}
+
+.class-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(60, 141, 188, 0.1);
+}
+
+.class-select.error {
+    border-color: var(--danger-color);
+    background: linear-gradient(135deg, #fff 0%, #ffebee 100%);
+}
+
+/* Message aucun élève */
+.no-students {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.no-students-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    color: #ddd;
+}
+
+.no-students h3 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.no-students p {
+    color: #999;
+    font-size: 16px;
+}
+
+/* Résumé de réinscription */
+.reinscription-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--light-color);
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    margin-right: 20px;
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.selected-count i {
+    color: var(--primary-color);
+    margin-right: 8px;
+}
+
+/* Boutons */
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 16px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2a6496, #0099cc);
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+.btn-primary:disabled {
+    background: #ddd;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.student-card {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.student-card:nth-child(odd) {
+    animation-delay: 0.1s;
+}
+
+.student-card:nth-child(even) {
+    animation-delay: 0.2s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .students-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 15px 0;
+    }
+    
+    .student-card {
+        padding: 15px;
+    }
+    
+    .reinscription-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .reinscription-actions .btn {
+        width: 100%;
+    }
+    
+    .box-footer {
+        text-align: center;
+    }
+    
+    .reinscription-summary {
+        display: block;
+        margin: 0 0 15px 0;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .student-details {
+        font-size: 12px;
+    }
+    
+    .student-name {
+        font-size: 16px;
+    }
+    
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
+
+/* Améliorations visuelles */
+.box-header .box-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.box-header .box-title i {
+    color: var(--primary-color);
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(60, 141, 188, 0.1);
+}
+
+/* Notifications */
+.alert {
+    border-radius: var(--border-radius);
+    border: none;
+    padding: 15px 20px;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #155724;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #721c24;
+}

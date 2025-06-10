@@ -1,0 +1,947 @@
+/* ========================================
+   EMPLOI DU TEMPS - STYLES MODERNES
+   ======================================== */
+
+/* Variables CSS spécifiques à l'emploi du temps */
+:root {
+  --schedule-primary: #3c8dbc;
+  --schedule-secondary: #605ca8;
+  --schedule-success: #00a65a;
+  --schedule-warning: #f39c12;
+  --schedule-danger: #dd4b39;
+  --schedule-info: #00c0ef;
+  --schedule-light: #f4f4f4;
+  --schedule-border: #ddd;
+  --schedule-text-muted: #aaa;
+  --schedule-radius: 8px;
+  --schedule-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --schedule-transition: all 0.3s ease;
+}
+
+/* ========================================
+   CONTENEUR PRINCIPAL DE L'EMPLOI DU TEMPS
+   ======================================== */
+
+.timetable-container {
+  background: white;
+  border-radius: var(--schedule-radius);
+  box-shadow: var(--schedule-shadow);
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.timetable-header {
+  background: linear-gradient(135deg, var(--schedule-primary) 0%, var(--schedule-secondary) 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.timetable-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.timetable-header .subtitle {
+  margin: 8px 0 0;
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+/* ========================================
+   GRILLE DE L'EMPLOI DU TEMPS
+   ======================================== */
+
+.timetable-grid {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.timetable-grid th,
+.timetable-grid td {
+  border: 1px solid var(--schedule-border);
+  text-align: center;
+  position: relative;
+}
+
+.timetable-grid th {
+  background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+  color: var(--schedule-primary);
+  font-weight: 600;
+  padding: 15px 8px;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.timetable-grid th.time-header {
+  background: linear-gradient(135deg, var(--schedule-primary) 0%, var(--schedule-info) 100%);
+  color: white;
+  font-size: 0.9rem;
+  min-width: 100px;
+}
+
+/* ========================================
+   CELLULES DE L'EMPLOI DU TEMPS
+   ======================================== */
+
+.timetable-cell {
+  height: 80px;
+  padding: 4px;
+  vertical-align: top;
+  position: relative;
+  background: #fafafa;
+  transition: var(--schedule-transition);
+  min-width: 120px;
+}
+
+.timetable-cell:hover {
+  background: #f0f8ff;
+  transform: scale(1.02);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.timetable-cell.has-course {
+  background: linear-gradient(135deg, rgba(60,141,188,0.1) 0%, rgba(60,141,188,0.05) 100%);
+}
+
+/* ========================================
+   ÉLÉMENTS DE COURS
+   ======================================== */
+
+.course-item {
+  background: linear-gradient(135deg, var(--schedule-primary) 0%, var(--schedule-info) 100%);
+  color: white;
+  padding: 8px 6px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--schedule-transition);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 0.85rem;
+  line-height: 1.2;
+  position: relative;
+  overflow: hidden;
+}
+
+.course-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.course-item:active {
+  transform: translateY(0);
+}
+
+.course-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.3);
+}
+
+.course-item .course-subject {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.course-item .course-teacher {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.course-item .course-room {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 2px;
+  padding: 2px 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Variantes de couleur pour les matières */
+.course-item.math {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.course-item.french {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.course-item.science {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+}
+
+.course-item.history {
+  background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+}
+
+.course-item.english {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.course-item.sport {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+}
+
+/* ========================================
+   CELLULES VIDES
+   ======================================== */
+
+.empty-cell {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--schedule-text-muted);
+  cursor: pointer;
+  transition: var(--schedule-transition);
+  border: 2px dashed transparent;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.empty-cell:hover {
+  border-color: var(--schedule-primary);
+  color: var(--schedule-primary);
+  background: rgba(60,141,188,0.05);
+}
+
+.empty-cell::before {
+  content: '+ Ajouter un cours';
+  opacity: 0;
+  transition: var(--schedule-transition);
+}
+
+.empty-cell:hover::before {
+  opacity: 1;
+}
+
+/* ========================================
+   INDICATEURS TEMPORELS
+   ======================================== */
+
+.time-slot {
+  background: linear-gradient(135deg, var(--schedule-primary) 0%, var(--schedule-info) 100%);
+  color: white;
+  padding: 12px 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
+  position: relative;
+}
+
+.time-slot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid var(--schedule-primary);
+  transform: translateY(-50%);
+}
+
+.time-slot .start-time {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.time-slot .end-time {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* ========================================
+   FILTRES ET CONTRÔLES
+   ======================================== */
+
+.schedule-controls {
+  background: white;
+  padding: 20px;
+  border-radius: var(--schedule-radius);
+  box-shadow: var(--schedule-shadow);
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.schedule-filters {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: var(--schedule-primary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.filter-group select {
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  background: white;
+  transition: var(--schedule-transition);
+  min-width: 150px;
+}
+
+.filter-group select:focus {
+  border-color: var(--schedule-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(60,141,188,0.1);
+}
+
+/* ========================================
+   BOUTONS D'ACTION
+   ======================================== */
+
+.schedule-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-schedule {
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: var(--schedule-transition);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-schedule:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  text-decoration: none;
+}
+
+.btn-schedule:active {
+  transform: translateY(0);
+}
+
+.btn-schedule.btn-primary {
+  background: linear-gradient(135deg, var(--schedule-primary) 0%, var(--schedule-info) 100%);
+  color: white;
+}
+
+.btn-schedule.btn-success {
+  background: linear-gradient(135deg, var(--schedule-success) 0%, #00d68f 100%);
+  color: white;
+}
+
+.btn-schedule.btn-export {
+  background: linear-gradient(135deg, var(--schedule-warning) 0%, #ffb347 100%);
+  color: white;
+}
+
+/* ========================================
+   LÉGENDE DES MATIÈRES
+   ======================================== */
+
+.subject-legend {
+  background: white;
+  border-radius: var(--schedule-radius);
+  box-shadow: var(--schedule-shadow);
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.subject-legend h4 {
+  color: var(--schedule-primary);
+  font-weight: 600;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.legend-color.math { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+.legend-color.french { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); }
+.legend-color.science { background: linear-gradient(135deg, #27ae60 0%, #229954 100%); }
+.legend-color.history { background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%); }
+.legend-color.english { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+.legend-color.sport { background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); }
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 1200px) {
+  .timetable-cell {
+    height: 70px;
+    min-width: 100px;
+  }
+  
+  .course-item {
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+  
+  .course-item .course-subject {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .schedule-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .schedule-filters {
+    justify-content: center;
+  }
+  
+  .schedule-actions {
+    justify-content: center;
+  }
+  
+  .timetable-container {
+    overflow-x: auto;
+  }
+  
+  .timetable-grid {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .timetable-cell {
+    height: 60px;
+    min-width: 80px;
+    padding: 2px;
+  }
+  
+  .course-item {
+    padding: 4px 3px;
+    font-size: 0.75rem;
+  }
+  
+  .course-item .course-subject {
+    font-size: 0.8rem;
+  }
+  
+  .course-item .course-teacher,
+  .course-item .course-room {
+    display: none;
+  }
+  
+  .time-slot {
+    padding: 8px 4px;
+    font-size: 0.8rem;
+  }
+  
+  .legend-items {
+    justify-content: center;
+  }
+  
+  .filter-group select {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 576px) {
+  .timetable-header {
+    padding: 15px;
+  }
+  
+  .timetable-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .schedule-controls {
+    padding: 15px;
+  }
+  
+  .schedule-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group select {
+    min-width: auto;
+  }
+  
+  .btn-schedule {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ========================================
+   ANIMATIONS ET EFFETS
+   ======================================== */
+
+.fade-in-schedule {
+  animation: fadeInSchedule 0.6s ease-out;
+}
+
+@keyframes fadeInSchedule {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-course {
+  animation: slideInCourse 0.4s ease-out;
+}
+
+@keyframes slideInCourse {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ========================================
+   STYLES D'IMPRESSION
+   ======================================== */
+
+@media print {
+  .schedule-controls,
+  .schedule-actions,
+  .no-print {
+    display: none !important;
+  }
+  
+  .timetable-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .timetable-grid th,
+  .timetable-grid td {
+    border: 1px solid #000 !important;
+  }
+  
+  .course-item {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  
+  .timetable-cell:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  .page-break {
+    page-break-before: always;
+  }
+}
+
+/* ========================================
+   MODES SOMBRES
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .timetable-container,
+  .schedule-controls,
+  .subject-legend {
+    background: #2d3748;
+    color: #e2e8f0;
+  }
+  
+  .timetable-cell {
+    background: #4a5568;
+    border-color: #718096;
+  }
+  
+  .timetable-cell:hover {
+    background: #5a6578;
+  }
+  
+  .filter-group select {
+    background: #4a5568;
+    border-color: #718096;
+    color: #e2e8f0;
+  }
+  
+  .legend-item {
+    background: #4a5568;
+    color: #e2e8f0;
+  }
+}
+
+/* ========================================
+   INTERACTIONS DYNAMIQUES ET MODALES
+   ======================================== */
+
+.cell-cours {
+  position: relative;
+  transition: var(--schedule-transition);
+}
+
+.add-cours-btn {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: linear-gradient(135deg, var(--schedule-success) 0%, #00d68f 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: var(--schedule-transition);
+  font-size: 1.2rem;
+}
+
+.add-cours-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.cell-cours:hover {
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.cell-cours:hover .add-cours-btn {
+  display: block;
+}
+
+.cours-info {
+  position: relative;
+  padding: 8px;
+  background: linear-gradient(135deg, var(--schedule-primary) 0%, var(--schedule-info) 100%);
+  color: white;
+  border-radius: 6px;
+  height: 100%;
+  min-height: 70px;
+  transition: var(--schedule-transition);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.cours-actions {
+  display: none;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  gap: 4px;
+}
+
+.cours-actions .btn {
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  border-radius: 3px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: var(--schedule-transition);
+}
+
+.cours-actions .btn-edit {
+  background: rgba(255,255,255,0.2);
+}
+
+.cours-actions .btn-delete {
+  background: rgba(221,75,57,0.8);
+}
+
+.cours-actions .btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
+}
+
+.cours-info:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.cours-info:hover .cours-actions {
+  display: flex;
+}
+
+.cours-titre {
+  font-weight: 700;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.cours-prof {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.cours-salle {
+  font-size: 0.7rem;
+  font-style: italic;
+  position: absolute;
+  bottom: 5px;
+  left: 8px;
+  opacity: 0.8;
+  padding: 2px 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}
+
+/* Animation pour l'ajout de cours */
+@keyframes coursAdded {
+  0% { 
+    transform: scale(0.8); 
+    opacity: 0; 
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}
+
+.cours-added {
+  animation: coursAdded 0.6s ease-out;
+}
+
+/* Animation pour la suppression */
+@keyframes coursRemoved {
+  0% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: scale(0.8); 
+    opacity: 0; 
+  }
+}
+
+.cours-removed {
+  animation: coursRemoved 0.4s ease-in;
+}
+
+/* ========================================
+   STYLES POUR LES MODALES
+   ======================================== */
+
+.modal-content {
+  border-radius: var(--schedule-radius);
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--schedule-primary) 0%, var(--schedule-secondary) 100%);
+  color: white;
+  border-radius: var(--schedule-radius) var(--schedule-radius) 0 0;
+  border-bottom: none;
+  padding: 20px;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 15px 25px;
+  background: #f8f9fa;
+  border-radius: 0 0 var(--schedule-radius) var(--schedule-radius);
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--schedule-primary);
+  margin-bottom: 8px;
+}
+
+.form-control {
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  padding: 10px 15px;
+  transition: var(--schedule-transition);
+  font-size: 0.9rem;
+}
+
+.form-control:focus {
+  border-color: var(--schedule-primary);
+  box-shadow: 0 0 0 3px rgba(60,141,188,0.1);
+  outline: none;
+}
+
+/* ========================================
+   ÉTATS DE CHARGEMENT
+   ======================================== */
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: var(--schedule-radius);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--schedule-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   NOTIFICATIONS ET MESSAGES
+   ======================================== */
+
+.schedule-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: var(--schedule-radius);
+  box-shadow: var(--schedule-shadow);
+  z-index: 9999;
+  max-width: 350px;
+  transition: var(--schedule-transition);
+}
+
+.schedule-notification.success {
+  background: linear-gradient(135deg, var(--schedule-success) 0%, #00d68f 100%);
+  color: white;
+}
+
+.schedule-notification.error {
+  background: linear-gradient(135deg, var(--schedule-danger) 0%, #c0392b 100%);
+  color: white;
+}
+
+.schedule-notification.info {
+  background: linear-gradient(135deg, var(--schedule-info) 0%, #3498db 100%);
+  color: white;
+}
+
+.notification-fade-in {
+  animation: notificationFadeIn 0.5s ease-out;
+}
+
+.notification-fade-out {
+  animation: notificationFadeOut 0.3s ease-in;
+}
+
+@keyframes notificationFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes notificationFadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}

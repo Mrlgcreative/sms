@@ -28,6 +28,8 @@ if (session_status() === PHP_SESSION_NONE) {
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 $current_session = isset($current_session) ? $current_session : date('Y') . '-' . (date('Y') + 1);
 ?>
 
@@ -45,149 +47,14 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
   <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
   <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    @media print {
-      .no-print, .no-print * {
-        display: none !important;
-      }
-      .content-wrapper, .main-footer {
-        margin-left: 0 !important;
-      }
-    }
-    .payment-summary {
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .payment-summary h4 {
-      margin-top: 0;
-      color: #3c8dbc;
-    }
-    .payment-summary .info-box {
-      min-height: 80px;
-      margin-bottom: 10px;
-    }
-    .payment-summary .info-box-icon {
-      height: 80px;
-      width: 80px;
-      line-height: 80px;
-    }
-    .payment-summary .info-box-content {
-      padding-top: 10px;
-    }
-  </style>
+  
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil" class="logo">
-      <span class="logo-mini"><b>St</b>S</span>
-      <span class="logo-lg"><b><?php echo $role; ?></b></span>
-    </a>
-    <nav class="navbar navbar-static-top">
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Basculer la navigation</span>
-      </a>
+  <?php include 'navbar.php'; ?>
 
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="dist/img/user2-160x160.jpg" class="user-image" alt="Image utilisateur">
-              <span class="hidden-xs"><?php echo $username; ?></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="user-header">
-                <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="Image utilisateur">
-                <p><?php echo $role; ?></p>
-              </li>
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=profil" class="btn btn-default btn-flat">Profil</a>
-                </div>
-                <div class="pull-right">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-  
-  <aside class="main-sidebar">
-    <section class="sidebar">
-      <div class="user-panel">
-        <div class="pull-left image">
-          <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="Image utilisateur">
-        </div>
-        <div class="pull-left info">
-          <p><?php echo $username; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
-        </div>
-      </div>
-      
-      <form action="#" method="get" class="sidebar-form">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Rechercher...">
-          <span class="input-group-btn">
-            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
-          </span>
-        </div>
-      </form>
-      
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">NAVIGATION PRINCIPALE</li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
-            <i class="fa fa-dashboard"></i> <span>Accueil</span>
-          </a>
-        </li>
-        <li>
-           
-           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
-             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
-           </a>
-         </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-users"></i> <span>Élèves</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
-            <i class="fa fa-pencil"></i> <span>Inscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement">
-            <i class="fa fa-money"></i> <span>Paiement frais</span>
-          </a>
-        </li>
-        <li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file-text"></i> <span>Rapports</span>
-          </a>
-        </li>
-      </ul>
-    </section>
-  </aside>
+  <?php include 'sidebar.php'; ?>
 
   <div class="content-wrapper">
     <section class="content-header">
@@ -409,6 +276,8 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
     </div>
   </div>
 </div>
+</body>
+</html>
 
 <!-- jQuery 3 -->
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -514,5 +383,3 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
     }, 5000);
   }
 </script>
-</body>
-</html>

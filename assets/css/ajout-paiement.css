@@ -1,0 +1,1626 @@
+/* ===================================================================
+   /* ================================================================
+   CSS SPÉCIALISÉ POUR LA PAGE AJOUT PAIEMENT - SGS
+   Système de Gestion Scolaire - Style Ultra-Moderne
+   ================================================================= */
+
+/* Variables CSS spécifiques aux paiements */
+:root {
+  /* Couleurs principales pour les paiements */
+  --payment-primary: #059669;
+  --payment-secondary: #047857;
+  --payment-accent: #065f46;
+  --payment-success: #10b981;
+  --payment-warning: #f59e0b;
+  --payment-danger: #ef4444;
+  --payment-info: #06b6d4;
+  
+  /* Nuances vertes pour le thème paiement */
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-300: #86efac;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --green-900: #14532d;
+  
+  /* Couleurs de base */
+  --white: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  
+  /* Dégradés spécialisés pour les paiements */
+  --gradient-payment: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  --gradient-payment-light: linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #10b981 100%);
+  --gradient-payment-dark: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%);
+  --gradient-success-glow: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.2) 100%);
+  
+  /* Ombres modernes */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-payment: 0 10px 40px -10px rgba(16, 185, 129, 0.3);
+  
+  /* Rayons de bordure */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: all 0.15s ease;
+  --transition-base: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+  --transition-spring: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --payment-spacing-4: 1rem;
+  --payment-spacing-5: 1.25rem;
+  --payment-spacing-6: 1.5rem;
+  --payment-spacing-8: 2rem;
+  --payment-spacing-10: 2.5rem;
+  --payment-spacing-12: 3rem;
+  
+  /* Rayons de bordure */
+  --payment-radius-sm: 4px;
+  --payment-radius-md: 8px;
+  --payment-radius-lg: 12px;
+  --payment-radius-xl: 16px;
+  --payment-radius-2xl: 24px;
+  --payment-radius-full: 9999px;
+  
+  /* Ombres modernes */
+  --payment-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --payment-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --payment-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --payment-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --payment-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --payment-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Ombres colorées */
+  --payment-shadow-success: 0 10px 25px -5px rgba(5, 150, 105, 0.4);
+  --payment-shadow-warning: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
+  --payment-shadow-danger: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+  --payment-shadow-info: 0 10px 25px -5px rgba(6, 182, 212, 0.4);
+  
+  /* Typographie */
+  --payment-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --payment-text-xs: 0.75rem;
+  --payment-text-sm: 0.875rem;
+  --payment-text-base: 1rem;
+  --payment-text-lg: 1.125rem;
+  --payment-text-xl: 1.25rem;
+  --payment-text-2xl: 1.5rem;
+  --payment-text-3xl: 1.875rem;
+}
+
+/* ============================================
+   LAYOUT ULTRA-MODERNE POUR LE MODULE PAIEMENT
+   ============================================ */
+
+/* Wrapper avec dégradé sophistiqué */
+.wrapper {
+  background: linear-gradient(135deg, 
+    var(--payment-gray-50) 0%, 
+    rgba(5, 150, 105, 0.05) 15%,
+    rgba(34, 197, 94, 0.08) 30%,
+    rgba(16, 185, 129, 0.1) 50%,
+    rgba(5, 150, 105, 0.05) 70%,
+    var(--payment-gray-100) 100%);
+  background-attachment: fixed;
+  background-size: 400% 400%;
+  animation: paymentGradientShift 20s ease infinite;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  font-family: var(--payment-font-sans);
+}
+
+/* Animation de dégradé fluide */
+@keyframes paymentGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Motifs de fond avec particules */
+.wrapper::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(5, 150, 105, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(6, 182, 212, 0.03) 0%, transparent 50%);
+  animation: paymentFloatingParticles 30s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes paymentFloatingParticles {
+  0%, 100% { 
+    transform: translateX(0px) translateY(0px) scale(1) rotate(0deg); 
+    opacity: 0.6;
+  }
+  25% { 
+    transform: translateX(20px) translateY(-15px) scale(1.05) rotate(90deg); 
+    opacity: 0.4;
+  }
+  50% { 
+    transform: translateX(-10px) translateY(10px) scale(0.95) rotate(180deg); 
+    opacity: 0.8;
+  }
+  75% { 
+    transform: translateX(15px) translateY(-20px) scale(1.02) rotate(270deg); 
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   HEADER ULTRA-MODERNE
+   ============================================ */
+.main-header {
+  background: linear-gradient(135deg, 
+    var(--payment-primary) 0%, 
+    var(--payment-primary-dark) 50%,
+    var(--payment-secondary) 100%);
+  backdrop-filter: blur(24px) saturate(1.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    var(--payment-shadow-lg),
+    0 0 40px rgba(5, 150, 105, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  transition: var(--payment-transition);
+}
+
+/* Animation de brillance sur le header */
+.main-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: paymentShimmer 4s ease-in-out infinite;
+}
+
+@keyframes paymentShimmer {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* ============================================
+   SIDEBAR MODERNE
+   ============================================ */
+.main-sidebar {
+  background: var(--payment-glass-bg);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-right: 1px solid var(--payment-glass-border);
+  box-shadow: var(--payment-shadow-xl);
+  position: fixed;
+  top: 60px;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  z-index: 1020;
+  transition: var(--payment-transition-slow);
+}
+
+/* Navigation sidebar avec effets */
+.sidebar-menu a {
+  color: var(--payment-gray-700);
+  transition: var(--payment-transition);
+  border-radius: var(--payment-radius-lg);
+  margin: var(--payment-spacing-1) var(--payment-spacing-3);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-menu a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--payment-primary), var(--payment-success));
+  opacity: 0;
+  transition: var(--payment-transition);
+  z-index: -1;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu .active > a {
+  color: white;
+  background: rgba(5, 150, 105, 0.1);
+  transform: translateX(4px);
+  box-shadow: var(--payment-shadow-md);
+}
+
+.sidebar-menu a:hover::before,
+.sidebar-menu .active > a::before {
+  left: 0;
+  opacity: 1;
+}
+
+/* ============================================
+   CONTENT AREA MODERNE
+   ============================================ */
+.content-wrapper {
+  margin-left: 280px;
+  padding: var(--payment-spacing-8) var(--payment-spacing-6);
+  min-height: calc(100vh - 60px);
+  margin-top: 60px;
+}
+
+/* ============================================
+   BOÎTES ULTRA-MODERNES
+   ============================================ */
+.box {
+  background: var(--payment-glass-bg);
+  backdrop-filter: blur(24px) saturate(1.8) brightness(1.05);
+  border-radius: var(--payment-radius-2xl);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    var(--payment-shadow-xl),
+    0 0 40px rgba(5, 150, 105, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  margin-bottom: var(--payment-spacing-8);
+  overflow: hidden;
+  position: relative;
+  transition: var(--payment-transition);
+  animation: paymentSlideInUp 0.6s var(--payment-ease-out-expo);
+}
+
+/* Animation d'entrée */
+@keyframes paymentSlideInUp {
+  0% {
+    transform: translateY(40px);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.box:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    var(--payment-shadow-2xl),
+    0 0 60px rgba(5, 150, 105, 0.15);
+}
+
+.box-header {
+  background: linear-gradient(135deg, 
+    rgba(5, 150, 105, 0.08) 0%, 
+    rgba(34, 197, 94, 0.08) 50%,
+    rgba(16, 185, 129, 0.08) 100%);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--payment-spacing-6);
+  position: relative;
+}
+
+.box-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--payment-primary), var(--payment-success));
+  opacity: 0.6;
+}
+
+.box-title {
+  color: var(--payment-primary-dark);
+  font-weight: 700;
+  font-size: var(--payment-text-xl);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--payment-spacing-3);
+}
+
+.box-title i {
+  background: linear-gradient(135deg, var(--payment-primary), var(--payment-success));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: paymentIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes paymentIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.box-body {
+  padding: var(--payment-spacing-8);
+}
+
+/* ============================================
+   SECTIONS DE FORMULAIRE
+   ============================================ */
+.form-section {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  border-radius: var(--payment-radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: var(--payment-spacing-6);
+  margin-bottom: var(--payment-spacing-6);
+  position: relative;
+  overflow: hidden;
+}
+
+.form-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--payment-primary), var(--payment-success));
+  opacity: 0.7;
+}
+
+.form-section h4 {
+  color: var(--payment-primary-dark);
+  font-weight: 700;
+  font-size: var(--payment-text-lg);
+  margin-bottom: var(--payment-spacing-5);
+  display: flex;
+  align-items: center;
+  gap: var(--payment-spacing-3);
+}
+
+.form-section h4 i {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--payment-primary), var(--payment-success));
+  color: white;
+  border-radius: var(--payment-radius-md);
+  font-size: var(--payment-text-sm);
+}
+
+/* ============================================
+   CHAMPS DE FORMULAIRE ULTRA-MODERNES
+   ============================================ */
+.form-control {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 2px solid transparent;
+  border-radius: var(--payment-radius-lg);
+  padding: var(--payment-spacing-4) var(--payment-spacing-5);
+  font-size: var(--payment-text-base);
+  font-weight: 500;
+  color: var(--payment-gray-700);
+  transition: var(--payment-transition);
+  box-shadow: var(--payment-shadow-sm);
+  position: relative;
+}
+
+.form-control:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.98);
+  border-color: var(--payment-primary);
+  box-shadow: 
+    var(--payment-shadow-md),
+    0 0 0 3px rgba(5, 150, 105, 0.1);
+  transform: translateY(-1px);
+}
+
+.form-control::placeholder {
+  color: var(--payment-gray-400);
+  font-weight: 400;
+}
+
+/* Select2 modernisé */
+.select2-container--default .select2-selection--single {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 2px solid transparent;
+  border-radius: var(--payment-radius-lg) !important;
+  height: 48px !important;
+  padding: var(--payment-spacing-2) var(--payment-spacing-4);
+  transition: var(--payment-transition);
+  box-shadow: var(--payment-shadow-sm);
+}
+
+.select2-container--default .select2-selection--single:focus {
+  border-color: var(--payment-primary);
+  box-shadow: 
+    var(--payment-shadow-md),
+    0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 44px !important;
+  color: var(--payment-gray-700);
+  font-weight: 500;
+}
+
+/* ============================================
+   BOUTONS ULTRA-MODERNES
+   ============================================ */
+.btn {
+  position: relative;
+  padding: var(--payment-spacing-3) var(--payment-spacing-6);
+  border: none;
+  border-radius: var(--payment-radius-lg);
+  font-weight: 600;
+  font-size: var(--payment-text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: var(--payment-transition);
+  transform: translateZ(0);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--payment-spacing-2);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transition: all 0.5s ease;
+  transform: translate(-50%, -50%);
+}
+
+.btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-primary,
+.btn-submit {
+  background: linear-gradient(135deg, var(--payment-primary), var(--payment-primary-dark));
+  color: white;
+  box-shadow: var(--payment-shadow-md);
+}
+
+.btn-primary:hover,
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--payment-shadow-success);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--payment-success), #15803d);
+  color: white;
+  box-shadow: var(--payment-shadow-md);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--payment-shadow-success);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--payment-warning), #d97706);
+  color: white;
+  box-shadow: var(--payment-shadow-md);
+}
+
+.btn-warning:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--payment-shadow-warning);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--payment-danger), #dc2626);
+  color: white;
+  box-shadow: var(--payment-shadow-md);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--payment-shadow-danger);
+}
+
+/* ============================================
+   AFFICHAGE DES MONTANTS
+   ============================================ */
+.amount-display {
+  font-size: var(--payment-text-2xl);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--payment-primary), var(--payment-success));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  padding: var(--payment-spacing-4);
+  background-color: rgba(5, 150, 105, 0.05);
+  border-radius: var(--payment-radius-lg);
+  border: 2px solid rgba(5, 150, 105, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.amount-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(5, 150, 105, 0.1), transparent);
+  animation: paymentAmountShine 3s ease-in-out infinite;
+}
+
+@keyframes paymentAmountShine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* ============================================
+   RÉSUMÉ DE PAIEMENT
+   ============================================ */
+.payment-summary {
+  background: linear-gradient(135deg, 
+    rgba(5, 150, 105, 0.08) 0%, 
+    rgba(34, 197, 94, 0.05) 100%);
+  backdrop-filter: blur(16px);
+  border: 2px solid rgba(5, 150, 105, 0.2);
+  border-radius: var(--payment-radius-xl);
+  padding: var(--payment-spacing-6);
+  margin-top: var(--payment-spacing-6);
+  position: relative;
+  overflow: hidden;
+}
+
+.payment-summary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--payment-primary), var(--payment-success));
+  opacity: 0.8;
+}
+
+.payment-summary h5 {
+  color: var(--payment-primary-dark);
+  font-weight: 700;
+  margin-bottom: var(--payment-spacing-4);
+  display: flex;
+  align-items: center;
+  gap: var(--payment-spacing-2);
+}
+
+/* ============================================
+   CHAMPS REQUIS ET AIDE
+   ============================================ */
+.required-field {
+  color: var(--payment-danger);
+  font-weight: 600;
+}
+
+.field-help {
+  font-size: var(--payment-text-xs);
+  color: var(--payment-gray-500);
+  margin-top: var(--payment-spacing-2);
+  font-style: italic;
+}
+
+/* ============================================
+   ÉTATS DE VALIDATION
+   ============================================ */
+.validation-error {
+  border-color: var(--payment-danger) !important;
+  box-shadow: 
+    var(--payment-shadow-md),
+    0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+  animation: paymentShakeError 0.5s ease-in-out;
+}
+
+.validation-success {
+  border-color: var(--payment-success) !important;
+  box-shadow: 
+    var(--payment-shadow-md),
+    0 0 0 3px rgba(34, 197, 94, 0.1) !important;
+}
+
+@keyframes paymentShakeError {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* ============================================
+   ALERTES MODERNES
+   ============================================ */
+.alert {
+  backdrop-filter: blur(12px);
+  border-radius: var(--payment-radius-lg);
+  border: 1px solid transparent;
+  padding: var(--payment-spacing-4) var(--payment-spacing-5);
+  margin-bottom: var(--payment-spacing-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.alert-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #92400e;
+}
+
+.alert-success {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #166534;
+}
+
+.alert-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #991b1b;
+}
+
+.alert-info {
+  background: rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.3);
+  color: #155e75;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 992px) {
+  .main-sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--payment-transition-slow);
+  }
+  
+  .content-wrapper {
+    margin-left: 0;
+    padding: var(--payment-spacing-4);
+  }
+  
+  .box-body {
+    padding: var(--payment-spacing-4);
+  }
+  
+  .form-section {
+    padding: var(--payment-spacing-4);
+  }
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: var(--payment-spacing-2);
+  }
+  
+  .box {
+    margin-bottom: var(--payment-spacing-4);
+  }
+  
+  .box-header,
+  .box-body {
+    padding: var(--payment-spacing-4);
+  }
+  
+  .btn {
+    width: 100%;
+    margin-bottom: var(--payment-spacing-2);
+  }
+  
+  .amount-display {
+    font-size: var(--payment-text-xl);
+  }
+}
+
+/* ============================================
+   ANIMATIONS ET MICRO-INTERACTIONS
+   ============================================ */
+.payment-form-animate {
+  animation: paymentFormSlide 0.8s var(--payment-ease-out-expo);
+}
+
+@keyframes paymentFormSlide {
+  0% {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Effet de pulsation pour les éléments importants */
+.payment-pulse {
+  animation: paymentPulse 2s ease-in-out infinite;
+}
+
+@keyframes paymentPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ============================================
+   OPTIMISATIONS FINALES
+   ============================================ */
+
+/* GPU Acceleration */
+.box,
+.btn,
+.form-control,
+.main-sidebar,
+.main-header {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--payment-gray-100);
+  border-radius: var(--payment-radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--payment-primary), var(--payment-success));
+  border-radius: var(--payment-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(var(--payment-primary-dark), var(--payment-primary));
+}
+
+/* Sélection de texte */
+::selection {
+  background: rgba(5, 150, 105, 0.2);
+  color: var(--payment-primary-dark);
+}
+
+/* ============================================
+   STYLES SPÉCIFIQUES POUR L'INTERFACE DE PAIEMENT
+   ============================================ */
+
+/* Container principal de la page de paiement */
+.payment-page-container {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f0f9ff 100%);
+  min-height: 100vh;
+  padding: 2rem 0;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* En-tête de la page avec effet glassmorphism */
+.payment-page-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.payment-page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-payment);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.payment-page-header h1 {
+  color: var(--payment-primary);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  background: var(--gradient-payment);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.payment-page-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background: var(--gradient-payment);
+  border-radius: var(--radius-full);
+  animation: shimmer 2s infinite;
+}
+
+/* Section d'informations de session améliorée */
+.session-info-modern {
+  background: rgba(16, 185, 129, 0.08);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  animation: slideInRight 0.6s ease-out;
+}
+
+.session-info-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient-payment);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.session-info-modern .info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.session-info-modern .info-item:last-child {
+  margin-bottom: 0;
+}
+
+.session-info-modern .info-icon {
+  width: 20px;
+  height: 20px;
+  background: var(--gradient-payment);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.session-info-modern .info-label {
+  font-weight: 600;
+  color: var(--payment-secondary);
+  min-width: 120px;
+}
+
+.session-info-modern .info-value {
+  color: var(--payment-primary);
+  font-weight: 500;
+}
+
+/* Formulaire de paiement avec glassmorphism avancé */
+.payment-form-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(25px) saturate(1.8);
+  border-radius: var(--radius-2xl);
+  box-shadow: 
+    var(--shadow-xl),
+    0 0 40px rgba(16, 185, 129, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  position: relative;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.payment-form-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-payment);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+/* Sections de formulaire avec animations */
+.form-section-modern {
+  padding: 2rem;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+  position: relative;
+}
+
+.form-section-modern:last-child {
+  border-bottom: none;
+}
+
+.form-section-modern h4 {
+  color: var(--payment-primary);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.form-section-modern h4::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--gradient-payment);
+  border-radius: var(--radius-full);
+  animation: pulse 2s infinite;
+}
+
+/* Groupes de champs avec espacement moderne */
+.form-group-modern {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.form-group-modern label {
+  display: block;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.form-group-modern label.required::after {
+  content: ' *';
+  color: var(--payment-danger);
+  font-weight: 700;
+}
+
+/* Contrôles de formulaire ultra-modernes */
+.form-control-modern {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  transition: var(--transition-spring);
+  position: relative;
+  color: var(--gray-700);
+}
+
+.form-control-modern::placeholder {
+  color: var(--gray-400);
+  font-weight: 400;
+  transition: var(--transition-fast);
+}
+
+.form-control-modern:focus {
+  outline: none;
+  border-color: var(--payment-primary);
+  box-shadow: 
+    0 0 0 3px rgba(16, 185, 129, 0.1),
+    var(--shadow-md);
+  background: white;
+  transform: translateY(-2px);
+}
+
+.form-control-modern:focus::placeholder {
+  opacity: 0.7;
+  transform: translateY(-2px);
+}
+
+.form-control-modern:hover {
+  border-color: var(--payment-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Styles pour Select2 modernisés */
+.select2-container--default .select2-selection--single.modern {
+  height: 54px !important;
+  border: 2px solid var(--gray-200) !important;
+  border-radius: var(--radius-lg) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(10px);
+  transition: var(--transition-spring) !important;
+}
+
+.select2-container--default .select2-selection--single.modern:hover {
+  border-color: var(--payment-primary) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single.modern {
+  border-color: var(--payment-primary) !important;
+  box-shadow: 
+    0 0 0 3px rgba(16, 185, 129, 0.1) !important,
+    var(--shadow-md) !important;
+  transform: translateY(-2px);
+}
+
+.select2-container--default .select2-selection--single.modern .select2-selection__rendered {
+  line-height: 50px !important;
+  padding-left: 1.25rem !important;
+  color: var(--gray-700) !important;
+  font-weight: 500;
+}
+
+/* Affichage des montants avec effet brillant */
+.amount-display-modern {
+  font-size: 2rem;
+  font-weight: 800;
+  background: var(--gradient-payment);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  padding: 1.5rem;
+  background-color: rgba(16, 185, 129, 0.05);
+  border-radius: var(--radius-xl);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  margin: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+  animation: glow 3s ease-in-out infinite;
+}
+
+.amount-display-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
+  animation: shimmer 3s infinite;
+}
+
+.amount-display-modern.large {
+  font-size: 2.5rem;
+  padding: 2rem;
+}
+
+.amount-display-modern.small {
+  font-size: 1.4rem;
+  padding: 1rem;
+}
+
+/* Résumé de paiement avec design premium */
+.payment-summary-modern {
+  background: linear-gradient(135deg, 
+    rgba(240, 253, 244, 0.9) 0%, 
+    rgba(236, 253, 245, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin-top: 2rem;
+  position: relative;
+  overflow: hidden;
+  animation: slideInUp 0.6s ease-out;
+}
+
+.payment-summary-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-payment);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.payment-summary-modern h4 {
+  color: var(--payment-primary);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.payment-summary-modern h4::before {
+  content: '💰';
+  font-size: 1.2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.payment-summary-modern .summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+  transition: var(--transition-fast);
+}
+
+.payment-summary-modern .summary-item:hover {
+  background: rgba(16, 185, 129, 0.05);
+  border-radius: var(--radius-md);
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.payment-summary-modern .summary-item:last-child {
+  border-bottom: none;
+  font-weight: 700;
+  color: var(--payment-primary);
+  font-size: 1.1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Boutons ultra-modernes avec effets avancés */
+.btn-payment-modern {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-spring);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
+}
+
+.btn-payment-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: var(--transition-base);
+}
+
+.btn-payment-modern:hover::before {
+  left: 100%;
+}
+
+.btn-payment-modern:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-xl);
+}
+
+.btn-payment-modern:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.btn-payment-primary {
+  background: var(--gradient-payment);
+  color: white;
+  box-shadow: var(--shadow-payment);
+}
+
+.btn-payment-primary:hover {
+  background: var(--gradient-payment-dark);
+  box-shadow: 
+    0 15px 50px -10px rgba(16, 185, 129, 0.4),
+    var(--shadow-xl);
+  animation: glow 2s infinite;
+}
+
+.btn-payment-secondary {
+  background: rgba(var(--gray-100), 0.9);
+  color: var(--gray-700);
+  border: 2px solid var(--gray-200);
+}
+
+.btn-payment-secondary:hover {
+  background: rgba(var(--gray-200), 0.9);
+  color: var(--gray-800);
+  border-color: var(--gray-300);
+}
+
+/* États de validation améliorés */
+.field-error {
+  border-color: var(--payment-danger) !important;
+  box-shadow: 
+    0 0 0 3px rgba(239, 68, 68, 0.1) !important,
+    var(--shadow-md) !important;
+  animation: shake 0.5s ease-in-out;
+}
+
+.field-success {
+  border-color: var(--payment-success) !important;
+  box-shadow: 
+    0 0 0 3px rgba(34, 197, 94, 0.1) !important,
+    var(--shadow-md) !important;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Messages d'erreur et de succès */
+.error-message-modern {
+  color: var(--payment-danger);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.error-message-modern::before {
+  content: '⚠️';
+  font-size: 0.9rem;
+}
+
+.success-message-modern {
+  color: var(--payment-success);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.success-message-modern::before {
+  content: '✅';
+  font-size: 0.9rem;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Aide pour les champs */
+.field-help-modern {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin-top: 0.5rem;
+  font-style: italic;
+  line-height: 1.4;
+  opacity: 0.8;
+  transition: var(--transition-fast);
+}
+
+.field-help-modern:hover {
+  opacity: 1;
+  color: var(--gray-600);
+}
+
+/* Spinner de chargement moderne */
+.loading-spinner-modern {
+  display: none;
+  text-align: center;
+  padding: 3rem;
+  color: var(--payment-primary);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.loading-spinner-modern.show {
+  display: block;
+}
+
+.spinner-modern {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(16, 185, 129, 0.1);
+  border-left: 4px solid var(--payment-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--payment-primary);
+  margin-top: 1rem;
+}
+
+/* Alertes ultra-modernes */
+.alert-modern {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid transparent;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+  animation: slideInLeft 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.alert-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.alert-modern .alert-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.alert-modern .alert-content {
+  flex: 1;
+}
+
+.alert-success-modern {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.2);
+  color: var(--green-800);
+}
+
+.alert-success-modern::before {
+  background: var(--gradient-payment);
+}
+
+.alert-warning-modern {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: #92400e;
+}
+
+.alert-warning-modern::before {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.alert-danger-modern {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #991b1b;
+}
+
+.alert-danger-modern::before {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.alert-info-modern {
+  background: rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.2);
+  color: #155e75;
+}
+
+.alert-info-modern::before {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+}
+
+/* Actions flottantes */
+.floating-actions {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.floating-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-payment);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: var(--transition-spring);
+  backdrop-filter: blur(10px);
+}
+
+.floating-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: var(--shadow-2xl);
+  animation: glow 1s infinite;
+}
+
+/* Responsive amélioré */
+@media (max-width: 1200px) {
+  .payment-form-container {
+    margin: 0 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .payment-page-header {
+    padding: 1.5rem;
+    margin: 0 1rem 2rem 1rem;
+  }
+  
+  .payment-page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .form-section-modern {
+    padding: 1.5rem;
+  }
+  
+  .payment-form-container {
+    margin: 0 0.5rem;
+    border-radius: var(--radius-xl);
+  }
+  
+  .amount-display-modern {
+    font-size: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .amount-display-modern.large {
+    font-size: 1.8rem;
+    padding: 1.25rem;
+  }
+  
+  .btn-payment-modern {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .floating-actions {
+    bottom: 1rem;
+    right: 1rem;
+  }
+  
+  .floating-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-page-header {
+    padding: 1rem;
+    margin: 0 0.5rem 1.5rem 0.5rem;
+  }
+  
+  .payment-page-header h1 {
+    font-size: 1.7rem;
+  }
+  
+  .form-section-modern {
+    padding: 1rem;
+  }
+  
+  .payment-summary-modern {
+    padding: 1.5rem;
+  }
+  
+  .btn-payment-modern {
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    min-width: 180px;
+  }
+  
+  .form-control-modern {
+    padding: 0.875rem 1rem;
+  }
+}
+
+/* Mode sombre (optionnel) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --payment-bg-primary: rgba(5, 150, 105, 0.1);
+    --payment-bg-secondary: rgba(30, 41, 59, 0.08);
+    --payment-bg-card: rgba(30, 41, 59, 0.95);
+  }
+  
+  .payment-form-container {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .form-control-modern {
+    background: rgba(30, 41, 59, 0.8);
+    color: var(--gray-100);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .form-control-modern::placeholder {
+    color: var(--gray-400);
+  }
+}
+
+/* Animation d'entrée séquentielle */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Délais d'animation pour l'effet séquentiel */
+.form-section-modern:nth-child(1) { animation-delay: 0.1s; }
+.form-section-modern:nth-child(2) { animation-delay: 0.2s; }
+.form-section-modern:nth-child(3) { animation-delay: 0.3s; }
+.form-section-modern:nth-child(4) { animation-delay: 0.4s; }

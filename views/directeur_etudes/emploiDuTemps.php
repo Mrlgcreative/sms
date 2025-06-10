@@ -92,35 +92,11 @@ $mysqli->close();
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/Ionicons/css/ionicons.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/fullcalendar/dist/fullcalendar.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/fullcalendar/dist/fullcalendar.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    .timetable-cell {
-      height: 80px;
-      border: 1px solid #ddd;
-      padding: 5px;
-      vertical-align: top;
-    }
-    .course-item {
-      background-color: #3c8dbc;
-      color: white;
-      padding: 5px;
-      margin-bottom: 5px;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-    .empty-cell {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #aaa;
-      cursor: pointer;
-    }
-  </style>
+  <!-- CSS externe pour l'emploi du temps -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/emploi-du-temps.css">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -418,103 +394,7 @@ $mysqli->close();
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Styles CSS pour le tableau dynamique -->
-      <style>
-        .cell-cours {
-          position: relative;
-          min-height: 80px;
-          transition: all 0.3s ease;
-          cursor: pointer;
-        }
-        
-        .empty-cell {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          min-height: 80px;
-        }
-        
-        .empty-cell .no-cours {
-          color: #ccc;
-          font-size: 18px;
-        }
-        
-        .add-cours-btn {
-          display: none;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 10;
-        }
-        
-        .cell-cours:hover {
-          background-color: #f9f9f9;
-        }
-        
-        .cell-cours:hover .add-cours-btn {
-          display: block;
-        }
-        
-        .cours-info {
-          position: relative;
-          padding: 8px;
-          background-color: #3c8dbc;
-          color: white;
-          border-radius: 4px;
-          height: 100%;
-          min-height: 70px;
-          transition: all 0.3s ease;
-        }
-        
-        .cours-actions {
-          display: none;
-          position: absolute;
-          bottom: 5px;
-          right: 5px;
-        }
-        
-        .cours-info:hover {
-          transform: scale(1.02);
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .cours-info:hover .cours-actions {
-          display: block;
-        }
-        
-        .cours-titre {
-          font-weight: bold;
-          margin-bottom: 5px;
-        }
-        
-        .cours-prof {
-          font-size: 12px;
-        }
-        
-        .cours-salle {
-          font-size: 11px;
-          font-style: italic;
-          position: absolute;
-          bottom: 5px;
-          left: 8px;
-        }
-        
-        /* Animation pour l'ajout de cours */
-        @keyframes coursAdded {
-          0% { transform: scale(0.8); opacity: 0; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        
-        .cours-added {
-          animation: coursAdded 0.5s ease-out;
-        }
-      </style>
-      
+      </div>      
       <!-- Script JavaScript pour le tableau dynamique -->
       <script>
         $(document).ready(function() {

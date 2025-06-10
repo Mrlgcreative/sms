@@ -1,0 +1,47 @@
+[2025-06-09 09:29:17] [WARNING] [127.0.0.1] [Anonyme] Échec de connexion {"username":"Noellao0","ip":"127.0.0.1"}
+[2025-06-09 09:29:26] [INFO] [127.0.0.1] [Noella] User role for redirection {"role":"directeur_Etude"}
+[2025-06-09 09:29:26] [INFO] [127.0.0.1] [Noella] Connexion réussie {"username":"Noella","ip":"127.0.0.1"}
+[2025-06-09 09:30:36] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 09:30:36] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"Ciella","ip":"127.0.0.1"}
+[2025-06-09 10:32:40] [INFO] [127.0.0.1] [rapha] User role for redirection {"role":"prefet"}
+[2025-06-09 10:32:40] [INFO] [127.0.0.1] [rapha] Connexion réussie {"username":"rapha","ip":"127.0.0.1"}
+[2025-06-09 10:34:12] [INFO] [127.0.0.1] [chris] User role for redirection {"role":"directrice"}
+[2025-06-09 10:34:12] [INFO] [127.0.0.1] [chris] Connexion réussie {"username":"chris","ip":"127.0.0.1"}
+[2025-06-09 10:37:24] [INFO] [127.0.0.1] [Mael] User role for redirection {"role":"prefet"}
+[2025-06-09 10:37:24] [INFO] [127.0.0.1] [Mael] Connexion réussie {"username":"Mael","ip":"127.0.0.1"}
+[2025-06-09 10:37:39] [INFO] [127.0.0.1] [malika] User role for redirection {"role":"director"}
+[2025-06-09 10:37:39] [INFO] [127.0.0.1] [malika] Connexion réussie {"username":"malika","ip":"127.0.0.1"}
+[2025-06-09 10:49:19] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 10:49:19] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"Ciella","ip":"127.0.0.1"}
+[2025-06-09 13:17:47] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 13:17:47] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"Ciella","ip":"127.0.0.1"}
+[2025-06-09 13:48:52] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 13:48:53] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 14:17:40] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 14:17:40] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"Ciella","ip":"127.0.0.1"}
+[2025-06-09 14:19:16] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 14:19:16] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 14:46:10] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 14:46:10] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"Ciella","ip":"127.0.0.1"}
+[2025-06-09 15:05:24] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 15:05:24] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 15:08:02] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 15:08:02] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"Ciella","ip":"127.0.0.1"}
+[2025-06-09 16:00:33] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 16:00:33] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 16:35:11] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 16:35:11] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"Ciella","ip":"127.0.0.1"}
+[2025-06-09 16:38:32] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 16:38:33] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 19:10:08] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 19:10:08] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 19:34:14] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 19:34:15] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 19:47:38] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 19:47:38] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 20:23:54] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 20:23:54] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}
+[2025-06-09 21:56:25] [INFO] [127.0.0.1] [ciella] User role for redirection {"role":"admin"}
+[2025-06-09 21:56:25] [INFO] [127.0.0.1] [ciella] Connexion réussie {"username":"ciella","ip":"127.0.0.1"}
+[2025-06-09 23:44:23] [INFO] [127.0.0.1] [Daniel] User role for redirection {"role":"comptable"}
+[2025-06-09 23:44:23] [INFO] [127.0.0.1] [Daniel] Connexion réussie {"username":"Daniel","ip":"127.0.0.1"}

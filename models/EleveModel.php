@@ -247,11 +247,97 @@ class EleveModel {
             $this->db->commit();
             
             return $result;
-        } catch (Exception $e) {
-            // En cas d'erreur, annuler la transaction
+        } catch (Exception $e) {        // En cas d'erreur, annuler la transaction
             $this->db->rollback();
             throw $e;
         }
+    }
+
+    public function getElevesAnnePrecedente() {
+        $query = "SELECT e.*, c.niveau as classe_actuelle, e.nom_pere as parent_nom, e.nom_mere as parent_prenom 
+                  FROM eleves e 
+                  LEFT JOIN classes c ON e.classe_id = c.id 
+                  
+                  WHERE e.session_scolaire_id = (
+                      SELECT id FROM sessions_scolaires 
+                      WHERE annee_debut = (SELECT MAX(annee_debut) - 1 FROM sessions_scolaires)
+                  )
+                  ORDER BY e.nom, e.prenom";
+        
+        $result = $this->db->query($query);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    public function reinscrireEleve($eleve_id, $nouvelle_classe_id, $session_id) {
+        try {
+            $this->db->begin_transaction();
+
+            // Récupérer les informations de l'élève
+            $stmt = $this->db->prepare("SELECT * FROM eleves WHERE id = ?");
+            $stmt->bind_param("i", $eleve_id);
+            $stmt->execute();
+            $eleve = $stmt->get_result()->fetch_assoc();
+
+            if (!$eleve) {
+                throw new Exception("Élève non trouvé");
+            }
+
+            // Créer une nouvelle inscription pour la nouvelle session
+            $stmt = $this->db->prepare("INSERT INTO eleves (
+                nom, post_nom, prenom, date_naissance, lieu_naissance, 
+                adresse, section, matricule, photo, professions, 
+                nom_pere, nom_mere, contact_pere, contact_mere, 
+                classe_id, option_id, parent_id, session_scolaire_id,
+                age, sexe, nationalite, profession_pere, profession_mere
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+            // Générer un nouveau matricule pour la nouvelle année
+            $nouveau_matricule = $this->genererNouveauMatricule($session_id);
+
+            $stmt->bind_param("ssssssssssssssiiiissss", 
+                $eleve['nom'], $eleve['post_nom'], $eleve['prenom'], 
+                $eleve['date_naissance'], $eleve['lieu_naissance'],
+                $eleve['adresse'], $eleve['section'], $nouveau_matricule, 
+                $eleve['photo'], $eleve['professions'],
+                $eleve['nom_pere'], $eleve['nom_mere'], 
+                $eleve['contact_pere'], $eleve['contact_mere'],
+                $nouvelle_classe_id, $eleve['option_id'], $eleve['parent_id'], 
+                $session_id, $eleve['age'], $eleve['sexe'], 
+                $eleve['nationalite'], $eleve['profession_pere'], $eleve['profession_mere']
+            );
+
+            $result = $stmt->execute();
+
+            if (!$result) {
+                throw new Exception("Erreur lors de la réinscription");
+            }
+
+            $this->db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            throw $e;
+        }
+    }
+
+    private function genererNouveauMatricule($session_id) {
+        // Récupérer l'année de la session
+        $stmt = $this->db->prepare("SELECT annee_debut FROM sessions_scolaires WHERE id = ?");
+        $stmt->bind_param("i", $session_id);
+        $stmt->execute();
+        $session = $stmt->get_result()->fetch_assoc();
+
+        $annee = $session ? $session['annee_debut'] : date('Y');
+
+        // Compter le nombre d'élèves déjà inscrits pour cette session
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM eleves WHERE session_scolaire_id = ?");
+        $stmt->bind_param("i", $session_id);
+        $stmt->execute();
+        $count = $stmt->get_result()->fetch_assoc()['count'];
+        
+        // Générer le matricule: ANNÉE + numéro séquentiel sur 4 chiffres
+        return $annee . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
     }
 }
 ?>

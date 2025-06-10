@@ -167,13 +167,13 @@ class DirecteurEtude {
             }
             
             // Préparer la requête SQL
-            $query = "INSERT INTO evenements_scolaires (titre, type, date_debut, date_fin, classe_id, lieu, description) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $query = "INSERT INTO evenements_scolaires (titre, type, date_debut, date_fin,  lieu, description) 
+                      VALUES (?, ?, ?, ?,  ?, ?)";
             
             $stmt = $mysqli->prepare($query);
             
             if ($stmt) {
-                $stmt->bind_param("sssssss", $titre, $type, $date_debut, $date_fin, $classe, $lieu, $description);
+                $stmt->bind_param("ssssss", $titre, $type, $date_debut, $date_fin,  $lieu, $description);
                 
                 if ($stmt->execute()) {
                     $_SESSION['success_message'] = "L'événement a été ajouté avec succès.";

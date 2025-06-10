@@ -44,14 +44,15 @@ $classes_total = count($classes);
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>SMS | Gestion des Classes</title>
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <!-- Bootstrap 3.3.7 -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">  <!-- Bootstrap 3.3.7 -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
+  <!-- CSS externe pour la gestion des classes -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/classes.css">
 </head>
 <body class="hold-transition skin-purple sidebar-mini">
 <div class="wrapper">
@@ -186,120 +187,147 @@ $classes_total = count($classes);
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Classes</li>
       </ol>
-    </section>
+    </section>    <section class="content">
+      <div class="classes-container">
+        <!-- En-tête moderne -->
+        <div class="page-header animate-fade-in-up">
+          <h1><i class="fa fa-university"></i> Gestion des Classes</h1>
+          <p>Vue d'ensemble et gestion des classes du secondaire</p>
+        </div>
 
-    <section class="content">
-      <!-- Statistiques -->
-      <div class="row">
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
-            <div class="inner">
-              <h3><?php echo $classes_total; ?></h3>
-              <p>Total Classes</p>
+        <!-- Boutons d'action -->
+        <div class="action-buttons animate-fade-in-up animate-delay-1">
+          <a href="#" class="modern-btn btn-success-modern">
+            <i class="fa fa-plus"></i> Nouvelle Classe
+          </a>
+          <a href="#" class="modern-btn btn-primary-modern">
+            <i class="fa fa-download"></i> Exporter
+          </a>
+        </div>
+
+        <!-- Statistiques modernes -->
+        <div class="row stats-row animate-fade-in-up animate-delay-2">
+          <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-university"></i>
+              </div>
+              <div class="stat-number"><?php echo $classes_total; ?></div>
+              <div class="stat-label">Total Classes</div>
             </div>
-            <div class="icon">
-              <i class="fa fa-university"></i>
+          </div>
+          
+          <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-users"></i>
+              </div>
+              <div class="stat-number"><?php echo array_sum(array_column($classes, 'nb_eleves')); ?></div>
+              <div class="stat-label">Total Élèves</div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-male"></i>
+              </div>
+              <div class="stat-number"><?php echo array_sum(array_column($classes, 'nb_garcons')); ?></div>
+              <div class="stat-label">Garçons</div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-female"></i>
+              </div>
+              <div class="stat-number"><?php echo array_sum(array_column($classes, 'nb_filles')); ?></div>
+              <div class="stat-label">Filles</div>
             </div>
           </div>
         </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-green">
-            <div class="inner">
-              <h3><?php echo array_sum(array_column($classes, 'nb_eleves')); ?></h3>
-              <p>Total Élèves</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-users"></i>
-            </div>
-          </div>
-        </div>
 
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-yellow">
-            <div class="inner">
-              <h3><?php echo array_sum(array_column($classes, 'nb_garcons')); ?></h3>
-              <p>Garçons</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-male"></i>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-red">
-            <div class="inner">
-              <h3><?php echo array_sum(array_column($classes, 'nb_filles')); ?></h3>
-              <p>Filles</p>
-            </div>
-            <div class="icon">
-              <i class="fa fa-female"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Liste des classes -->
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Liste des Classes</h3>
-            </div>
-            <div class="box-body">
-              <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                     
-                      <th>Niveau</th>
-                      <th>Section</th>
-                      <th>Total Élèves</th>
-                      <th>Garçons</th>
-                      <th>Filles</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php if (!empty($classes)): ?>
-                      <?php foreach ($classes as $classe): ?>
-                        <tr>
-                          <td><?php echo htmlspecialchars($classe['id']); ?></td>
-                          
-                          <td><?php echo htmlspecialchars($classe['niveau']); ?></td>
-                          <td><?php echo htmlspecialchars($classe['section']); ?></td>
-                          <td>
-                            <span class="badge bg-blue"><?php echo $classe['nb_eleves']; ?></span>
-                          </td>
-                          <td>
-                            <span class="badge bg-yellow"><?php echo $classe['nb_garcons']; ?></span>
-                          </td>
-                          <td>
-                            <span class="badge bg-red"><?php echo $classe['nb_filles']; ?></span>
-                          </td>
-                          <td>
-                            <!-- <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=voirClasse&id=<?php echo $classe['id']; ?>" class="btn btn-info btn-xs" title="Voir détails"> -->
-                              <i class="fa fa-eye"></i>
-                            </a>
-                            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=elevesClasse&id=<?php echo $classe['id']; ?>" class="btn btn-success btn-xs" title="Élèves de la classe">
-                              <i class="fa fa-users"></i>
-                            </a>
-                          </td>
-                        </tr>
-                      <?php endforeach; ?>
-                    <?php else: ?>
-                      <tr>
-                        <td colspan="8" class="text-center">Aucune classe trouvée.</td>
-                      </tr>
-                    <?php endif; ?>
-                  </tbody>
-                </table>
+        <!-- Filtres et recherche -->
+        <div class="filters-container animate-fade-in-up animate-delay-3">
+          <div class="filters-row">
+            <div class="form-group-modern">
+              <label class="form-label-modern">Rechercher une classe</label>
+              <div class="search-box">
+                <input type="text" class="form-control-modern search-input" placeholder="Nom de classe, niveau...">
+                <i class="fa fa-search search-icon"></i>
               </div>
             </div>
+            <div class="form-group-modern">
+              <label class="form-label-modern">Filtrer par niveau</label>
+              <select class="form-control-modern">
+                <option value="">Tous les niveaux</option>
+                <option value="6ème">6ème</option>
+                <option value="5ème">5ème</option>
+                <option value="4ème">4ème</option>
+                <option value="3ème">3ème</option>
+                <option value="2nde">2nde</option>
+                <option value="1ère">1ère</option>
+                <option value="Tle">Terminale</option>
+              </select>
+            </div>
+            <div class="form-group-modern">
+              <button class="modern-btn btn-primary-modern">
+                <i class="fa fa-filter"></i> Filtrer
+              </button>
+            </div>
           </div>
         </div>
+
+        <!-- Grille des classes -->
+        <?php if (!empty($classes)): ?>
+          <div class="classes-grid animate-fade-in-up animate-delay-4">
+            <?php foreach ($classes as $classe): ?>
+              <div class="classe-card hover-effect">
+                <div class="classe-header">
+                  <h3 class="classe-title"><?php echo htmlspecialchars($classe['nom'] ?? 'Classe ' . $classe['niveau']); ?></h3>
+                  <span class="classe-level"><?php echo htmlspecialchars($classe['niveau']); ?></span>
+                </div>
+                
+                <div class="classe-stats">
+                  <div class="stat-item">
+                    <div class="stat-item-number"><?php echo $classe['nb_eleves']; ?></div>
+                    <div class="stat-item-label">Élèves</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-item-number"><?php echo $classe['nb_garcons']; ?> / <?php echo $classe['nb_filles']; ?></div>
+                    <div class="stat-item-label">G / F</div>
+                  </div>
+                </div>
+
+                <div class="classe-actions">
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=elevesClasse&id=<?php echo $classe['id']; ?>" 
+                     class="classe-btn btn-info-classe" title="Voir les élèves">
+                    <i class="fa fa-users"></i> Élèves
+                  </a>
+                  <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=emploiDuTemps&classe_id=<?php echo $classe['id']; ?>" 
+                     class="classe-btn btn-warning-classe" title="Emploi du temps">
+                    <i class="fa fa-calendar"></i> EDT
+                  </a>
+                  <a href="#" class="classe-btn btn-danger-classe" title="Modifier la classe">
+                    <i class="fa fa-edit"></i> Modifier
+                  </a>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php else: ?>
+          <div class="empty-state animate-fade-in-up animate-delay-4">
+            <div class="empty-state-icon">
+              <i class="fa fa-university"></i>
+            </div>
+            <h3 class="empty-state-title">Aucune classe trouvée</h3>
+            <p class="empty-state-description">Il n'y a actuellement aucune classe dans le système.</p>
+            <a href="#" class="modern-btn btn-success-modern">
+              <i class="fa fa-plus"></i> Créer une nouvelle classe
+            </a>
+          </div>
+        <?php endif; ?>
       </div>
     </section>
   </div>

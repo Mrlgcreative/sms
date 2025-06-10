@@ -159,9 +159,10 @@ $mysqli->close();
   <!-- Theme style -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <!-- AdminLTE Skins -->
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
-  <!-- Chart.js -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">  <!-- Chart.js -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/chart.js/Chart.min.css">
+  <!-- Rapports Styles -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/rapports.css">
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
@@ -303,147 +304,238 @@ $mysqli->close();
         <li><a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=accueil"><i class="fa fa-dashboard"></i> Accueil</a></li>
         <li class="active">Rapports Globaux</li>
       </ol>
-    </section>
+    </section>    <section class="content">
+      <!-- En-tête moderne -->
+      <div class="reports-header">
+        <div class="header-content">
+          <h1>Rapports Globaux</h1>
+          <p>Analyses et statistiques complètes de l'établissement</p>
+        </div>
+        <div class="header-actions">
+          <button class="action-btn primary" onclick="exportPDF()">
+            <i class="fa fa-file-pdf-o"></i>
+            Exporter PDF
+          </button>
+          <button class="action-btn secondary" onclick="printReport()">
+            <i class="fa fa-print"></i>
+            Imprimer
+          </button>
+        </div>
+      </div>
 
-    <section class="content">
-      <!-- Statistiques générales -->
-      <div class="row">
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
-            <div class="inner">
-              <h3><?php echo number_format($stats['eleves']['total_eleves']); ?></h3>
-              <p>Total Élèves</p>
+      <!-- Statistiques principales -->
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">
+            <i class="fa fa-graduation-cap"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo number_format($stats['eleves']['total_eleves']); ?></div>
+            <div class="stat-label">Total Élèves</div>
+            <div class="stat-details">
+              <span class="detail-item">
+                <i class="fa fa-male"></i>
+                <?php echo $stats['eleves']['total_garcons']; ?> Garçons
+              </span>
+              <span class="detail-item">
+                <i class="fa fa-female"></i>
+                <?php echo $stats['eleves']['total_filles']; ?> Filles
+              </span>
             </div>
-            <div class="icon">
-              <i class="fa fa-graduation-cap"></i>
-            </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=eleves" class="small-box-footer">
-              Plus d'infos <i class="fa fa-arrow-circle-right"></i>
-            </a>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fa fa-arrow-up"></i>
+            <span>+5.2%</span>
           </div>
         </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-green">
-            <div class="inner">
-              <h3><?php echo number_format($stats['professeurs']['total_professeurs']); ?></h3>
-              <p>Total Professeurs</p>
+
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <i class="fa fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo number_format($stats['professeurs']['total_professeurs']); ?></div>
+            <div class="stat-label">Professeurs</div>
+            <div class="stat-details">
+              <span class="detail-item">
+                <i class="fa fa-male"></i>
+                <?php echo $stats['professeurs']['profs_hommes']; ?> Hommes
+              </span>
+              <span class="detail-item">
+                <i class="fa fa-female"></i>
+                <?php echo $stats['professeurs']['profs_femmes']; ?> Femmes
+              </span>
             </div>
-            <div class="icon">
-              <i class="fa fa-users"></i>
-            </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=professeurs" class="small-box-footer">
-              Plus d'infos <i class="fa fa-arrow-circle-right"></i>
-            </a>
+          </div>
+          <div class="stat-trend stable">
+            <i class="fa fa-minus"></i>
+            <span>0%</span>
           </div>
         </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-yellow">
-            <div class="inner">
-              <h3><?php echo number_format($stats['classes']['total_classes']); ?></h3>
-              <p>Total Classes</p>
+
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <i class="fa fa-university"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo number_format($stats['classes']['total_classes']); ?></div>
+            <div class="stat-label">Classes</div>
+            <div class="stat-details">
+              <span class="detail-item">
+                <i class="fa fa-layer-group"></i>
+                <?php echo $stats['classes']['niveaux_differents']; ?> Niveaux
+              </span>
             </div>
-            <div class="icon">
-              <i class="fa fa-university"></i>
-            </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=classes" class="small-box-footer">
-              Plus d'infos <i class="fa fa-arrow-circle-right"></i>
-            </a>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fa fa-arrow-up"></i>
+            <span>+2%</span>
           </div>
         </div>
-        
-        <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-red">
-            <div class="inner">
-              <h3><?php echo number_format($stats['cours']['total_cours']); ?></h3>
-              <p>Total Cours</p>
+
+        <div class="stat-card danger">
+          <div class="stat-icon">
+            <i class="fa fa-book"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo number_format($stats['cours']['total_cours']); ?></div>
+            <div class="stat-label">Cours</div>
+            <div class="stat-details">
+              <span class="detail-item">
+                <i class="fa fa-bookmark"></i>
+                <?php echo $stats['cours']['matieres_differentes']; ?> Matières
+              </span>
             </div>
-            <div class="icon">
-              <i class="fa fa-book"></i>
-            </div>
-            <a href="<?php echo BASE_URL; ?>index.php?controller=DirecteurEtude&action=cours" class="small-box-footer">
-              Plus d'infos <i class="fa fa-arrow-circle-right"></i>
-            </a>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fa fa-arrow-up"></i>
+            <span>+8.1%</span>
           </div>
         </div>
       </div>
 
       <!-- Graphiques et analyses -->
-      <div class="row">
+      <div class="charts-container">
         <!-- Répartition par sexe des élèves -->
-        <div class="col-md-6">
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Répartition des Élèves par Sexe</h3>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fa fa-pie-chart"></i> Répartition des Élèves par Sexe</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" onclick="refreshChart('pieChartEleves')">
+                <i class="fa fa-refresh"></i>
+              </button>
             </div>
-            <div class="box-body">
-              <canvas id="pieChartEleves" style="height:250px"></canvas>
-              <div class="text-center" style="margin-top: 15px;">
-                <span class="description-percentage text-green">
-                  <i class="fa fa-male"></i> Garçons: <?php echo $stats['eleves']['total_garcons']; ?> (<?php echo $stats['eleves']['total_eleves'] > 0 ? round(($stats['eleves']['total_garcons']/$stats['eleves']['total_eleves'])*100, 1) : 0; ?>%)
-                </span>
-                <br>
-                <span class="description-percentage text-red">
-                  <i class="fa fa-female"></i> Filles: <?php echo $stats['eleves']['total_filles']; ?> (<?php echo $stats['eleves']['total_eleves'] > 0 ? round(($stats['eleves']['total_filles']/$stats['eleves']['total_eleves'])*100, 1) : 0; ?>%)
-                </span>
+          </div>
+          <div class="chart-body">
+            <canvas id="pieChartEleves"></canvas>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color male"></span>
+                <span class="legend-label">Garçons: <?php echo $stats['eleves']['total_garcons']; ?> (<?php echo $stats['eleves']['total_eleves'] > 0 ? round(($stats['eleves']['total_garcons']/$stats['eleves']['total_eleves'])*100, 1) : 0; ?>%)</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color female"></span>
+                <span class="legend-label">Filles: <?php echo $stats['eleves']['total_filles']; ?> (<?php echo $stats['eleves']['total_eleves'] > 0 ? round(($stats['eleves']['total_filles']/$stats['eleves']['total_eleves'])*100, 1) : 0; ?>%)</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Répartition par sexe des professeurs -->
-        <div class="col-md-6">
-          <div class="box box-success">
-            <div class="box-header with-border">
-              <h3 class="box-title">Répartition des Professeurs par Sexe</h3>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fa fa-pie-chart"></i> Répartition des Professeurs par Sexe</h3>
+            <div class="chart-actions">
+              <button class="chart-btn" onclick="refreshChart('pieChartProfesseurs')">
+                <i class="fa fa-refresh"></i>
+              </button>
             </div>
-            <div class="box-body">
-              <canvas id="pieChartProfesseurs" style="height:250px"></canvas>
-              <div class="text-center" style="margin-top: 15px;">
-                <span class="description-percentage text-blue">
-                  <i class="fa fa-male"></i> Hommes: <?php echo $stats['professeurs']['profs_hommes']; ?> (<?php echo $stats['professeurs']['total_professeurs'] > 0 ? round(($stats['professeurs']['profs_hommes']/$stats['professeurs']['total_professeurs'])*100, 1) : 0; ?>%)
-                </span>
-                <br>
-                <span class="description-percentage text-red">
-                  <i class="fa fa-female"></i> Femmes: <?php echo $stats['professeurs']['profs_femmes']; ?> (<?php echo $stats['professeurs']['total_professeurs'] > 0 ? round(($stats['professeurs']['profs_femmes']/$stats['professeurs']['total_professeurs'])*100, 1) : 0; ?>%)
-                </span>
+          </div>
+          <div class="chart-body">
+            <canvas id="pieChartProfesseurs"></canvas>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color male"></span>
+                <span class="legend-label">Hommes: <?php echo $stats['professeurs']['profs_hommes']; ?> (<?php echo $stats['professeurs']['total_professeurs'] > 0 ? round(($stats['professeurs']['profs_hommes']/$stats['professeurs']['total_professeurs'])*100, 1) : 0; ?>%)</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color female"></span>
+                <span class="legend-label">Femmes: <?php echo $stats['professeurs']['profs_femmes']; ?> (<?php echo $stats['professeurs']['total_professeurs'] > 0 ? round(($stats['professeurs']['profs_femmes']/$stats['professeurs']['total_professeurs'])*100, 1) : 0; ?>%)</span>
               </div>
             </div>
           </div>
         </div>
-      </div>      <!-- Répartition des élèves par niveau -->
-      <div class="row">
-        <div class="col-md-12">
-          <div class="box box-info">
-            <div class="box-header with-border">
-              <h3 class="box-title">Répartition des Élèves par Niveau</h3>
+      </div>
+
+      <!-- Répartition des élèves par niveau -->
+      <div class="full-width-chart">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fa fa-bar-chart"></i> Répartition des Élèves par Niveau</h3>
+            <div class="chart-filters">
+              <select class="filter-select" onchange="filterChart('barChartNiveaux', this.value)">
+                <option value="all">Tous les niveaux</option>
+                <option value="6eme">6ème</option>
+                <option value="5eme">5ème</option>
+                <option value="4eme">4ème</option>
+                <option value="3eme">3ème</option>
+                <option value="2nde">2nde</option>
+                <option value="1ere">1ère</option>
+                <option value="Tale">Terminale</option>
+              </select>
             </div>
-            <div class="box-body">
-              <?php if (!empty($repartition_niveaux)): ?>
-                <canvas id="barChartNiveaux" style="height:300px"></canvas>
-              <?php else: ?>
-                <div class="alert alert-info">
-                  <h4><i class="icon fa fa-info-circle"></i> Information</h4>
-                  Aucune donnée de répartition disponible pour le moment. 
-                  Vérifiez que les classes et élèves sont correctement configurés dans le système.
+          </div>
+          <div class="chart-body">
+            <?php if (!empty($repartition_niveaux)): ?>
+              <canvas id="barChartNiveaux"></canvas>
+              <div class="chart-summary">
+                <div class="summary-stats">
+                  <?php foreach ($repartition_niveaux as $niveau): ?>
+                    <div class="summary-item">
+                      <div class="summary-label"><?php echo htmlspecialchars($niveau['niveau']); ?></div>
+                      <div class="summary-value"><?php echo $niveau['nb_eleves']; ?> élèves</div>
+                    </div>
+                  <?php endforeach; ?>
                 </div>
-              <?php endif; ?>
-            </div>
+              </div>
+            <?php else: ?>
+              <div class="no-data-message">
+                <i class="fa fa-info-circle"></i>
+                <h4>Aucune donnée disponible</h4>
+                <p>Vérifiez que les classes et élèves sont correctement configurés dans le système.</p>
+              </div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
 
       <!-- Moyennes par niveau -->
       <?php if (!empty($moyennes_niveaux)): ?>
-      <div class="row">
-        <div class="col-md-12">
-          <div class="box box-warning">
-            <div class="box-header with-border">
-              <h3 class="box-title">Moyennes Académiques par Niveau</h3>
+      <div class="full-width-chart">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fa fa-line-chart"></i> Moyennes Académiques par Niveau</h3>
+            <div class="chart-actions">
+              <button class="chart-btn active" onclick="toggleChartType('lineChartMoyennes', 'line')">
+                <i class="fa fa-line-chart"></i>
+              </button>
+              <button class="chart-btn" onclick="toggleChartType('lineChartMoyennes', 'bar')">
+                <i class="fa fa-bar-chart"></i>
+              </button>
             </div>
-            <div class="box-body">
-              <canvas id="lineChartMoyennes" style="height:300px"></canvas>
+          </div>
+          <div class="chart-body">
+            <canvas id="lineChartMoyennes"></canvas>
+            <div class="performance-summary">
+              <?php foreach ($moyennes_niveaux as $moyenne): ?>
+                <div class="performance-item">
+                  <div class="performance-level"><?php echo htmlspecialchars($moyenne['niveau']); ?></div>
+                  <div class="performance-score <?php echo $moyenne['moyenne_niveau'] >= 12 ? 'good' : ($moyenne['moyenne_niveau'] >= 10 ? 'average' : 'poor'); ?>">
+                    <?php echo number_format($moyenne['moyenne_niveau'], 2); ?>/20
+                  </div>
+                  <div class="performance-count"><?php echo $moyenne['nb_notes']; ?> notes</div>
+                </div>
+              <?php endforeach; ?>
             </div>
           </div>
         </div>

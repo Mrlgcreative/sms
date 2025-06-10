@@ -47,6 +47,9 @@ $total_eleves = isset($total_eleves) ? $total_eleves : 0;
 
 // Définir la date du jour comme valeur par défaut pour les champs de date
 $today = date('Y-m-d');
+
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
+
 ?>
 
 <!DOCTYPE html>
@@ -60,204 +63,23 @@ $today = date('Y-m-d');
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="bower_components/Ionicons/css/ionicons.min.css">
   <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
-  <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
-  <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/dashboard-admin.css">   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    .select2-container--default .select2-selection--single {
-      height: 34px;
-      border-radius: 0;
-    }
-    .form-group label {
-      font-weight: 600;
-    }
-    .payment-form {
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .payment-header {
-      margin-bottom: 20px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
-    }
-    .session-info {
-      background-color: #d9edf7;
-      border-color: #bce8f1;
-      color: #31708f;
-      padding: 10px 15px;
-      margin-bottom: 20px;
-      border-radius: 4px;
-    }
-    .loading-spinner {
-      display: none;
-      text-align: center;
-      padding: 20px;
-    }
-    .form-section {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .form-section h4 {
-      margin-top: 0;
-      color: #3c8dbc;
-      border-bottom: 2px solid #3c8dbc;
-      padding-bottom: 10px;
-    }
-    .amount-display {
-      font-size: 18px;
-      font-weight: bold;
-      color: #00a65a;
-    }
-    .required-field {
-      color: #dd4b39;
-    }
-    .field-help {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
-    }
-    .payment-summary {
-      background: #f0f8ff;
-      border: 1px solid #3c8dbc;
-      border-radius: 5px;
-      padding: 15px;
-      margin-top: 20px;
-    }
-    .btn-submit {
-      background: linear-gradient(45deg, #3c8dbc, #5cb85c);
-      border: none;
-      transition: all 0.3s ease;
-    }
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .validation-error {
-      border-color: #dd4b39 !important;
-      box-shadow: 0 0 5px rgba(221, 75, 57, 0.3);
-    }
-    .validation-success {
-      border-color: #00a65a !important;
-      box-shadow: 0 0 5px rgba(0, 166, 90, 0.3);
-    }
-  </style>
+  <!-- CSS Ultra-Moderne pour le module de paiement -->
+
+  <!-- Polices Google Fonts pour un design moderne -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil" class="logo">
-      <span class="logo-mini"><b>St</b>S</span>
-      <span class="logo-lg"><b><?php echo $role; ?></b></span>
-    </a>
-    <nav class="navbar navbar-static-top">
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Basculer la navigation</span>
-      </a>
-
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
-              <span class="hidden-xs"><?php echo $username; ?></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="user-header">
-              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-                <p><?php echo $role; ?></p>
-              </li>
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=profil" class="btn btn-default btn-flat">Profil</a>
-                </div>
-                <div class="pull-right">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </header>
   
-  <aside class="main-sidebar">
-    <section class="sidebar">
-      <div class="user-panel">
-        <div class="pull-left image">
-        <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-        </div>
-        <div class="pull-left info">
-          <p><?php echo $username; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
-        </div>
-      </div>
-      
-      <form action="#" method="get" class="sidebar-form">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Rechercher...">
-          <span class="input-group-btn">
-            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
-          </span>
-        </div>
-      </form>
-      
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">NAVIGATION PRINCIPALE</li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
-            <i class="fa fa-dashboard"></i> <span>Accueil</span>
-          </a>
-        </li>
-        <li>
-           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
-             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
-           </a>
-         </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-users"></i> <span>Élèves</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
-            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
-            <i class="fa fa-pencil"></i> <span>Inscription</span>
-          </a>
-        </li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement">
-            <i class="fa fa-money"></i> <span>Paiement frais</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file-text"></i> <span>Rapports</span>
-          </a>
-        </li>
-      </ul>
-    </section>
-  </aside>
+  <?php include 'navbar.php'; ?>
+
+  <?php include 'sidebar.php'; ?>
+  
 
   <div class="content-wrapper">
     <section class="content-header">
@@ -569,6 +391,9 @@ $today = date('Y-m-d');
 <script src="dist/js/adminlte.min.js"></script>
 <!-- SweetAlert2 pour de meilleures alertes -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- JavaScript Ultra-Moderne pour le module de paiement -->
+<script src="../../assets/js/ajout-paiement.js"></script>
 
 <!-- Scripts personnalisés -->
 <script>

@@ -8,6 +8,9 @@ if (session_status() === PHP_SESSION_NONE) {
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Utilisateur';
+
+// Utiliser l'image de la session ou l'image par défaut
+$image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 $current_session = isset($current_session) ? $current_session : date('Y') . '-' . (date('Y') + 1);
 ?>
 
@@ -62,119 +65,9 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil" class="logo">
-      <span class="logo-mini"><b>St</b>S</span>
-      <span class="logo-lg"><b><?php echo $role; ?></b></span>
-    </a>
-    <nav class="navbar navbar-static-top">
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Basculer la navigation</span>
-      </a>
+  <?php include 'navbar.php'; ?>
 
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="user-image" alt="Image utilisateur">
-              <span class="hidden-xs"><?php echo $username; ?></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="user-header">
-                <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-                <p><?php echo $role; ?></p>
-              </li>
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=profil" class="btn btn-default btn-flat">Profil</a>
-                </div>
-                <div class="pull-right">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-  
-  <aside class="main-sidebar">
-    <section class="sidebar">
-      <div class="user-panel">
-        <div class="pull-left image">
-          <img src="<?php echo isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg'; ?>" class="img-circle" alt="Image utilisateur">
-        </div>
-        <div class="pull-left info">
-          <p><?php echo $username; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
-        </div>
-      </div>
-      
-      <form action="#" method="get" class="sidebar-form">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Rechercher...">
-          <span class="input-group-btn">
-            <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
-          </span>
-        </div>
-      </form>
-      
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">NAVIGATION PRINCIPALE</li>
-        <li>
-        
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=accueil">
-            <i class="fa fa-dashboard"></i> <span>Accueil</span>
-          </a>
-        </li>
-        <li>
-           
-           <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=achatFournitures">
-             <i class="fa fa-pencil"></i> <span>Achat fourniture</span>
-           </a>
-         </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscris">
-            <i class="fa fa-users"></i> <span>Élèves</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscris">
-            <i class="fa fa-users"></i> <span>Élèves reinscris</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=inscriptions">
-            <i class="fa fa-pencil"></i> <span>Inscription</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=ajoutpaiement">
-            <i class="fa fa-money"></i> <span>Paiement frais</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=paiements">
-            <i class="fa fa-check-circle"></i> <span>Élèves en ordre</span>
-          </a>
-        </li>
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=reinscription">
-            <i class="fa fa-refresh"></i> <span>Réinscription</span>
-          </a>
-        </li>
-        <li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=comptable&action=rapportactions">
-            <i class="fa fa-file-text"></i> <span>Rapports</span>
-          </a>
-        </li>
-      </ul>
-    </section>
-  </aside>
+  <?php include 'sidebar.php'; ?>
 
   <div class="content-wrapper">
     <section class="content-header">
@@ -395,122 +288,5 @@ $current_session = isset($current_session) ? $current_session : date('Y') . '-' 
     <strong>Copyright &copy; <?php echo date('Y'); ?> <a href="#">St Sofie</a>.</strong> Tous droits réservés.
   </footer>
 </div>
-
-<!-- jQuery 3 -->
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- DataTables -->
-<script src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-<!-- AdminLTE App -->
-<script src="dist/js/adminlte.min.js"></script>
-
-<script>
-  $(function () {
-    // Initialiser DataTables
-    var table = $('#actionsTable').DataTable({
-      'paging'      : true,
-      'lengthChange': true,
-      'searching'   : true,
-      'ordering'    : true,
-      'info'        : true,
-      'autoWidth'   : false,
-      'language': {
-        'url': '//cdn.datatables.net/plug-ins/1.10.25/i18n/French.json'
-      }
-    });
-    
-    // Fonction de recherche dynamique
-    $("#searchInput").on("keyup", function() {
-      table.search(this.value).draw();
-    });
-    
-    // Appliquer les filtres
-    $('#applyFilter').click(function() {
-      var actionFilter = $('#filterAction').val();
-      var dateDebutFilter = $('#filterDateDebut').val();
-      var dateFinFilter = $('#filterDateFin').val();
-      
-      // Réinitialiser la recherche
-      table.search('').columns().search('').draw();
-      
-      // Filtrer par type d'action
-      if (actionFilter) {
-        table.column(2).search(actionFilter).draw();
-      }
-      
-      // Filtrer par date (personnalisé)
-      if (dateDebutFilter || dateFinFilter) {
-        $.fn.dataTable.ext.search.push(
-          function(settings, data, dataIndex) {
-            var date = new Date(data[4].split(' ')[0].split('/').reverse().join('-'));
-            var dateDebut = dateDebutFilter ? new Date(dateDebutFilter) : null;
-            var dateFin = dateFinFilter ? new Date(dateFinFilter) : null;
-            
-            if (
-              (dateDebut === null && dateFin === null) ||
-              (dateDebut === null && date <= dateFin) ||
-              (dateDebut <= date && dateFin === null) ||
-              (dateDebut <= date && date <= dateFin)
-            ) {
-              return true;
-            }
-            return false;
-          }
-        );
-        table.draw();
-        // Supprimer le filtre personnalisé après utilisation
-        $.fn.dataTable.ext.search.pop();
-      }
-    });
-    
-    // Réinitialiser les filtres
-    $('#resetFilter').click(function() {
-      $('#filterAction').val('');
-      $('#filterDateDebut').val('');
-      $('#filterDateFin').val('');
-      table.search('').columns().search('').draw();
-    });
-    
-    // Vérifier les paramètres d'URL au chargement de la page
-    var urlParams = new URLSearchParams(window.location.search);
-    var success = urlParams.get('success');
-    var error = urlParams.get('error');
-    var message = urlParams.get('message');
-    
-    if (success) {
-      showAlert(decodeURIComponent(message || 'Opération réussie!'), 'success');
-    } else if (error) {
-      showAlert(decodeURIComponent(message || 'Une erreur est survenue!'), 'danger');
-    }
-  });
-  
-  // Fonction pour afficher une alerte stylisée
-  function showAlert(message, type) {
-    var alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-' + type + ' alert-dismissible';
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '9999';
-    alertDiv.style.minWidth = '300px';
-    alertDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-    
-    alertDiv.innerHTML = 
-      '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
-      '<h4><i class="icon fa ' + (type === 'success' ? 'fa-check' : 'fa-ban') + '"></i> ' + 
-      (type === 'success' ? 'Succès!' : 'Erreur!') + '</h4>' +
-      message;
-    
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(function() {
-      if (alertDiv.parentNode) {
-        alertDiv.parentNode.removeChild(alertDiv);
-      }
-    }, 5000);
-  }
-</script>
 </body>
 </html>

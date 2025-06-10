@@ -76,9 +76,10 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
   <!-- DataTables -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
   <!-- Theme style -->
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
-  <!-- AdminLTE Skins -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">  <!-- AdminLTE Skins -->
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
+  <!-- Communications Styles -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/communications.css">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -245,228 +246,196 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
     <!-- Main content -->
     <section class="content">
-      <!-- Info boxes -->
-      <div class="row">
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-aqua"><i class="fa fa-envelope"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Total Communications</span>
-              <span class="info-box-number"><?php echo $stats['total_communications']; ?></span>
-            </div>
+      <!-- En-tête moderne -->
+      <div class="communications-header">
+        <div class="header-content">
+          <h1>Communications</h1>
+          <p>Gestion des annonces et communications scolaires</p>
+        </div>
+        <div class="header-actions">
+          <button class="action-btn primary" data-toggle="modal" data-target="#nouvelleCommunicationModal">
+            <i class="fa fa-plus"></i>
+            Nouvelle Communication
+          </button>
+          <button class="action-btn secondary" onclick="exportCommunications()">
+            <i class="fa fa-download"></i>
+            Exporter
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">
+            <i class="fa fa-envelope"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['total_communications']; ?></div>
+            <div class="stat-label">Total Communications</div>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fa fa-arrow-up"></i>
+            <span>+12%</span>
           </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-green"><i class="fa fa-check"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Publiées</span>
-              <span class="info-box-number"><?php echo $stats['communications_publiees']; ?></span>
-            </div>
+
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <i class="fa fa-check"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['communications_publiees']; ?></div>
+            <div class="stat-label">Publiées</div>
+          </div>
+          <div class="stat-trend positive">
+            <i class="fa fa-arrow-up"></i>
+            <span>+8%</span>
           </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-yellow"><i class="fa fa-edit"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Brouillons</span>
-              <span class="info-box-number"><?php echo $stats['communications_brouillon']; ?></span>
-            </div>
+
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <i class="fa fa-edit"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['communications_brouillon']; ?></div>
+            <div class="stat-label">Brouillons</div>
+          </div>
+          <div class="stat-trend stable">
+            <i class="fa fa-minus"></i>
+            <span>0%</span>
           </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-red"><i class="fa fa-exclamation-triangle"></i></span>
-            <div class="info-box-content">
-              <span class="info-box-text">Urgentes</span>
-              <span class="info-box-number"><?php echo $stats['communications_urgentes']; ?></span>
-            </div>
+
+        <div class="stat-card danger">
+          <div class="stat-icon">
+            <i class="fa fa-exclamation-triangle"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number"><?php echo $stats['communications_urgentes']; ?></div>
+            <div class="stat-label">Urgentes</div>
+          </div>
+          <div class="stat-trend negative">
+            <i class="fa fa-arrow-down"></i>
+            <span>-15%</span>
           </div>
         </div>
       </div>
 
-      <!-- Main row -->
-      <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Liste des Communications</h3>
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#nouvelleCommunicationModal">
-                  <i class="fa fa-plus"></i> Nouvelle Communication
-                </button>
-              </div>
-            </div>
-            <div class="box-body">
-              <table id="communicationsTable" class="table table-bordered table-striped">
-                <thead>
-                  <tr>
-                    <th>Titre</th>
-                    <th>Type</th>
-                    <th>Urgence</th>
-                    <th>Auteur</th>
-                    <th>Date</th>
-                    <th>Destinataires</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($communications as $communication): ?>
-                  <tr>
-                    <td>
-                      <strong><?php echo htmlspecialchars($communication['titre']); ?></strong>
-                      <?php if ($communication['urgence'] == 'haute'): ?>
-                        <i class="fa fa-exclamation-triangle text-red" title="Communication urgente"></i>
-                      <?php endif; ?>
-                    </td>
-                    <td>
-                      <span class="label label-<?php 
-                        echo $communication['type'] == 'annonce' ? 'info' : 
-                            ($communication['type'] == 'circulaire' ? 'primary' : 'default'); 
-                      ?>">
-                        <?php echo ucfirst($communication['type']); ?>
-                      </span>
-                    </td>
-                    <td>
-                      <span class="label label-<?php 
-                        echo $communication['urgence'] == 'haute' ? 'danger' : 
-                            ($communication['urgence'] == 'moyenne' ? 'warning' : 'success'); 
-                      ?>">
-                        <?php echo ucfirst($communication['urgence']); ?>
-                      </span>
-                    </td>
-                    <td>
-                      <?php echo htmlspecialchars($communication['auteur_nom'] . ' ' . $communication['auteur_prenom']); ?>
-                    </td>
-                    <td>
-                      <?php echo date('d/m/Y H:i', strtotime($communication['date_creation'])); ?>
-                    </td>
-                    <td>
-                      <span class="badge bg-blue">
-                        <?php echo $communication['nb_destinataires_eleves']; ?> élèves
-                      </span>
-                      <br>
-                      <small class="text-muted">
-                        <?php echo $communication['nb_destinataires_classes']; ?> classes
-                      </small>
-                    </td>
-                    <td>
-                      <?php if ($communication['statut'] == 'publiee'): ?>
-                        <span class="label label-success">Publiée</span>
-                      <?php elseif ($communication['statut'] == 'brouillon'): ?>
-                        <span class="label label-warning">Brouillon</span>
-                      <?php else: ?>
-                        <span class="label label-default">Archivée</span>
-                      <?php endif; ?>
-                    </td>
-                    <td>
-                      <div class="btn-group">
-                        <button type="button" class="btn btn-info btn-xs" title="Voir détails">
-                          <i class="fa fa-eye"></i>
-                        </button>
-                        <?php if ($communication['statut'] == 'brouillon'): ?>
-                        <button type="button" class="btn btn-success btn-xs" title="Publier">
-                          <i class="fa fa-send"></i>
-                        </button>
-                        <?php endif; ?>
-                        <button type="button" class="btn btn-warning btn-xs" title="Modifier">
-                          <i class="fa fa-edit"></i>
-                        </button>
-                        <button type="button" class="btn btn-primary btn-xs" title="Dupliquer">
-                          <i class="fa fa-copy"></i>
-                        </button>
-                        <button type="button" class="btn btn-danger btn-xs" title="Supprimer">
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
-          </div>
+      <!-- Filtres et recherche -->
+      <div class="filters-container">
+        <div class="search-box">
+          <input type="text" id="searchCommunications" placeholder="Rechercher une communication...">
+          <i class="fa fa-search"></i>
+        </div>
+        <div class="filter-buttons">
+          <button class="filter-btn active" data-filter="all">Toutes</button>
+          <button class="filter-btn" data-filter="publiee">Publiées</button>
+          <button class="filter-btn" data-filter="brouillon">Brouillons</button>
+          <button class="filter-btn" data-filter="urgente">Urgentes</button>
         </div>
       </div>
 
-      <!-- Communications récentes -->
-      <div class="row">
-        <div class="col-md-8">
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Communications Récentes</h3>
+      <!-- Liste des communications -->
+      <div class="communications-grid">
+        <?php foreach ($communications as $communication): ?>
+        <div class="communication-card" data-status="<?php echo $communication['statut']; ?>" data-urgence="<?php echo $communication['urgence']; ?>">
+          <div class="card-header">
+            <div class="card-title">
+              <h3><?php echo htmlspecialchars($communication['titre']); ?></h3>
+              <?php if ($communication['urgence'] == 'haute'): ?>
+                <span class="urgency-badge urgent">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  Urgent
+                </span>
+              <?php endif; ?>
             </div>
-            <div class="box-body">
-              <?php foreach (array_slice($communications, 0, 5) as $communication): ?>
-              <div class="post">
-                <div class="user-block">
-                  <img class="img-circle img-bordered-sm" src="<?php echo BASE_URL; ?>dist/img/user2-160x160.jpg" alt="user image">
-                  <span class="username">
-                    <a href="#"><?php echo htmlspecialchars($communication['auteur_nom'] . ' ' . $communication['auteur_prenom']); ?></a>
-                    <?php if ($communication['urgence'] == 'haute'): ?>
-                      <span class="label label-danger pull-right">URGENT</span>
-                    <?php endif; ?>
-                  </span>
-                  <span class="description">Publié le <?php echo date('d/m/Y à H:i', strtotime($communication['date_creation'])); ?></span>
-                </div>
-                <h4><?php echo htmlspecialchars($communication['titre']); ?></h4>
-                <p><?php echo htmlspecialchars(substr($communication['contenu'], 0, 150)) . '...'; ?></p>
-                <ul class="list-inline">
-                  <li><a href="#" class="link-black text-sm"><i class="fa fa-users margin-r-5"></i> <?php echo $communication['nb_destinataires_eleves']; ?> destinataires</a></li>
-                  <li class="pull-right">
-                    <a href="#" class="link-black text-sm">
-                      <i class="fa fa-eye margin-r-5"></i> Voir plus
-                    </a>
-                  </li>
-                </ul>
+            <div class="card-meta">
+              <span class="meta-item">
+                <i class="fa fa-user"></i>
+                <?php echo htmlspecialchars($communication['auteur_nom'] . ' ' . $communication['auteur_prenom']); ?>
+              </span>
+              <span class="meta-item">
+                <i class="fa fa-clock-o"></i>
+                <?php echo date('d/m/Y H:i', strtotime($communication['date_creation'])); ?>
+              </span>
+            </div>
+          </div>
+
+          <div class="card-content">
+            <div class="communication-excerpt">
+              <?php echo substr(strip_tags($communication['contenu']), 0, 150) . '...'; ?>
+            </div>
+            
+            <div class="communication-tags">
+              <span class="tag type-<?php echo $communication['type']; ?>">
+                <?php echo ucfirst($communication['type']); ?>
+              </span>
+              <span class="tag urgence-<?php echo $communication['urgence']; ?>">
+                <?php echo ucfirst($communication['urgence']); ?>
+              </span>
+              <span class="tag status-<?php echo $communication['statut']; ?>">
+                <?php echo ucfirst($communication['statut']); ?>
+              </span>
+            </div>
+
+            <div class="communication-stats">
+              <div class="stat-item">
+                <i class="fa fa-users"></i>
+                <span><?php echo $communication['nb_destinataires_eleves']; ?> élèves</span>
               </div>
-              <?php endforeach; ?>
+              <div class="stat-item">
+                <i class="fa fa-university"></i>
+                <span><?php echo $communication['nb_destinataires_classes']; ?> classes</span>
+              </div>
             </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="action-btn-small primary" onclick="voirCommunication(<?php echo $communication['id']; ?>)">
+              <i class="fa fa-eye"></i>
+              Voir
+            </button>
+            <button class="action-btn-small secondary" onclick="modifierCommunication(<?php echo $communication['id']; ?>)">
+              <i class="fa fa-edit"></i>
+              Modifier
+            </button>
+            <?php if ($communication['statut'] == 'brouillon'): ?>
+            <button class="action-btn-small success" onclick="publierCommunication(<?php echo $communication['id']; ?>)">
+              <i class="fa fa-send"></i>
+              Publier
+            </button>
+            <?php endif; ?>
+            <button class="action-btn-small danger" onclick="supprimerCommunication(<?php echo $communication['id']; ?>)">
+              <i class="fa fa-trash"></i>
+              Supprimer
+            </button>
           </div>
         </div>
+        <?php endforeach; ?>
+      </div>
 
-        <div class="col-md-4">
-          <!-- Actions rapides -->
-          <div class="box box-warning">
-            <div class="box-header with-border">
-              <h3 class="box-title">Actions Rapides</h3>
-            </div>
-            <div class="box-body">
-              <button type="button" class="btn btn-block btn-primary btn-sm margin-bottom">
-                <i class="fa fa-bullhorn"></i> Annonce Générale
-              </button>
-              <button type="button" class="btn btn-block btn-warning btn-sm margin-bottom">
-                <i class="fa fa-exclamation-triangle"></i> Communication Urgente
-              </button>
-              <button type="button" class="btn btn-block btn-info btn-sm margin-bottom">
-                <i class="fa fa-file-text"></i> Circulaire Administrative
-              </button>
-              <button type="button" class="btn btn-block btn-success btn-sm">
-                <i class="fa fa-calendar"></i> Programmation d'Événement
-              </button>
-            </div>
-          </div>
-
-          <!-- Statistiques d'aujourd'hui -->
-          <div class="box box-info">
-            <div class="box-header with-border">
-              <h3 class="box-title">Aujourd'hui</h3>
-            </div>
-            <div class="box-body">
-              <div class="row">
-                <div class="col-xs-12">
-                  <div class="description-block">
-                    <h5 class="description-header"><?php echo $stats['communications_aujourd_hui']; ?></h5>
-                    <span class="description-text">NOUVELLES COMMUNICATIONS</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <!-- Actions rapides -->
+      <div class="quick-actions">
+        <h3>Actions Rapides</h3>
+        <div class="quick-actions-grid">
+          <button class="quick-action-btn" data-toggle="modal" data-target="#nouvelleAnnonceModal">
+            <i class="fa fa-bullhorn"></i>
+            <span>Annonce Générale</span>
+          </button>
+          <button class="quick-action-btn urgent" data-toggle="modal" data-target="#communicationUrgenteModal">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span>Communication Urgente</span>
+          </button>
+          <button class="quick-action-btn" data-toggle="modal" data-target="#circulaireModal">
+            <i class="fa fa-file-text"></i>
+            <span>Circulaire Administrative</span>
+          </button>
+          <button class="quick-action-btn" data-toggle="modal" data-target="#evenementModal">
+            <i class="fa fa-calendar"></i>
+            <span>Programmation d'Événement</span>
+          </button>
         </div>
       </div>
     </section>

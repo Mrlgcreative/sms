@@ -80,126 +80,13 @@ $mysqli->close();
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>SMS | Carte d'Élève - <?php echo ucfirst($eleve['section']); ?></title>
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">  <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>bower_components/Ionicons/css/ionicons.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="<?php echo BASE_URL; ?>dist/css/skins/_all-skins.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style>
-    .carte-eleve {
-      width: 115.6mm;
-      height: 64mm;
-      border: 1px solid #000;
-      border-radius: 10px;
-      padding: 10px;
-      margin: 20px auto;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      position: relative;
-      overflow: hidden;
-    }
-    .carte-header {
-      text-align: center;
-      border-bottom: 2px solid <?php echo ($eleve['section'] == 'primaire') ? '#605ca8' : '#3c8dbc'; ?>;
-      padding-bottom: 5px;
-      margin-bottom: 10px;
-    }
-    .carte-header h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: bold;
-      color: <?php echo ($eleve['section'] == 'primaire') ? '#605ca8' : '#3c8dbc'; ?>;
-    }
-    .carte-header p {
-      margin: 0;
-      font-size: 12px;
-    }
-    .carte-body {
-      display: flex;
-    }
-    .carte-photo {
-      width: 25mm;
-      height: 30mm;
-      border: 1px solid #ddd;
-      margin-right: 10px;
-      background-color: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .carte-photo img {
-      max-width: 100%;
-      max-height: 100%;
-    }
-    .carte-info {
-      flex: 1;
-      font-size: 12px;
-    }
-    .carte-info p {
-      margin: 3px 0;
-    }
-    .carte-footer {
-      text-align: center;
-      margin-top: 5px;
-      font-size: 10px;
-      position: absolute;
-      bottom: 5px;
-      width: calc(100% - 20px);
-    }
-    .carte-qr {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      width: 10mm;
-      height: 10mm;
-      background-color: #f5f5f5;
-      border: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .carte-qr img {
-      max-width: 100%;
-      max-height: 100%;
-    }
-    .carte-signature {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      font-size: 10px;
-      text-align: center;
-    }
-    .carte-signature img {
-      max-width: 15mm;
-      max-height: 9mm;
-    }
-    .watermark {
-      position: absolute;
-      top: 10%;
-      left: 10%;
-      transform: translate(-50%, -50%);
-      opacity: 0.1;
-      font-size: 40px;
-      font-weight: bold;
-      color: <?php echo ($eleve['section'] == 'primaire') ? '#605ca8' : '#3c8dbc'; ?>;
-      z-index: 0;
-    }
-    @media print {
-      .no-print {
-        display: none;
-      }
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      .content-wrapper {
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">  <!-- CSS externe pour la carte d'élève -->
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/carte-eleve.css">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">

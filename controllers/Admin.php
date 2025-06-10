@@ -1677,9 +1677,77 @@ public function logAction($action) {
     }
     
     $mysqli->close();
-    
-    return isset($result) ? $result : false;
+      return isset($result) ? $result : false;
 }
+
+    public function reinscris() {
+        // Vérifier si l'utilisateur est connecté
+        if (!isset($_SESSION['username'])) {
+            header('Location: ' . BASE_URL . '/login');
+            exit();
+        }
+
+        // Traitement du formulaire de réinscription
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->traiterReinscription();
+            return;
+        }
+
+        // Récupération des élèves inscrits l'année précédente pour réinscription
+        $eleves_precedents = $this->eleveModel->getElevesAnnePrecedente();
+        
+        // Récupération des classes disponibles
+        $classes = $this->classeModel->getAllClasses();
+        
+        // Récupération des sessions scolaires
+        $sessions = $this->sessionscolaireModel->getAllSessions();
+
+        // Inclure la vue de réinscription
+        include 'views/admin/reinscris.php';
+    }
+
+    private function traiterReinscription() {
+        if (isset($_POST['eleves_reinscription']) && is_array($_POST['eleves_reinscription'])) {
+            $session_id = $_POST['session_scolaire'];
+            $elevesReinscris = 0;
+            $erreurs = [];
+
+            foreach ($_POST['eleves_reinscription'] as $eleve_id) {
+                $nouvelle_classe = $_POST['nouvelle_classe_' . $eleve_id] ?? null;
+                
+                if ($nouvelle_classe) {
+                    try {
+                        // Créer une nouvelle inscription pour l'élève
+                        $result = $this->eleveModel->reinscrireEleve($eleve_id, $nouvelle_classe, $session_id);
+                        
+                        if ($result) {
+                            $elevesReinscris++;
+                            
+                            // Log de l'action
+                            $this->logAction("Réinscription élève ID: " . $eleve_id);
+                        } else {
+                            $erreurs[] = "Erreur lors de la réinscription de l'élève ID: " . $eleve_id;
+                        }
+                    } catch (Exception $e) {
+                        $erreurs[] = "Erreur pour l'élève ID " . $eleve_id . ": " . $e->getMessage();
+                    }
+                }
+            }
+
+            // Redirection avec message de succès ou d'erreur
+            if ($elevesReinscris > 0) {
+                $_SESSION['success_message'] = $elevesReinscris . " élève(s) réinscrit(s) avec succès.";
+                if (!empty($erreurs)) {
+                    $_SESSION['error_message'] = implode('<br>', $erreurs);
+                }
+            } else {
+                $_SESSION['error_message'] = "Aucune réinscription effectuée. " . implode('<br>', $erreurs);
+            }
+
+            header('Location: ' . BASE_URL . '/admin/reinscris');
+            exit();
+        }
+    }
 
 }
 ?>

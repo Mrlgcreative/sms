@@ -1,0 +1,404 @@
+/* =========================================
+   CARTE ÉLÈVE - STYLES MODERNES
+   ========================================= */
+
+/* Variables CSS */
+:root {
+  --primary-color-primaire: #605ca8;
+  --primary-color-secondaire: #3c8dbc;
+  --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  --card-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.25);
+  --border-radius: 15px;
+  --border-radius-small: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Carte principale */
+.carte-eleve {
+  width: 115.6mm;
+  height: 64mm;
+  border: 2px solid transparent;
+  border-radius: var(--border-radius);
+  padding: 12px;
+  margin: 20px auto;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+}
+
+.carte-eleve:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.carte-eleve::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color-secondaire), var(--primary-color-primaire));
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+/* En-tête de la carte */
+.carte-header {
+  text-align: center;
+  border-bottom: 2px solid var(--primary-color-secondaire);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.carte-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color-secondaire), var(--primary-color-primaire));
+  border-radius: 2px;
+}
+
+.carte-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-color-secondaire);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+}
+
+.carte-header p {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Corps de la carte */
+.carte-body {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* Photo de l'élève */
+.carte-photo {
+  width: 25mm;
+  height: 30mm;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius-small);
+  margin-right: 0;
+  background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+}
+
+.carte-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.carte-photo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--border-radius-small) - 2px);
+}
+
+.carte-photo .photo-placeholder {
+  color: #999;
+  font-size: 12px;
+  text-align: center;
+  padding: 5px;
+}
+
+/* Informations de l'élève */
+.carte-info {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.carte-info p {
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+}
+
+.carte-info strong {
+  color: #333;
+  font-weight: 600;
+  min-width: 60px;
+  margin-right: 8px;
+}
+
+.carte-info .info-value {
+  color: #666;
+  font-weight: 500;
+}
+
+/* Pied de carte */
+.carte-footer {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 11px;
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  right: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+/* QR Code */
+.carte-qr {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 12mm;
+  height: 12mm;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius-small);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+}
+
+.carte-qr:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.carte-qr img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: calc(var(--border-radius-small) - 2px);
+}
+
+/* Signature */
+.carte-signature {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 10px;
+  text-align: center;
+  color: #666;
+}
+
+.carte-signature img {
+  max-width: 18mm;
+  max-height: 12mm;
+  border-radius: var(--border-radius-small);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Filigrane */
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  opacity: 0.08;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--primary-color-secondaire);
+  z-index: 0;
+  pointer-events: none;
+  letter-spacing: 2px;
+}
+
+/* Badge section */
+.section-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, var(--primary-color-secondaire), var(--primary-color-primaire));
+  color: white;
+  padding: 4px 8px;
+  border-radius: 50px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation d'entrée */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.carte-eleve {
+  animation: fadeInScale 0.6s ease-out;
+}
+
+/* Styles pour l'impression */
+@media print {
+  .no-print, .no-print * {
+    display: none !important;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+  
+  .content-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  
+  .carte-eleve {
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: 2px solid #333 !important;
+    background: white !important;
+    animation: none !important;
+    transform: none !important;
+    page-break-inside: avoid;
+  }
+  
+  .carte-eleve:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  .carte-header h3 {
+    color: #333 !important;
+  }
+  
+  .carte-qr,
+  .carte-signature {
+    box-shadow: none !important;
+  }
+  
+  .watermark {
+    opacity: 0.05 !important;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .carte-eleve {
+    width: 95%;
+    max-width: 350px;
+    height: auto;
+    min-height: 200px;
+    margin: 10px auto;
+  }
+  
+  .carte-body {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .carte-photo {
+    width: 80px;
+    height: 100px;
+    align-self: center;
+  }
+  
+  .carte-qr {
+    position: relative;
+    margin-top: 10px;
+    align-self: center;
+  }
+  
+  .carte-signature {
+    position: relative;
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  .carte-footer {
+    position: relative;
+    margin-top: 15px;
+  }
+}
+
+/* Styles pour différentes sections */
+.carte-eleve.primaire .carte-header {
+  border-bottom-color: var(--primary-color-primaire);
+}
+
+.carte-eleve.primaire .carte-header h3 {
+  color: var(--primary-color-primaire);
+}
+
+.carte-eleve.primaire .watermark {
+  color: var(--primary-color-primaire);
+}
+
+.carte-eleve.primaire .section-badge {
+  background: linear-gradient(135deg, var(--primary-color-primaire), #8e7cc3);
+}
+
+.carte-eleve.primaire::before {
+  background: linear-gradient(90deg, var(--primary-color-primaire), #8e7cc3);
+}
+
+/* États de validation */
+.carte-eleve.validated {
+  border-color: #28a745;
+}
+
+.carte-eleve.pending {
+  border-color: #ffc107;
+}
+
+.carte-eleve.expired {
+  border-color: #dc3545;
+  opacity: 0.7;
+}
+
+/* Boutons d'action (pour la version web) */
+.carte-actions {
+  margin-top: 20px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.carte-actions .btn {
+  margin: 0 5px;
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: var(--transition);
+}
+
+.carte-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media print {
+  .carte-actions {
+    display: none !important;
+  }
+}

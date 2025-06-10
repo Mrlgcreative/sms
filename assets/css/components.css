@@ -1,0 +1,438 @@
+/* ===================================================================
+   COMPOSANTS UI - SGS
+   Système de Gestion Scolaire - Composants réutilisables
+   ================================================================= */
+
+/* Amélioration des small-box */
+.small-box {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  transition: var(--transition-base) !important;
+  margin-bottom: 20px !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.small-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  pointer-events: none;
+}
+
+.small-box:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--shadow-xl) !important;
+}
+
+.small-box .inner {
+  padding: 20px !important;
+  position: relative;
+  z-index: 2;
+}
+
+.small-box .inner h3 {
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 10px 0 !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.small-box .inner p {
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+  opacity: 0.9;
+}
+
+.small-box .icon {
+  position: absolute !important;
+  top: 50% !important;
+  right: 20px !important;
+  transform: translateY(-50%) !important;
+  font-size: 4rem !important;
+  color: rgba(255,255,255,0.2) !important;
+  transition: var(--transition-base) !important;
+}
+
+.small-box:hover .icon {
+  transform: translateY(-50%) scale(1.1) rotate(5deg) !important;
+  color: rgba(255,255,255,0.3) !important;
+}
+
+.small-box-footer {
+  background: rgba(0,0,0,0.1) !important;
+  color: rgba(255,255,255,0.9) !important;
+  padding: 10px 0 !important;
+  text-decoration: none !important;
+  display: block !important;
+  text-align: center !important;
+  transition: var(--transition-base) !important;
+  position: relative;
+  z-index: 2;
+}
+
+.small-box-footer:hover {
+  background: rgba(0,0,0,0.2) !important;
+  color: var(--white) !important;
+  text-decoration: none !important;
+}
+
+/* Couleurs spécifiques pour les small-box avec dégradés modernes */
+.small-box.bg-aqua { background: linear-gradient(135deg, #00c0ef 0%, #0073e6 100%) !important; }
+.small-box.bg-green { background: linear-gradient(135deg, #00a65a 0%, #006400 100%) !important; }
+.small-box.bg-yellow { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important; }
+.small-box.bg-red { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important; }
+.small-box.bg-purple { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%) !important; }
+.small-box.bg-maroon { background: linear-gradient(135deg, #d2527f 0%, #a02c5a 100%) !important; }
+.small-box.bg-olive { background: linear-gradient(135deg, #3d9970 0%, #2ecc71 100%) !important; }
+.small-box.bg-teal { background: linear-gradient(135deg, #39cccc 0%, #00b894 100%) !important; }
+
+/* Amélioration des box (boîtes de contenu) */
+.box {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  border: none !important;
+  margin-bottom: 20px !important;
+  background: var(--white) !important;
+  transition: var(--transition-base) !important;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.box:hover {
+  box-shadow: var(--shadow-lg) !important;
+  transform: translateY(-2px);
+}
+
+.box-header {
+  background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%) !important;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  padding: 20px !important;
+  border-bottom: 2px solid var(--primary-color) !important;
+}
+
+.box-header.with-border {
+  border-bottom: 2px solid var(--primary-color) !important;
+}
+
+.box-title {
+  font-weight: 600 !important;
+  color: var(--secondary-color) !important;
+  margin: 0 !important;
+}
+
+.box-body {
+  padding: 25px !important;
+  background: var(--white) !important;
+}
+
+.box-footer {
+  background: var(--gray-50) !important;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg) !important;
+  padding: 15px 25px !important;
+  border-top: 1px solid var(--gray-200) !important;
+}
+
+/* Amélioration des info-box */
+.info-box {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  margin-bottom: 15px !important;
+  transition: var(--transition-base) !important;
+  overflow: hidden;
+  background: var(--white) !important;
+  border: 1px solid var(--gray-200) !important;
+}
+
+.info-box:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.info-box-icon {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 2rem !important;
+  width: 90px !important;
+}
+
+.info-box-content {
+  padding: 20px !important;
+  margin-left: 90px !important;
+}
+
+.info-box-text {
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  color: #666 !important;
+}
+
+.info-box-number {
+  font-size: 1.8rem !important;
+  font-weight: 700 !important;
+  color: var(--secondary-color) !important;
+}
+
+.info-box.bg-blue {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.info-box.bg-fuchsia {
+  background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+}
+
+/* Amélioration des tableaux */
+.table {
+  background: var(--white) !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-md) !important;
+  margin-top: 0 !important;
+  margin-bottom: 20px !important;
+}
+
+.table thead th {
+  background: var(--gradient-primary) !important;
+  color: var(--white) !important;
+  font-weight: 600 !important;
+  border: none !important;
+  padding: 15px !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.table tbody tr {
+  transition: var(--transition-base) !important;
+}
+
+.table tbody tr:hover {
+  background: rgba(60, 141, 188, 0.05) !important;
+  transform: scale(1.01);
+}
+
+.table tbody td {
+  padding: 12px 15px !important;
+  border-color: #e9ecef !important;
+  vertical-align: middle !important;
+}
+
+/* Liens d'action dans les tables */
+.table a {
+  text-decoration: none !important;
+  padding: 6px 12px !important;
+  border-radius: var(--radius-md) !important;
+  transition: var(--transition-base) !important;
+  display: inline-block !important;
+  margin: 2px !important;
+  font-size: 0.875rem !important;
+}
+
+.table a:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.table a.btn-info { background: var(--gradient-info) !important; color: var(--white) !important; }
+.table a.btn-warning { background: var(--gradient-warning) !important; color: var(--white) !important; }
+.table a.btn-danger { background: var(--gradient-danger) !important; color: var(--white) !important; }
+
+/* Amélioration des boutons */
+.btn {
+  border-radius: var(--radius-md) !important;
+  transition: var(--transition-base) !important;
+  font-weight: 500 !important;
+  padding: 10px 20px !important;
+  border: none !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  font-size: 0.875rem !important;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+.btn-primary { background: var(--gradient-primary) !important; color: var(--white) !important; }
+.btn-success { background: var(--gradient-success) !important; color: var(--white) !important; }
+.btn-warning { background: var(--gradient-warning) !important; color: var(--white) !important; }
+.btn-danger { background: var(--gradient-danger) !important; color: var(--white) !important; }
+.btn-info { background: var(--gradient-info) !important; color: var(--white) !important; }
+
+.btn-box-tool {
+  transition: var(--transition-base) !important;
+}
+
+.btn-box-tool:hover {
+  transform: scale(1.1);
+  color: var(--primary-color) !important;
+}
+
+/* Amélioration des formulaires */
+.form-control {
+  border-radius: var(--radius-md) !important;
+  border: 2px solid var(--gray-300) !important;
+  padding: 12px 16px !important;
+  transition: var(--transition-base) !important;
+  background: var(--white) !important;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+  outline: none !important;
+}
+
+.form-group {
+  margin-bottom: 20px !important;
+}
+
+.form-group label {
+  font-weight: 600 !important;
+  color: var(--gray-700) !important;
+  margin-bottom: 8px !important;
+  display: block !important;
+}
+
+/* DataTables améliorées */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--gray-300) !important;
+  padding: 8px 12px !important;
+  transition: var(--transition-base) !important;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+  outline: none !important;
+}
+
+/* Pagination améliorée */
+.pagination > li > a,
+.pagination > li > span {
+  border-radius: var(--radius-md) !important;
+  margin: 0 3px !important;
+  transition: var(--transition-base) !important;
+  border: 1px solid var(--gray-300) !important;
+}
+
+.pagination > li > a:hover {
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.pagination > .active > a {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Amélioration des alertes */
+.alert {
+  margin: 15px 0 !important;
+  padding: 15px 20px !important;
+  border-radius: var(--radius-lg) !important;
+  border: none !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%) !important;
+  color: var(--success-color) !important;
+  border-left: 4px solid var(--success-color) !important;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%) !important;
+  color: var(--warning-color) !important;
+  border-left: 4px solid var(--warning-color) !important;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%) !important;
+  color: var(--accent-color) !important;
+  border-left: 4px solid var(--accent-color) !important;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%) !important;
+  color: var(--info-color) !important;
+  border-left: 4px solid var(--info-color) !important;
+}
+
+/* Amélioration des modals */
+.modal-content {
+  border-radius: var(--radius-xl) !important;
+  border: none !important;
+  box-shadow: var(--shadow-2xl) !important;
+  overflow: hidden !important;
+}
+
+.modal-header {
+  background: var(--gradient-primary) !important;
+  color: var(--white) !important;
+  border-bottom: none !important;
+  padding: 20px 25px !important;
+}
+
+.modal-body {
+  padding: 25px !important;
+}
+
+.modal-footer {
+  background: var(--gray-50) !important;
+  border-top: 1px solid var(--gray-200) !important;
+  padding: 15px 25px !important;
+}
+
+/* Amélioration des tabs */
+.nav-tabs {
+  border-bottom: 2px solid var(--gray-200) !important;
+  margin-bottom: 20px !important;
+}
+
+.nav-tabs > li > a {
+  border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+  margin-right: 5px !important;
+  padding: 12px 20px !important;
+  transition: var(--transition-base) !important;
+}
+
+.nav-tabs > li.active > a {
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Amélioration des progress bars */
+.progress {
+  height: 10px !important;
+  border-radius: var(--radius-full) !important;
+  background: var(--gray-200) !important;
+  margin: 10px 0 !important;
+  overflow: hidden !important;
+}
+
+.progress-bar {
+  border-radius: var(--radius-full) !important;
+  transition: width 0.8s ease !important;
+  background: var(--gradient-primary) !important;
+}

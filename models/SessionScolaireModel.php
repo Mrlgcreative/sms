@@ -300,8 +300,13 @@ class SessionScolaireModel {
         $stmt = $this->db->prepare("SELECT * FROM sessions_scolaires ORDER BY annee_debut DESC LIMIT ?");
         $stmt->bind_param("i", $limit);
         $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $result = $stmt->get_result();        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getAllSessions() {
+        $query = "SELECT * FROM sessions_scolaires ORDER BY annee_debut DESC, annee_debut DESC";
+        $result = $this->db->query($query);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
 
     /**
