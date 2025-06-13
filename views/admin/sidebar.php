@@ -25,6 +25,10 @@
           <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=eleves">
             <i class="fa fa-child"></i> <span>Élèves</span>
           </a>
+        </li>         <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=paiements">
+            <i class="fa fa-money"></i> <span>Paiements</span>
+          </a>
         </li>
 
         <li>
@@ -87,7 +91,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addPrefet"><i class="fa fa-circle-o"></i> Ajouter</a></li>
+           
             <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=prefets"><i class="fa fa-circle-o"></i> Voir</a></li>
           </ul>
         </li>
@@ -100,9 +104,8 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addDirecteur"><i class="fa fa-circle-o"></i> Ajouter Directeur</a></li>
-            <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs"><i class="fa fa-circle-o"></i> Voir Directeurs</a></li>
-            <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=adddirectrice"><i class="fa fa-circle-o"></i> Ajouter Directrice</a></li>
+          
+            <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directeurs"><i class="fa fa-circle-o"></i> Voir Directeurs</a></li> 
             <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=directrices"><i class="fa fa-circle-o"></i> Voir Directrices</a></li>
           </ul>
         </li>
@@ -115,7 +118,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=addcomptable"><i class="fa fa-circle-o"></i> Ajouter</a></li>
+
             <li><a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=comptable"><i class="fa fa-circle-o"></i> Voir</a></li>
           </ul>
         </li>
@@ -164,6 +167,13 @@
             <i class="fa fa-file-text"></i> <span>Rapports</span>
           </a>
         </li>
+
+         <li>
+          <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=ajoutUsers">
+            <i class="fa fa-file-text"></i> <span>Ajouter Utilisateur</span>
+          </a>
+        </li>
+
       </ul>
     </section>
   </aside>

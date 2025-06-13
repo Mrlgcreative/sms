@@ -1,5 +1,30 @@
 <?php
+
+require_once 'config/config.php';
+
 class Directrice {
+private $db;
+    
+    public function __construct() {
+        // Vérification de la session
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Vérification des droits d'accès
+        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'Directrice' && $_SESSION['role'] !== 'directrice')) {
+            $_SESSION['error_message'] = "Vous n'avez pas les droits pour accéder à cette page.";
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+        
+        // Connexion à la base de données
+        $this->db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        if ($this->db->connect_error) {
+            die("Connection failed: " . $this->db->connect_error);
+        }
+    }
+    
     // Page d'accueil pour la directrice
     public function accueil() {
         // Vérifier si l'utilisateur est connecté et a le rôle de directrice
@@ -199,6 +224,32 @@ public function ajouterAbsence() {
         require_once 'views/directrice/evenements_scolaires.php';
     }
     
+     public function getEvenementDetails() {
+        if (!isset($_GET['id'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'ID manquant']);
+            exit;
+        }
+        
+        $id = intval($_GET['id']);
+        
+        $stmt = $this->db->prepare("SELECT * FROM evenements_scolaires WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $event = $result->fetch_assoc();
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'data' => $event]);
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Événement non trouvé']);
+        }
+        
+        $stmt->close();
+        exit;
+    }
     // Gestion des absences
     public function absences() {
         // Vérifier si l'utilisateur est connecté et a le rôle de directrice
@@ -666,6 +717,10 @@ public function voirEleves() {
     // Charger la vue des élèves de la classe
     require_once 'views/directrice/eleves_classe.php';
 }
+
+
+
+
 
 /**
  * Affiche le profil détaillé d'un élève
@@ -1883,7 +1938,164 @@ public function supprimerPresenceProfesseur() {
     exit;
 }
 
-// ... existing code ...
+
+ public function ajouterEvenement() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Vérifier si c'est une requête AJAX
+            $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+            
+            try {
+                // Traitement du formulaire
+                $titre = isset($_POST['titre']) ? trim($_POST['titre']) : '';
+                $description = isset($_POST['description']) ? trim($_POST['description']) : '';
+                $date_debut = isset($_POST['date_debut']) ? $_POST['date_debut'] : '';
+                $date_fin = isset($_POST['date_fin']) ? $_POST['date_fin'] : '';
+                $lieu = isset($_POST['lieu']) ? trim($_POST['lieu']) : '';
+                $responsable = isset($_POST['responsable']) ? trim($_POST['responsable']) : '';
+                $couleur = isset($_POST['couleur']) ? $_POST['couleur'] : '#3c8dbc';
+                
+                // Validation
+                $errors = [];
+                
+                if (empty($titre)) {
+                    $errors[] = "Le titre est requis.";
+                }
+                
+                if (empty($date_debut)) {
+                    $errors[] = "La date de début est requise.";
+                }
+                
+                if (empty($date_fin)) {
+                    $errors[] = "La date de fin est requise.";
+                }
+                
+                if (empty($lieu)) {
+                    $errors[] = "Le lieu est requis.";
+                }
+                
+                if (empty($responsable)) {
+                    $errors[] = "Le responsable est requis.";
+                }
+                
+                // Convertir les dates si nécessaire
+                if (!empty($date_debut) && strpos($date_debut, 'T') !== false) {
+                    $date_debut = str_replace('T', ' ', $date_debut);
+                    if (strlen($date_debut) === 16) {
+                        $date_debut .= ':00';
+                    }
+                }
+                
+                if (!empty($date_fin) && strpos($date_fin, 'T') !== false) {
+                    $date_fin = str_replace('T', ' ', $date_fin);
+                    if (strlen($date_fin) === 16) {
+                        $date_fin .= ':00';
+                    }
+                }
+                
+                // Vérifier que la date de fin est après la date de début
+                if (!empty($date_debut) && !empty($date_fin)) {
+                    if (strtotime($date_fin) <= strtotime($date_debut)) {
+                        $errors[] = "La date de fin doit être postérieure à la date de début.";
+                    }
+                }
+                
+                // Vérifier que les dates sont valides
+                if (!empty($date_debut) && !strtotime($date_debut)) {
+                    $errors[] = "Format de date de début invalide.";
+                }
+                
+                if (!empty($date_fin) && !strtotime($date_fin)) {
+                    $errors[] = "Format de date de fin invalide.";
+                }
+                
+                if (empty($errors)) {
+                    // Instancier le modèle
+                    require_once 'models/EvenementScolaire.php';
+                    $evenementModel = new EvenementScolaire($this->db);
+                    
+                    // Ajouter l'événement
+                    $result = $evenementModel->ajouterEvenement($titre, $description, $date_debut, $date_fin, $lieu, $responsable, $couleur);
+                    
+                    if ($result['success']) {
+                        if ($isAjax) {
+                            // Récupérer l'événement créé pour le retourner au calendrier
+                            $nouvel_evenement = $evenementModel->getEvenementById($result['id']);
+                            
+                            // Formater pour FullCalendar
+                            $calendar_event = [
+                                'id' => $nouvel_evenement['id'],
+                                'title' => $nouvel_evenement['titre'],
+                                'start' => $nouvel_evenement['date_debut'],
+                                'end' => $nouvel_evenement['date_fin'],
+                                'backgroundColor' => $nouvel_evenement['couleur'],
+                                'borderColor' => $nouvel_evenement['couleur'],
+                                'allDay' => false,
+                                'description' => $nouvel_evenement['description'],
+                                'location' => $nouvel_evenement['lieu'],
+                                'responsible' => $nouvel_evenement['responsable']
+                            ];
+                            
+                            header('Content-Type: application/json');
+                            echo json_encode([
+                                'success' => true,
+                                'message' => "L'événement \"$titre\" a été ajouté avec succès.",
+                                'event_id' => $result['id'],
+                                'calendar_event' => $calendar_event
+                            ]);
+                            exit;
+                        } else {
+                            $_SESSION['message'] = "L'événement \"$titre\" a été ajouté avec succès.";
+                            $_SESSION['message_type'] = 'success';
+                            header('Location: ' . BASE_URL . 'index.php?controller=Director&action=evenementsScolaires');
+                            exit;
+                        }
+                    } else {
+                        if ($isAjax) {
+                            header('Content-Type: application/json');
+                            echo json_encode([
+                                'success' => false,
+                                'message' => "Erreur lors de l'ajout de l'événement: " . $this->db->error
+                            ]);
+                            exit;
+                        } else {
+                            $_SESSION['message'] = "Erreur lors de l'ajout de l'événement: " . $this->db->error;
+                            $_SESSION['message_type'] = 'danger';
+                        }
+                    }
+                } else {
+                    if ($isAjax) {
+                        header('Content-Type: application/json');
+                        echo json_encode([
+                            'success' => false,
+                            'message' => implode(" ", $errors)
+                        ]);
+                        exit;
+                    } else {
+                        $_SESSION['message'] = "Erreurs: " . implode(" ", $errors);
+                        $_SESSION['message_type'] = 'danger';
+                    }
+                }
+                
+            } catch (Exception $e) {
+                error_log("Erreur ajouterEvenement: " . $e->getMessage());
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage()]);
+                    exit;
+                } else {
+                    $_SESSION['message'] = 'Erreur serveur: ' . $e->getMessage();
+                    $_SESSION['message_type'] = 'danger';
+                }
+            }
+        }
+        
+        // Si ce n'est pas AJAX, charger la vue du formulaire
+        if (!isset($isAjax) || !$isAjax) {
+            require_once 'views/directeur/ajouter_evenement.php';
+        }
+    }
+
 
 /**
  * Ajoute un nouveau cours

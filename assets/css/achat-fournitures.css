@@ -1,0 +1,1032 @@
+/* ===================================================================== */
+/*                           MODULE ACHAT FOURNITURES                     */
+/*                     CSS Complet - Design System Ultra-Moderne           */
+/* ===================================================================== */
+
+/* --------------------------------------------------------------------- */
+/*                          VARIABLES CSS                               */
+/* --------------------------------------------------------------------- */
+
+:root {
+    /* Couleurs principales du module achat */
+    --achat-primary: #2563eb;
+    --achat-primary-light: #60a5fa;
+    --achat-primary-dark: #1d4ed8;
+    --achat-secondary: #10b981;
+    --achat-accent: #f59e0b;
+    --achat-danger: #ef4444;
+    --achat-warning: #f59e0b;
+    --achat-success: #10b981;
+    --achat-info: #3b82f6;
+    
+    /* Couleurs de fond */
+    --achat-bg-primary: #ffffff;
+    --achat-bg-secondary: #f8fafc;
+    --achat-bg-tertiary: #f1f5f9;
+    --achat-bg-dark: #1e293b;
+    --achat-bg-overlay: rgba(0, 0, 0, 0.5);
+    
+    /* Couleurs de texte */
+    --achat-text-primary: #1e293b;
+    --achat-text-secondary: #64748b;
+    --achat-text-muted: #94a3b8;
+    --achat-text-white: #ffffff;
+    
+    /* Couleurs de bordure */
+    --achat-border-light: #e2e8f0;
+    --achat-border-medium: #cbd5e1;
+    --achat-border-dark: #64748b;
+    
+    /* Ombres */
+    --achat-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --achat-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --achat-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --achat-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Dégradés */
+    --achat-gradient-primary: linear-gradient(135deg, var(--achat-primary) 0%, var(--achat-primary-light) 100%);
+    --achat-gradient-success: linear-gradient(135deg, var(--achat-success) 0%, #34d399 100%);
+    --achat-gradient-warning: linear-gradient(135deg, var(--achat-warning) 0%, #fbbf24 100%);
+    --achat-gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    
+    /* Espacement */
+    --achat-spacing-xs: 0.25rem;
+    --achat-spacing-sm: 0.5rem;
+    --achat-spacing-md: 1rem;
+    --achat-spacing-lg: 1.5rem;
+    --achat-spacing-xl: 2rem;
+    --achat-spacing-2xl: 3rem;
+    
+    /* Rayons de bordure */
+    --achat-radius-sm: 0.375rem;
+    --achat-radius-md: 0.5rem;
+    --achat-radius-lg: 0.75rem;
+    --achat-radius-xl: 1rem;
+    
+    /* Polices */
+    --achat-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --achat-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+    
+    /* Transitions */
+    --achat-transition-fast: 0.15s ease-out;
+    --achat-transition-medium: 0.3s ease-out;
+    --achat-transition-slow: 0.5s ease-out;
+    --achat-transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* --------------------------------------------------------------------- */
+/*                            ANIMATIONS                                */
+/* --------------------------------------------------------------------- */
+
+@keyframes achatFadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes achatSlideInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes achatSlideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes achatSlideInFromTop {
+    0% {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes achatZoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes achatPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes achatFloat {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes achatBounce {
+    0%, 20%, 53%, 80%, 100% {
+        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+        transform: translate3d(0,0,0);
+    }
+    40%, 43% {
+        animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+        transform: translate3d(0, -15px, 0);
+    }
+    70% {
+        animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+        transform: translate3d(0, -7px, 0);
+    }
+    90% {
+        transform: translate3d(0,-2px,0);
+    }
+}
+
+@keyframes achatRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes achatGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--achat-primary);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--achat-primary), 0 0 30px var(--achat-primary);
+    }
+}
+
+/* --------------------------------------------------------------------- */
+/*                        CLASSES D'ANIMATION                           */
+/* --------------------------------------------------------------------- */
+
+.animate-fadeInUp {
+    animation: achatFadeInUp 0.6s ease-out forwards;
+}
+
+.animate-slideInLeft {
+    animation: achatSlideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slideInRight {
+    animation: achatSlideInRight 0.6s ease-out forwards;
+}
+
+.animate-slideInFromTop {
+    animation: achatSlideInFromTop 0.6s ease-out forwards;
+}
+
+.animate-zoomIn {
+    animation: achatZoomIn 0.6s ease-out forwards;
+}
+
+.animate-pulse {
+    animation: achatPulse 2s infinite;
+}
+
+.animate-float {
+    animation: achatFloat 3s ease-in-out infinite;
+}
+
+.animate-bounce {
+    animation: achatBounce 1s;
+}
+
+.animate-rotate {
+    animation: achatRotate 2s linear infinite;
+}
+
+.animate-glow {
+    animation: achatGlow 2s ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------- */
+/*                       COMPOSANTS PRINCIPAUX                          */
+/* --------------------------------------------------------------------- */
+
+/* Wrapper principal */
+.achat-wrapper {
+    font-family: var(--achat-font-primary);
+    line-height: 1.6;
+    color: var(--achat-text-primary);
+    background: var(--achat-bg-secondary);
+    min-height: 100vh;
+}
+
+.achat-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--achat-spacing-lg);
+}
+
+/* --------------------------------------------------------------------- */
+/*                            CARTES                                     */
+/* --------------------------------------------------------------------- */
+
+.achat-card {
+    background: var(--achat-bg-primary);
+    border-radius: var(--achat-radius-lg);
+    box-shadow: var(--achat-shadow-md);
+    border: 1px solid var(--achat-border-light);
+    overflow: hidden;
+    transition: all var(--achat-transition-medium);
+    position: relative;
+}
+
+.achat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--achat-shadow-lg);
+}
+
+.achat-card-header {
+    padding: var(--achat-spacing-lg);
+    border-bottom: 1px solid var(--achat-border-light);
+    background: var(--achat-bg-secondary);
+    position: relative;
+}
+
+.achat-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--achat-text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--achat-spacing-sm);
+}
+
+.achat-card-subtitle {
+    font-size: 0.875rem;
+    color: var(--achat-text-secondary);
+    margin-top: var(--achat-spacing-xs);
+}
+
+.achat-card-body {
+    padding: var(--achat-spacing-lg);
+}
+
+.achat-card-footer {
+    padding: var(--achat-spacing-lg);
+    border-top: 1px solid var(--achat-border-light);
+    background: var(--achat-bg-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--achat-spacing-md);
+}
+
+.achat-card-actions {
+    display: flex;
+    gap: var(--achat-spacing-sm);
+    margin-top: var(--achat-spacing-md);
+}
+
+/* --------------------------------------------------------------------- */
+/*                         BOÎTES D'INFORMATION                         */
+/* --------------------------------------------------------------------- */
+
+.achat-info-boxes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--achat-spacing-lg);
+    margin-bottom: var(--achat-spacing-2xl);
+}
+
+.achat-info-card {
+    background: var(--achat-bg-primary);
+    border-radius: var(--achat-radius-lg);
+    padding: var(--achat-spacing-lg);
+    border: 1px solid var(--achat-border-light);
+    box-shadow: var(--achat-shadow-md);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--achat-transition-medium);
+}
+
+.achat-info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--achat-shadow-xl);
+}
+
+.achat-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--achat-gradient-primary);
+}
+
+.achat-info-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--achat-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--achat-text-white);
+    margin-bottom: var(--achat-spacing-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.achat-info-card-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--achat-gradient-primary);
+    opacity: 0.9;
+}
+
+.achat-info-card-icon i {
+    position: relative;
+    z-index: 1;
+}
+
+.achat-info-card-icon-primary::before {
+    background: var(--achat-gradient-primary);
+}
+
+.achat-info-card-icon-success::before {
+    background: var(--achat-gradient-success);
+}
+
+.achat-info-card-icon-warning::before {
+    background: var(--achat-gradient-warning);
+}
+
+.achat-info-card-icon-info::before {
+    background: linear-gradient(135deg, var(--achat-info) 0%, #60a5fa 100%);
+}
+
+.achat-info-card-content {
+    flex: 1;
+}
+
+.achat-info-card-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--achat-text-secondary);
+    margin: 0 0 var(--achat-spacing-xs) 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.achat-info-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--achat-text-primary);
+    margin: 0 0 var(--achat-spacing-xs) 0;
+    line-height: 1.2;
+}
+
+.achat-info-card-description {
+    font-size: 0.875rem;
+    color: var(--achat-text-muted);
+    margin: 0;
+}
+
+.achat-info-card-footer {
+    margin-top: var(--achat-spacing-md);
+    padding-top: var(--achat-spacing-md);
+    border-top: 1px solid var(--achat-border-light);
+}
+
+/* Barres de progression */
+.achat-progress-bar {
+    height: 4px;
+    background: var(--achat-border-light);
+    border-radius: var(--achat-radius-sm);
+    overflow: hidden;
+    position: relative;
+}
+
+.achat-progress-fill {
+    height: 100%;
+    background: var(--achat-gradient-primary);
+    border-radius: var(--achat-radius-sm);
+    transition: width 1s ease-out;
+    position: relative;
+}
+
+.achat-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.achat-progress-success {
+    background: var(--achat-gradient-success);
+}
+
+.achat-progress-warning {
+    background: var(--achat-gradient-warning);
+}
+
+.achat-progress-info {
+    background: linear-gradient(135deg, var(--achat-info) 0%, #60a5fa 100%);
+}
+
+/* --------------------------------------------------------------------- */
+/*                          FORMULAIRES                                 */
+/* --------------------------------------------------------------------- */
+
+.achat-form-section {
+    margin-bottom: var(--achat-spacing-2xl);
+}
+
+.achat-form-card {
+    border: 1px solid var(--achat-border-light);
+}
+
+.achat-form {
+    width: 100%;
+}
+
+.achat-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--achat-spacing-lg);
+}
+
+.achat-form-group {
+    margin-bottom: var(--achat-spacing-lg);
+    position: relative;
+}
+
+.achat-form-group-full {
+    grid-column: 1 / -1;
+}
+
+.achat-form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--achat-text-primary);
+    margin-bottom: var(--achat-spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--achat-spacing-xs);
+}
+
+.achat-form-label i {
+    color: var(--achat-primary);
+    font-size: 1rem;
+}
+
+.achat-form-input,
+.achat-form-textarea {
+    width: 100%;
+    padding: var(--achat-spacing-md);
+    border: 2px solid var(--achat-border-light);
+    border-radius: var(--achat-radius-md);
+    font-size: 0.875rem;
+    font-family: var(--achat-font-primary);
+    background: var(--achat-bg-primary);
+    color: var(--achat-text-primary);
+    transition: all var(--achat-transition-medium);
+    box-sizing: border-box;
+}
+
+.achat-form-input:focus,
+.achat-form-textarea:focus {
+    outline: none;
+    border-color: var(--achat-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    transform: translateY(-1px);
+}
+
+.achat-form-input::placeholder,
+.achat-form-textarea::placeholder {
+    color: var(--achat-text-muted);
+}
+
+.achat-form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* États de validation */
+.achat-form-group-valid .achat-form-input,
+.achat-form-group-valid .achat-form-textarea {
+    border-color: var(--achat-success);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.achat-form-group-error .achat-form-input,
+.achat-form-group-error .achat-form-textarea {
+    border-color: var(--achat-danger);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* --------------------------------------------------------------------- */
+/*                            BOUTONS                                   */
+/* --------------------------------------------------------------------- */
+
+.achat-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--achat-spacing-xs);
+    padding: var(--achat-spacing-md) var(--achat-spacing-lg);
+    border: none;
+    border-radius: var(--achat-radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--achat-font-primary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--achat-transition-medium);
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+
+.achat-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.achat-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left var(--achat-transition-medium);
+}
+
+.achat-btn:hover::before {
+    left: 100%;
+}
+
+/* Variantes de boutons */
+.achat-btn-primary {
+    background: var(--achat-gradient-primary);
+    color: var(--achat-text-white);
+    box-shadow: var(--achat-shadow-sm);
+}
+
+.achat-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--achat-shadow-lg);
+}
+
+.achat-btn-secondary {
+    background: var(--achat-bg-primary);
+    color: var(--achat-text-primary);
+    border: 2px solid var(--achat-border-medium);
+}
+
+.achat-btn-secondary:hover {
+    background: var(--achat-bg-secondary);
+    border-color: var(--achat-primary);
+    color: var(--achat-primary);
+}
+
+.achat-btn-outline {
+    background: transparent;
+    color: var(--achat-primary);
+    border: 2px solid var(--achat-primary);
+}
+
+.achat-btn-outline:hover {
+    background: var(--achat-primary);
+    color: var(--achat-text-white);
+}
+
+.achat-btn-danger {
+    background: var(--achat-danger);
+    color: var(--achat-text-white);
+}
+
+.achat-btn-warning {
+    background: var(--achat-warning);
+    color: var(--achat-text-white);
+}
+
+.achat-btn-sm {
+    padding: var(--achat-spacing-sm) var(--achat-spacing-md);
+    font-size: 0.75rem;
+}
+
+.achat-btn-lg {
+    padding: var(--achat-spacing-lg) var(--achat-spacing-xl);
+    font-size: 1rem;
+}
+
+.achat-btn-clicked {
+    transform: scale(0.95);
+}
+
+/* --------------------------------------------------------------------- */
+/*                            TABLEAUX                                  */
+/* --------------------------------------------------------------------- */
+
+.achat-table-section {
+    margin-bottom: var(--achat-spacing-2xl);
+}
+
+.achat-table-card {
+    border: 1px solid var(--achat-border-light);
+}
+
+.achat-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--achat-radius-lg);
+}
+
+.achat-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--achat-bg-primary);
+    border-radius: var(--achat-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--achat-shadow-sm);
+}
+
+.achat-table-header {
+    background: var(--achat-bg-dark);
+    color: var(--achat-text-white);
+}
+
+.achat-table-th {
+    padding: var(--achat-spacing-lg);
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--achat-border-medium);
+    position: relative;
+}
+
+.achat-table-th:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.achat-table-header-content {
+    display: flex;
+    align-items: center;
+    gap: var(--achat-spacing-xs);
+}
+
+.achat-table-th-actions {
+    text-align: center;
+    width: 120px;
+}
+
+.achat-table-body {
+    background: var(--achat-bg-primary);
+}
+
+.achat-table-row {
+    border-bottom: 1px solid var(--achat-border-light);
+    transition: all var(--achat-transition-medium);
+}
+
+.achat-table-row:hover {
+    background: var(--achat-bg-secondary);
+    transform: translateX(4px);
+}
+
+.achat-table-row:last-child {
+    border-bottom: none;
+}
+
+.achat-table-td {
+    padding: var(--achat-spacing-lg);
+    font-size: 0.875rem;
+    color: var(--achat-text-primary);
+    vertical-align: middle;
+}
+
+.achat-table-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--achat-spacing-sm);
+}
+
+.achat-table-actions {
+    display: flex;
+    gap: var(--achat-spacing-xs);
+    justify-content: center;
+}
+
+.achat-table-icon {
+    color: var(--achat-primary);
+    margin-right: var(--achat-spacing-xs);
+}
+
+.achat-table-text-primary {
+    font-weight: 500;
+    color: var(--achat-text-primary);
+}
+
+.achat-table-amount {
+    font-weight: 600;
+    color: var(--achat-success);
+    font-family: var(--achat-font-mono);
+}
+
+.achat-table-reference {
+    font-family: var(--achat-font-mono);
+    font-size: 0.8rem;
+    color: var(--achat-text-secondary);
+}
+
+.achat-table-td-actions {
+    text-align: center;
+    width: 120px;
+}
+
+/* --------------------------------------------------------------------- */
+/*                            BADGES                                    */
+/* --------------------------------------------------------------------- */
+
+.achat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--achat-spacing-xs);
+    padding: var(--achat-spacing-xs) var(--achat-spacing-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: var(--achat-radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.achat-badge-primary {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--achat-primary);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.achat-badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--achat-success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.achat-badge-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--achat-warning);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.achat-badge-outline {
+    background: transparent;
+    color: var(--achat-text-secondary);
+    border: 1px solid var(--achat-border-medium);
+}
+
+/* --------------------------------------------------------------------- */
+/*                            TOOLTIPS                                  */
+/* --------------------------------------------------------------------- */
+
+.achat-tooltip {
+    position: relative;
+}
+
+.achat-tooltip-popup {
+    position: absolute;
+    background: var(--achat-bg-dark);
+    color: var(--achat-text-white);
+    padding: var(--achat-spacing-sm);
+    border-radius: var(--achat-radius-sm);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: var(--achat-shadow-lg);
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------- */
+/*                            FOOTER                                    */
+/* --------------------------------------------------------------------- */
+
+.achat-footer {
+    background: var(--achat-bg-primary);
+    border-top: 1px solid var(--achat-border-light);
+    padding: var(--achat-spacing-lg);
+    margin-top: var(--achat-spacing-2xl);
+}
+
+.achat-footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.achat-footer-info {
+    color: var(--achat-text-secondary);
+    font-size: 0.875rem;
+}
+
+.achat-footer-link {
+    color: var(--achat-primary);
+    text-decoration: none;
+    transition: color var(--achat-transition-fast);
+}
+
+.achat-footer-link:hover {
+    color: var(--achat-primary-dark);
+}
+
+.achat-footer-version {
+    display: flex;
+    align-items: center;
+}
+
+/* --------------------------------------------------------------------- */
+/*                         UTILITAIRES                                  */
+/* --------------------------------------------------------------------- */
+
+.achat-pulse {
+    animation: achatPulse 2s infinite;
+}
+
+.achat-text-center {
+    text-align: center;
+}
+
+.achat-text-right {
+    text-align: right;
+}
+
+.achat-mb-lg {
+    margin-bottom: var(--achat-spacing-lg);
+}
+
+.achat-mt-lg {
+    margin-top: var(--achat-spacing-lg);
+}
+
+/* Classes pour masquer à l'impression */
+.no-print {
+    display: block;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .achat-wrapper {
+        background: white;
+    }
+    
+    .achat-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}
+
+/* --------------------------------------------------------------------- */
+/*                         RESPONSIVE DESIGN                            */
+/* --------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+    .achat-container {
+        padding: var(--achat-spacing-md);
+    }
+    
+    .achat-info-boxes-grid {
+        grid-template-columns: 1fr;
+        gap: var(--achat-spacing-md);
+    }
+    
+    .achat-form-grid {
+        grid-template-columns: 1fr;
+        gap: var(--achat-spacing-md);
+    }
+    
+    .achat-card-header {
+        padding: var(--achat-spacing-md);
+    }
+    
+    .achat-card-body {
+        padding: var(--achat-spacing-md);
+    }
+    
+    .achat-card-footer {
+        padding: var(--achat-spacing-md);
+        flex-direction: column;
+        gap: var(--achat-spacing-sm);
+    }
+    
+    .achat-table-wrapper {
+        border-radius: 0;
+        margin: 0 -var(--achat-spacing-md);
+    }
+    
+    .achat-table-th,
+    .achat-table-td {
+        padding: var(--achat-spacing-sm);
+        font-size: 0.75rem;
+    }
+    
+    .achat-footer-content {
+        flex-direction: column;
+        gap: var(--achat-spacing-sm);
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .achat-info-card-value {
+        font-size: 1.5rem;
+    }
+    
+    .achat-btn {
+        font-size: 0.75rem;
+        padding: var(--achat-spacing-sm) var(--achat-spacing-md);
+    }
+    
+    .achat-card-actions {
+        flex-direction: column;
+    }
+    
+    .achat-table-actions {
+        flex-direction: column;
+        gap: var(--achat-spacing-xs);
+    }
+}
+
+/* --------------------------------------------------------------------- */
+/*                         AMÉLIORATIONS ACCESSIBILITÉ                  */
+/* --------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible pour l'accessibilité */
+.achat-btn:focus-visible,
+.achat-form-input:focus-visible,
+.achat-form-textarea:focus-visible {
+    outline: 2px solid var(--achat-primary);
+    outline-offset: 2px;
+}
+
+/* Amélioration du contraste pour les utilisateurs avec des déficiences visuelles */
+@media (prefers-contrast: high) {
+    :root {
+        --achat-border-light: #666;
+        --achat-border-medium: #333;
+        --achat-text-muted: #333;
+    }
+}

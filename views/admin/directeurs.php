@@ -20,7 +20,7 @@ $image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x16
 
 // Récupération des directeurs depuis la table users
 $directeurs = [];
-$query = "SELECT id, username, email, telephone as contact, adresse FROM users WHERE role = 'directeur' ORDER BY username, email";
+$query = "SELECT id, username, email, telephone as contact, adresse FROM users WHERE role = 'director' ORDER BY username, email";
 $result = $mysqli->query($query);
 
 if ($result) {
@@ -34,7 +34,7 @@ if ($result) {
 if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     
-    $delete_query = "DELETE FROM users WHERE id = ? AND role = 'directeur'";
+    $delete_query = "DELETE FROM users WHERE id = ? AND role = 'director'";
     $stmt = $mysqli->prepare($delete_query);
     $stmt->bind_param("i", $delete_id);
     
@@ -79,12 +79,10 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
 
   <?php include 'navbar.php'; ?>
 
+  <?php include 'sidebar.php'; ?>
+             
 
-
-  <!-- Barre latérale gauche -->
   
-  <?php include 'sidebar.php'; ?> 
-
   <div class="content-wrapper">
     <section class="content-header">
       <h1>
@@ -126,11 +124,11 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
                   <tr>
                     <th>N°</th>
                     <th>Nom</th>
-                    <th>Prénom</th>
+                   
                     <th>Contact</th>
                     <th>Email</th>
                     <th>Adresse</th>
-                    <th>Section</th>
+                   
                     <th class="no-print">Actions</th>
                   </tr>
                 </thead>
@@ -138,10 +136,11 @@ if (isset($_GET['delete_id']) && !empty($_GET['delete_id'])) {
                   <?php $index = 0; foreach ($directeurs as $directeur): $index++; ?>
                     <tr>
                       <td><?php echo $index; ?></td>
-                      <td><?php echo $directeur['telephone']; ?></td>
+                      <td><?php echo $directeur['username']; ?></td>
+                      <td><?php echo $directeur['contact']; ?></td>
                       <td><?php echo $directeur['email']; ?></td>
                       <td><?php echo $directeur['adresse']; ?></td>
-                      <td><?php echo $directeur['section']; ?></td>
+                     
                       <td class="no-print">
                         <a href="<?php echo BASE_URL; ?>index.php?controller=Admin&action=editdirecteur&id=<?php echo $directeur['id']; ?>" class="btn btn-info btn-xs">
                           <i class="fa fa-pencil"></i> Modifier

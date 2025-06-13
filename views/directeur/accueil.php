@@ -119,93 +119,12 @@ $image = isset($_SESSION['image']) && !empty($_SESSION['image']) ? $_SESSION['im
 <body class="hold-transition skin-purple sidebar-mini">
 <div class="wrapper">
 
-  <header class="main-header">
-    <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=accueil" class="logo">
-      <span class="logo-mini"><b>SGS</b></span>
-      <span class="logo-lg"><b>Système</b> Gestion</span>
-    </a>
-    <nav class="navbar navbar-static-top">
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Navigation</span>
-      </a>
+ 
 
-      <div class="navbar-custom-menu">
-        <ul class="nav navbar-nav">
-          <li class="dropdown user user-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="<?php echo BASE_URL . $image; ?>" class="user-image" alt="User Image">
-              <span class="hidden-xs"><?php echo $username; ?></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="user-header">
-                <img src="<?php echo BASE_URL . $image; ?>" class="img-circle" alt="User Image">
-                <p>
-                  <?php echo $username; ?> - <?php echo $role; ?>
-                  <small><?php echo $email; ?></small>
-                </p>
-              </li>
-              <li class="user-footer">
-                <div class="pull-left">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=profil" class="btn btn-default btn-flat">Profil</a>
-                </div>
-                <div class="pull-right">
-                  <a href="<?php echo BASE_URL; ?>index.php?controller=Auth&action=logout" class="btn btn-default btn-flat">Déconnexion</a>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </header>
+ <?php include 'navbar.php'; ?>
 
-  <aside class="main-sidebar">
-    <section class="sidebar">
-      <div class="user-panel">
-        <div class="pull-left image">
-          <img src="<?php echo BASE_URL . $image; ?>" class="img-circle" alt="User Image">
-        </div>
-        <div class="pull-left info">
-          <p><?php echo $username; ?></p>
-          <a href="#"><i class="fa fa-circle text-success"></i> En ligne</a>
-        </div>
-      </div>
-      
-      <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">MENU PRINCIPAL</li>
-        <li class="active">
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=accueil">
-            <i class="fa fa-dashboard"></i> <span>Tableau de bord</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=eleves">
-            <i class="fa fa-child"></i> <span>Élèves</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=professeurs">
-            <i class="fa fa-graduation-cap"></i> <span>Professeurs</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=classes">
-            <i class="fa fa-table"></i> <span>Classes</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="<?php echo BASE_URL; ?>index.php?controller=Director&action=evenementsScolaires">
-            <i class="fa fa-calendar"></i> <span>Événements Scolaires</span>
-          </a>
-        </li>
-      
-      </ul>
-    </section>
-  </aside>
+  <?php include 'sidebar.php'; ?>
+ 
 
   <div class="content-wrapper">
     <section class="content-header">

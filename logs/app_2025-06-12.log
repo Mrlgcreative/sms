@@ -1,0 +1,6 @@
+[2025-06-12 11:15:41] [INFO] [127.0.0.1] [chris] User role for redirection {"role":"directrice"}
+[2025-06-12 11:15:41] [INFO] [127.0.0.1] [chris] Connexion réussie {"username":"chris","ip":"127.0.0.1"}
+[2025-06-12 11:53:23] [INFO] [127.0.0.1] [malika] User role for redirection {"role":"director"}
+[2025-06-12 11:53:23] [INFO] [127.0.0.1] [malika] Connexion réussie {"username":"malika","ip":"127.0.0.1"}
+[2025-06-12 11:55:45] [INFO] [127.0.0.1] [chris] User role for redirection {"role":"directrice"}
+[2025-06-12 11:55:45] [INFO] [127.0.0.1] [chris] Connexion réussie {"username":"chris","ip":"127.0.0.1"}

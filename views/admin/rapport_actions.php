@@ -5,9 +5,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Récupérer les informations de l'utilisateur
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Utilisateur';
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'email@exemple.com';
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Administrateur';
+$image = isset($_SESSION['image']) ? $_SESSION['image'] : 'dist/img/user2-160x160.jpg';
 ?>
 
 <!DOCTYPE html>

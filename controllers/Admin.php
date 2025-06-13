@@ -13,6 +13,9 @@ require 'models/DirectriceModel.php';
 require 'models/PrefetModel.php';
 require 'models/EmployeModel.php';
 require 'models/SessionScolaireModel.php';
+require 'models/PaiementModel.php';
+require 'models/MoisModel.php';
+require_once 'includes/logger.php';
 
 class Admin {
     private $eleveModel;
@@ -29,8 +32,9 @@ class Admin {
     private $prefetModel;
     private $sessionscolaireModel;
     private $employeModel;
-    private $db;
-
+    private $paiementModel;
+    private $db;    
+    private $logger;
     public function __construct() {
         $this->eleveModel = new EleveModel();
         $this->professeurModel = new ProfesseurModel();
@@ -45,6 +49,9 @@ class Admin {
         $this->directriceModel=new DirectriceModel();
         $this->prefetModel=new PrefetModel();
         $this->sessionscolaireModel=new SessionScolaireModel();
+        $this->paiementModel = new PaiementModel();
+        $this->employeModel = new EmployeModel();
+        $this->logger = new Logger();
      }
 
     public function accueil() {
@@ -102,6 +109,665 @@ class Admin {
         require_once 'views/admin/accueil.php';
     }
 
+     public function paiements() {
+        // Vérification de l'existence des paramètres GET
+        $paiement_id = isset($_GET['paiement_id']) ? (int)$_GET['paiement_id'] : null;
+        $eleve_id = isset($_GET['eleve_id']) ? (int)$_GET['eleve_id'] : null;
+        $option_id = isset($_GET['option_id']) ? (int)$_GET['option_id'] : null;
+        $session_id = isset($_GET['session_id']) ? (int)$_GET['session_id'] : null;
+    
+        // Récupérer la session scolaire active
+        $session_active = $this->sessionscolaireModel->getActive();
+        
+        // Vérification et récupération des données de paiement
+        $paiements = [];
+        if ($paiement_id) {
+            $paiements = $this->paiementModel->getByPaiementId($paiement_id); // Méthode spécifique pour un paiement
+            if (!$paiements) {
+                $paiements = []; // Aucun paiement trouvé
+            } else {
+                // Convertir en tableau si c'est un seul résultat
+                $paiements = [$paiements];
+            }
+        } elseif ($eleve_id) {
+            // Récupérer les paiements d'un élève spécifique
+            $paiements = $this->paiementModel->getByEleveId($eleve_id);
+        } elseif ($session_id) {
+            // Récupérer les paiements d'une session scolaire spécifique
+            $paiements = $this->paiementModel->getBySessionId($session_id);
+        } else {
+            // Récupération de tous les paiements
+            $paiements = $this->paiementModel->getAll();
+        }
+        
+        // Enrichir les données de paiement avec les informations de session scolaire
+        foreach ($paiements as &$paiement) {
+            if (isset($paiement['session_scolaire_id']) && $paiement['session_scolaire_id']) {
+                $session = $this->sessionscolaireModel->getById($paiement['session_scolaire_id']);
+                if ($session) {
+                    $paiement['libelle'] = $session['libelle'] ?? ($session['annee_debut'] . '-' . $session['annee_fin']);
+                } else {
+                    $paiement['libelle'] = 'Session inconnue';
+                }
+            } else {
+                $paiement['libelle'] = 'Session non spécifiée';
+            }
+        }
+        unset($paiement); // Détruire la référence
+          // Traitement des options pour chaque paiement
+        $option = null;
+        if ($option_id) {
+            // Note: optionModel n'est pas défini, on peut commenter cette partie ou ajouter le modèle
+            // $option = $this->optionModel->getAll($option_id);
+            // if (!$option) {
+            //     die("Option non defini");
+            // }
+        }
+        
+        // Récupérer toutes les sessions scolaires pour le filtre
+        $sessions_scolaires = $this->sessionscolaireModel->getAll();
+        
+        // Vérifier si l'utilisateur est connecté
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
+        $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
+        
+        // Récupérer les données pour les filtres
+        $classes = $this->classeModel->getAllClasses();
+        // Note: moisModel n'est pas défini, on utilise un tableau par défaut
+        $mois = [
+            ['nom' => 'Janvier'], ['nom' => 'Février'], ['nom' => 'Mars'], ['nom' => 'Avril'],
+            ['nom' => 'Mai'], ['nom' => 'Juin'], ['nom' => 'Juillet'], ['nom' => 'Août'],
+            ['nom' => 'Septembre'], ['nom' => 'Octobre'], ['nom' => 'Novembre'], ['nom' => 'Décembre']
+        ];
+        $frais = $this->fraisModel->getAll(); // Correction: fraisModel au lieu de fraismodel
+        
+        // Calculer le nombre total de paiements
+        $total_paiements = count($paiements);
+        
+        // Charger la vue avec les données
+        require 'views/admin/paiement.php';
+    }
+
+    public function exportPaiementsPDF() {
+        // Démarrer le buffer de sortie pour capturer toute sortie indésirable
+        ob_start();
+        
+        // Vérifier si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }        try {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+            if ($mysqli->connect_error) {
+                throw new Exception("Erreur de connexion: " . $mysqli->connect_error);
+            }
+
+            // Récupérer tous les paiements avec les informations des élèves
+            $query = "SELECT p.*, e.nom as eleve_nom, e.prenom as eleve_prenom, 
+                             c.nom as classe_nom, o.nom as option_nom, e.section,
+                             f.description as frais_description,
+                             MONTHNAME(p.payment_date) as mois_nom,
+                             MONTH(p.payment_date) as mois_numero
+                      FROM paiements_frais p
+                      LEFT JOIN eleves e ON p.eleve_id = e.id
+                      LEFT JOIN classes c ON e.classe_id = c.id
+                      LEFT JOIN options o ON e.option_id = o.id
+                      LEFT JOIN frais f ON p.frais_id = f.id
+                      ORDER BY p.payment_date DESC";
+            
+            $result = $mysqli->query($query);
+            $paiements = [];
+            
+            if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    // Ajouter le mois en français
+                    $mois_fr = [
+                        1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
+                        5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
+                        9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
+                    ];
+                    $row['mois'] = $mois_fr[$row['mois_numero']] ?? 'Inconnu';
+                    $paiements[] = $row;
+                }
+            }
+
+            // Récupérer le nombre total de paiements et le montant total
+            $total_result = $mysqli->query("SELECT COUNT(*) AS total_paiements, SUM(amount_paid) AS montant_total FROM paiements_frais");
+            $totals = $total_result->fetch_assoc();
+            $total_paiements = $totals['total_paiements'];
+            $montant_total = $totals['montant_total'] ?? 0;
+
+            $mysqli->close();            // Inclure FPDF - essayer différents chemins
+            $fpdf_paths = [
+                'lib/fpdf_temp/fpdf.php',
+                '../lib/fpdf_temp/fpdf.php',
+                'sms/lib/fpdf_temp/fpdf.php',
+                '../sms/lib/fpdf_temp/fpdf.php',
+                'lib/fpdf/fpdf.php',
+                '../lib/fpdf/fpdf.php'
+            ];
+            
+            $fpdf_loaded = false;
+            foreach ($fpdf_paths as $path) {
+                if (file_exists($path)) {
+                    require_once $path;
+                    $fpdf_loaded = true;
+                    break;
+                }
+            }
+              if (!$fpdf_loaded) {
+                throw new Exception('Bibliothèque FPDF non trouvée. Veuillez vérifier l\'installation.');
+            }
+
+            // Créer une nouvelle instance PDF
+            $pdf = new FPDF('L', 'mm', 'A4'); // Format paysage
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+
+            // En-tête du document
+            $pdf->Cell(277, 10, utf8_decode('SYSTÈME DE GESTION SCOLAIRE'), 0, 1, 'C');
+            $pdf->SetFont('Arial', 'B', 14);
+            $pdf->Cell(277, 10, utf8_decode('RAPPORT DES PAIEMENTS'), 0, 1, 'C');
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->Cell(277, 5, utf8_decode('Généré le: ' . date('d/m/Y à H:i')), 0, 1, 'C');
+            $pdf->Ln(10);
+
+            // Résumé des statistiques
+            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->Cell(277, 8, utf8_decode('RÉSUMÉ'), 0, 1, 'L');
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->Cell(138, 6, utf8_decode('Nombre total de paiements: ' . $total_paiements), 0, 0, 'L');
+            $pdf->Cell(139, 6, utf8_decode('Montant total: ' . number_format($montant_total, 2, ',', ' ') . ' $'), 0, 1, 'L');
+            $pdf->Ln(5);            // En-têtes du tableau
+            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->SetFillColor(230, 230, 230);
+            
+            // Définir les largeurs des colonnes
+            $w = array(10, 35, 25, 25, 20, 25, 25, 25, 20, 25, 20);
+            $headers = array('N°', 'Nom', 'Prénom', 'Classe', 'Section', 'Type de frais', 'Montant', 'Date', 'Mois', 'Option', 'ID');
+
+            // Afficher les en-têtes
+            for($i = 0; $i < count($headers); $i++) {
+                $pdf->Cell($w[$i], 8, utf8_decode($headers[$i]), 1, 0, 'C', true);
+            }
+            $pdf->Ln();
+
+            // Contenu du tableau
+            $pdf->SetFont('Arial', '', 7);
+            $pdf->SetFillColor(255, 255, 255);            
+            $num = 1;
+            foreach ($paiements as $paiement) {
+                // Vérifier si on a besoin d'une nouvelle page
+                if ($pdf->GetY() > 180) {
+                    $pdf->AddPage();
+                    $pdf->SetFont('Arial', 'B', 8);
+                    $pdf->SetFillColor(230, 230, 230);
+                    
+                    // Réafficher les en-têtes
+                    for($i = 0; $i < count($headers); $i++) {
+                        $pdf->Cell($w[$i], 8, utf8_decode($headers[$i]), 1, 0, 'C', true);
+                    }
+                    $pdf->Ln();
+                    $pdf->SetFont('Arial', '', 7);
+                    $pdf->SetFillColor(255, 255, 255);
+                }                // Données de la ligne
+                $data = array(
+                    $num,
+                    substr($paiement['eleve_nom'] ?? '', 0, 20),
+                    substr($paiement['eleve_prenom'] ?? '', 0, 15),
+                    substr($paiement['classe_nom'] ?? '', 0, 12),
+                    substr($paiement['section'] ?? '', 0, 10),
+                    substr($paiement['frais_description'] ?? '', 0, 15),
+                    number_format($paiement['amount_paid'], 0) . '$',
+                    date('d/m/Y', strtotime($paiement['payment_date'])),
+                    substr($paiement['mois'] ?? '', 0, 10),
+                    substr($paiement['option_nom'] ?? '', 0, 12),
+                    $paiement['id']
+                );
+
+                // Afficher la ligne
+                for($i = 0; $i < count($data); $i++) {
+                    $pdf->Cell($w[$i], 6, utf8_decode($data[$i]), 1, 0, 'C');
+                }
+                $pdf->Ln();
+                $num++;
+            }
+
+            // Pied de page avec le total
+            $pdf->Ln(5);
+            $pdf->SetFont('Arial', 'B', 10);
+            $pdf->Cell(277, 8, utf8_decode('TOTAL GÉNÉRAL: ' . number_format($montant_total, 2, ',', ' ') . ' $'), 0, 1, 'R');
+
+            // Enregistrer l'action dans l'historique
+            $this->logAction("Exportation PDF de la liste des paiements");
+
+            // Nettoyer tous les tampons de sortie
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+
+            // Envoyer les en-têtes HTTP pour le téléchargement PDF
+            $filename = 'paiements_' . date('Y-m-d_H-i-s') . '.pdf';
+            
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+            
+            // Générer et envoyer le PDF
+            $pdf->Output($filename, 'D'); // 'D' pour téléchargement forcé
+        
+        } catch (Exception $e) {
+            // Nettoyer le buffer de sortie en cas d'erreur
+            ob_clean();
+            
+            // Log de l'erreur
+            error_log("Erreur lors de l'export PDF : " . $e->getMessage());
+            
+            // Rediriger avec message d'erreur
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=paiements&error=1&message=' . urlencode('Erreur lors de l\'export PDF : ' . $e->getMessage()));
+        }
+          exit;
+    }    public function exportPaiements() {
+        // Vérifier si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+
+        try {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+            if ($mysqli->connect_error) {
+                throw new Exception("Erreur de connexion: " . $mysqli->connect_error);
+            }
+
+            // Récupérer tous les paiements avec les informations des élèves
+            $query = "SELECT p.*, e.nom as eleve_nom, e.prenom as eleve_prenom, 
+                             c.nom as classe_nom, o.nom as option_nom, e.section,
+                             f.description as frais_description,
+                             MONTHNAME(p.payment_date) as mois_nom,
+                             MONTH(p.payment_date) as mois_numero
+                      FROM paiements_frais p
+                      LEFT JOIN eleves e ON p.eleve_id = e.id
+                      LEFT JOIN classes c ON e.classe_id = c.id
+                      LEFT JOIN options o ON e.option_id = o.id
+                      LEFT JOIN frais f ON p.frais_id = f.id
+                      ORDER BY p.payment_date DESC";
+            
+            $result = $mysqli->query($query);
+            $paiements = [];
+            
+            if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    // Ajouter le mois en français
+                    $mois_fr = [
+                        1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
+                        5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
+                        9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
+                    ];
+                    $row['mois'] = $mois_fr[$row['mois_numero']] ?? 'Inconnu';
+                    $paiements[] = $row;
+                }
+            }
+
+            // Récupérer le nombre total de paiements et le montant total
+            $total_result = $mysqli->query("SELECT COUNT(*) AS total_paiements, SUM(amount_paid) AS montant_total FROM paiements_frais");
+            $totals = $total_result->fetch_assoc();
+            $total_paiements = $totals['total_paiements'];
+            $montant_total = $totals['montant_total'] ?? 0;
+
+            $mysqli->close();            // Générer un fichier Excel HTML avec styles (extension correcte)
+            $filename = 'Rapport_Paiements_' . date('Y-m-d_H-i-s') . '.xlsx';
+            
+            // Headers pour Excel
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+
+            // Débuter le contenu Excel avec des styles CSS
+            echo '<?xml version="1.0" encoding="UTF-8"?>
+            <?mso-application progid="Excel.Sheet"?>
+            <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+                      xmlns:o="urn:schemas-microsoft-com:office:office"
+                      xmlns:x="urn:schemas-microsoft-com:office:excel"
+                      xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+                      xmlns:html="http://www.w3.org/TR/REC-html40">
+            
+            <Styles>
+                <Style ss:ID="header">
+                    <Font ss:Bold="1" ss:Size="16" ss:Color="#FFFFFF"/>
+                    <Interior ss:Color="#2E86AB" ss:Pattern="Solid"/>
+                    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+                    <Borders>
+                        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>
+                        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"/>
+                        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="2"/>
+                        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"/>
+                    </Borders>
+                </Style>
+                
+                <Style ss:ID="title">
+                    <Font ss:Bold="1" ss:Size="20" ss:Color="#2E86AB"/>
+                    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+                </Style>
+                
+                <Style ss:ID="subtitle">
+                    <Font ss:Bold="1" ss:Size="12" ss:Color="#666666"/>
+                    <Alignment ss:Horizontal="Center"/>
+                </Style>
+                
+                <Style ss:ID="summary">
+                    <Font ss:Bold="1" ss:Size="11" ss:Color="#2E86AB"/>
+                    <Interior ss:Color="#E8F4FD" ss:Pattern="Solid"/>
+                    <Borders>
+                        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+                    </Borders>
+                </Style>
+                
+                <Style ss:ID="data">
+                    <Font ss:Size="10"/>
+                    <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+                    <Borders>
+                        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+                    </Borders>
+                </Style>
+                
+                <Style ss:ID="dataAlt">
+                    <Font ss:Size="10"/>
+                    <Interior ss:Color="#F8F9FA" ss:Pattern="Solid"/>
+                    <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+                    <Borders>
+                        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+                    </Borders>
+                </Style>
+                
+                <Style ss:ID="currency">
+                    <Font ss:Size="10" ss:Bold="1" ss:Color="#28A745"/>
+                    <NumberFormat ss:Format="###,##0.00&quot; $&quot;"/>
+                    <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+                    <Borders>
+                        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+                        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+                    </Borders>
+                </Style>
+                
+                <Style ss:ID="total">
+                    <Font ss:Bold="1" ss:Size="12" ss:Color="#FFFFFF"/>
+                    <Interior ss:Color="#28A745" ss:Pattern="Solid"/>
+                    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+                    <Borders>
+                        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"/>
+                        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"/>
+                        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="2"/>
+                        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"/>
+                    </Borders>
+                </Style>
+            </Styles>
+            
+            <Worksheet ss:Name="Rapport des Paiements">
+                <Table>
+                    <Column ss:Width="40"/>
+                    <Column ss:Width="120"/>
+                    <Column ss:Width="120"/>
+                    <Column ss:Width="80"/>
+                    <Column ss:Width="80"/>
+                    <Column ss:Width="120"/>
+                    <Column ss:Width="90"/>
+                    <Column ss:Width="90"/>
+                    <Column ss:Width="80"/>
+                    <Column ss:Width="100"/>
+                    <Column ss:Width="70"/>
+                    <Column ss:Width="70"/>
+                    <Column ss:Width="70"/>
+            ';
+
+            // En-tête du document
+            echo '<Row ss:Height="25">
+                    <Cell ss:MergeAcross="12" ss:StyleID="title">
+                        <Data ss:Type="String">📊 SYSTÈME DE GESTION SCOLAIRE</Data>
+                    </Cell>
+                  </Row>';
+            
+            echo '<Row ss:Height="20">
+                    <Cell ss:MergeAcross="12" ss:StyleID="subtitle">
+                        <Data ss:Type="String">RAPPORT DÉTAILLÉ DES PAIEMENTS</Data>
+                    </Cell>
+                  </Row>';
+            
+            echo '<Row ss:Height="15">
+                    <Cell ss:MergeAcross="12" ss:StyleID="subtitle">
+                        <Data ss:Type="String">Généré le ' . date('d/m/Y à H:i') . '</Data>
+                    </Cell>
+                  </Row>';
+            
+            // Ligne vide
+            echo '<Row ss:Height="10"><Cell/></Row>';
+            
+            // Résumé des statistiques
+            echo '<Row ss:Height="25">
+                    <Cell ss:MergeAcross="5" ss:StyleID="summary">
+                        <Data ss:Type="String">📈 RÉSUMÉ STATISTIQUE</Data>
+                    </Cell>
+                    <Cell ss:MergeAcross="6" ss:StyleID="summary">
+                        <Data ss:Type="String">🎯 INFORMATIONS CLÉS</Data>
+                    </Cell>
+                  </Row>';
+            
+            echo '<Row ss:Height="20">
+                    <Cell ss:MergeAcross="2" ss:StyleID="summary">
+                        <Data ss:Type="String">Nombre total de paiements:</Data>
+                    </Cell>
+                    <Cell ss:MergeAcross="2" ss:StyleID="summary">
+                        <Data ss:Type="Number">' . $total_paiements . '</Data>
+                    </Cell>
+                    <Cell ss:MergeAcross="3" ss:StyleID="summary">
+                        <Data ss:Type="String">Montant total:</Data>
+                    </Cell>
+                    <Cell ss:MergeAcross="3" ss:StyleID="currency">
+                        <Data ss:Type="Number">' . $montant_total . '</Data>
+                    </Cell>
+                  </Row>';
+            
+            // Ligne vide
+            echo '<Row ss:Height="10"><Cell/></Row>';
+
+            // En-têtes des colonnes
+            echo '<Row ss:Height="30">';
+            $headers = [
+                '🔢 N°', '👤 Nom', '👤 Prénom', '🎓 Classe', '📋 Section',
+                '💰 Type de frais', '💵 Montant payé', '📅 Date paiement',
+                '📆 Mois', '🎯 Option', '🆔 ID Paiement', '🆔 ID Élève', '🆔 ID Frais'
+            ];
+            
+            foreach ($headers as $header) {
+                echo '<Cell ss:StyleID="header"><Data ss:Type="String">' . htmlspecialchars($header) . '</Data></Cell>';
+            }
+            echo '</Row>';
+
+            // Données des paiements
+            $num = 1;
+            foreach ($paiements as $index => $paiement) {
+                $styleID = ($index % 2 == 0) ? 'data' : 'dataAlt';
+                $currencyStyle = ($index % 2 == 0) ? 'currency' : 'currency';
+                
+                echo '<Row ss:Height="25">';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="Number">' . $num . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . htmlspecialchars($paiement['eleve_nom'] ?? '') . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . htmlspecialchars($paiement['eleve_prenom'] ?? '') . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . htmlspecialchars($paiement['classe_nom'] ?? '') . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . htmlspecialchars($paiement['section'] ?? '') . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . htmlspecialchars($paiement['frais_description'] ?? '') . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $currencyStyle . '"><Data ss:Type="Number">' . ($paiement['amount_paid'] ?? 0) . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . date('d/m/Y', strtotime($paiement['payment_date'])) . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . htmlspecialchars($paiement['mois'] ?? '') . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="String">' . htmlspecialchars($paiement['option_nom'] ?? '') . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="Number">' . ($paiement['id'] ?? 0) . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="Number">' . ($paiement['eleve_id'] ?? 0) . '</Data></Cell>';
+                echo '<Cell ss:StyleID="' . $styleID . '"><Data ss:Type="Number">' . ($paiement['frais_id'] ?? 0) . '</Data></Cell>';
+                echo '</Row>';
+                $num++;
+            }
+
+            // Ligne vide
+            echo '<Row ss:Height="10"><Cell/></Row>';
+            
+            // Ligne de total            echo '<Row ss:Height="30">';
+            echo '<Cell ss:MergeAcross="5" ss:StyleID="total"><Data ss:Type="String">🎯 TOTAL GÉNÉRAL</Data></Cell>';
+            echo '<Cell ss:StyleID="total"><Data ss:Type="Number">' . $montant_total . '</Data></Cell>';
+            echo '<Cell ss:MergeAcross="5" ss:StyleID="total"><Data ss:Type="String">✅ ' . $total_paiements . ' paiements</Data></Cell>';
+            echo '</Row>';
+            
+            echo '</Table></Worksheet></Workbook>';
+
+            // Enregistrer l'action dans l'historique
+            $this->logAction("Exportation Excel de la liste des paiements - Format professionnel avec " . $total_paiements . " paiements");
+            
+        } catch (Exception $e) {
+            // Log de l'erreur
+            error_log("Erreur lors de l'export Excel : " . $e->getMessage());
+            
+            // Rediriger avec message d'erreur
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=paiements&error=1&message=' . urlencode('Erreur lors de l\'export Excel : ' . $e->getMessage()));
+        }
+        
+        exit;
+    }
+
+    public function exportPaiementsCSV() {
+        // Vérifier si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+
+        try {
+            // Connexion à la base de données
+            $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+            if ($mysqli->connect_error) {
+                throw new Exception("Erreur de connexion: " . $mysqli->connect_error);
+            }
+
+            // Récupérer tous les paiements
+            $query = "SELECT p.*, e.nom as eleve_nom, e.prenom as eleve_prenom, 
+                             c.nom as classe_nom, o.nom as option_nom, e.section,
+                             f.description as frais_description,
+                             MONTH(p.payment_date) as mois_numero
+                      FROM paiements_frais p
+                      LEFT JOIN eleves e ON p.eleve_id = e.id
+                      LEFT JOIN classes c ON e.classe_id = c.id
+                      LEFT JOIN options o ON e.option_id = o.id
+                      LEFT JOIN frais f ON p.frais_id = f.id
+                      ORDER BY p.payment_date DESC";
+            
+            $result = $mysqli->query($query);
+            $paiements = [];
+            
+            if ($result) {
+                while ($row = $result->fetch_assoc()) {
+                    $mois_fr = [
+                        1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
+                        5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
+                        9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
+                    ];
+                    $row['mois'] = $mois_fr[$row['mois_numero']] ?? 'Inconnu';
+                    $paiements[] = $row;
+                }
+            }
+
+            // Statistiques
+            $total_result = $mysqli->query("SELECT COUNT(*) AS total_paiements, SUM(amount_paid) AS montant_total FROM paiements_frais");
+            $totals = $total_result->fetch_assoc();
+            $total_paiements = $totals['total_paiements'];
+            $montant_total = $totals['montant_total'] ?? 0;
+            $mysqli->close();
+
+            // Headers CSV
+            $filename = 'Rapport_Paiements_CSV_' . date('Y-m-d_H-i-s') . '.csv';
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+
+            $output = fopen('php://output', 'w');
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // En-tête stylisé
+            fputcsv($output, ['=== SYSTÈME DE GESTION SCOLAIRE ==='], ';');
+            fputcsv($output, ['RAPPORT DES PAIEMENTS'], ';');
+            fputcsv($output, ['Généré le: ' . date('d/m/Y à H:i')], ';');
+            fputcsv($output, ['Par: ' . ($_SESSION['username'] ?? 'Admin')], ';');
+            fputcsv($output, ['===================================='], ';');
+            fputcsv($output, [''], ';');
+
+            // Statistiques
+            fputcsv($output, ['RÉSUMÉ STATISTIQUE'], ';');
+            fputcsv($output, ['Nombre de paiements:', $total_paiements], ';');
+            fputcsv($output, ['Montant total:', number_format($montant_total, 2, ',', ' ') . ' $'], ';');
+            fputcsv($output, [''], ';');
+
+            // En-têtes des colonnes
+            $headers = [
+                'N°', 'Nom', 'Prénom', 'Classe', 'Section',
+                'Type de frais', 'Montant (USD)', 'Date paiement',
+                'Mois', 'Option', 'ID Paiement', 'ID Élève', 'ID Frais'
+            ];
+            fputcsv($output, $headers, ';');
+
+            // Données
+            $num = 1;
+            foreach ($paiements as $paiement) {
+                $data = [
+                    sprintf('%03d', $num),
+                    strtoupper($paiement['eleve_nom'] ?? ''),
+                    ucwords(strtolower($paiement['eleve_prenom'] ?? '')),
+                    $paiement['classe_nom'] ?? '',
+                    $paiement['section'] ?? '',
+                    $paiement['frais_description'] ?? '',
+                    number_format($paiement['amount_paid'], 2, ',', ' ') . ' $',
+                    date('d/m/Y', strtotime($paiement['payment_date'])),
+                    $paiement['mois'] ?? '',
+                    $paiement['option_nom'] ?? '',
+                    $paiement['id'],
+                    $paiement['eleve_id'] ?? '',
+                    $paiement['frais_id'] ?? ''
+                ];
+                fputcsv($output, $data, ';');
+                $num++;
+            }
+
+            // Total
+            fputcsv($output, [''], ';');
+            fputcsv($output, ['TOTAL GÉNÉRAL:', '', '', '', '', '', number_format($montant_total, 2, ',', ' ') . ' $'], ';');
+
+            $this->logAction("Export CSV amélioré - " . $total_paiements . " paiements");
+            fclose($output);
+            
+        } catch (Exception $e) {
+            error_log("Erreur export CSV : " . $e->getMessage());
+            header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=paiements&error=1&message=' . urlencode('Erreur export CSV'));
+        }
+        exit;
+    }
     public function eleves() {
     
         
@@ -924,8 +1590,7 @@ public function nouvelleAnneeScolaire() {
     require 'views/admin/profil.php';
 }
 
-public function updateProfile() {
-    // Vérifier si l'utilisateur est connecté
+public function updateProfile() {    // Vérifier si l'utilisateur est connecté
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
@@ -934,113 +1599,6 @@ public function updateProfile() {
         header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
         exit;
     }
-    
-    $user_id = $_SESSION['user_id'];
-    
-    // Récupérer les données du formulaire
-    $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
-    $email = isset($_POST['email']) ? $_POST['email'] : '';
-    $telephone = isset($_POST['telephone']) ? $_POST['telephone'] : '';
-    $adresse = isset($_POST['adresse']) ? $_POST['adresse'] : '';
-    
-    // Mettre à jour les informations dans la base de données
-    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    
-    if ($mysqli->connect_error) {
-        die("Connection failed: " . $mysqli->connect_error);
-    }
-    
-    // Modification de la requête pour ne pas inclure la colonne education
-    $stmt = $mysqli->prepare("UPDATE users SET username = ?, email = ?, telephone = ?, adresse = ? WHERE id = ?");
-    $stmt->bind_param("ssssi", $nom, $email, $telephone, $adresse, $user_id);
-    $result = $stmt->execute();
-    $stmt->close();
-    
-    if ($result) {
-        // Mettre à jour les informations de session
-        $_SESSION['username'] = $nom;
-        $_SESSION['email'] = $email;
-        
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&success=1&message=' . urlencode('Profil mis à jour avec succès'));
-    } else {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Erreur lors de la mise à jour du profil'));
-    }
-    
-    $mysqli->close();
-    exit;
-}
-
-public function updatePassword() {
-    // Vérifier si l'utilisateur est connecté
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
-        exit;
-    }
-    
-    $user_id = $_SESSION['user_id'];
-    
-    // Récupérer les données du formulaire
-    $current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $password_confirm = isset($_POST['password_confirm']) ? $_POST['password_confirm'] : '';
-    
-    // Vérifier que les mots de passe correspondent
-    if ($password !== $password_confirm) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Les mots de passe ne correspondent pas'));
-        exit;
-    }
-    
-    // Vérifier le mot de passe actuel
-    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    
-    if ($mysqli->connect_error) {
-        die("Connection failed: " . $mysqli->connect_error);
-    }
-    
-    $stmt = $mysqli->prepare("SELECT password FROM users WHERE id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    $stmt->close();
-    
-    if (!$user || !password_verify($current_password, $user['password'])) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Mot de passe actuel incorrect'));
-        exit;
-    }
-    
-    // Mettre à jour le mot de passe
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $mysqli->prepare("UPDATE users SET password = ? WHERE id = ?");
-    $stmt->bind_param("si", $hashed_password, $user_id);
-    $result = $stmt->execute();
-    $stmt->close();
-    
-    if ($result) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&success=1&message=' . urlencode('Mot de passe mis à jour avec succès'));
-    } else {
-        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=profil&error=1&message=' . urlencode('Erreur lors de la mise à jour du mot de passe'));
-    }
-    
-    $mysqli->close();
-    exit;
-}
-
-/**
- * Met à jour la photo de profil de l'utilisateur
- */
-public function updateAvatar() {
-    // Vérifier si l'utilisateur est connecté
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
-        exit;
-    }
-    
-    $user_id = $_SESSION['user_id'];
     
     // Vérifier si un fichier a été téléchargé
     if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] != 0) {
@@ -1748,6 +2306,113 @@ public function logAction($action) {
             exit();
         }
     }
+
+ public function ajoutUsers() {
+        // Check if the form was submitted
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Get form data
+            $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+            $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+            $password = isset($_POST['password']) ? $_POST['password'] : '';
+            $confirm_password = isset($_POST['confirm_password']) ? $_POST['confirm_password'] : '';
+            $role = isset($_POST['role']) ? $_POST['role'] : 'user';
+            $telephone = isset($_POST['telephone']) ? trim($_POST['telephone']) : '';
+            $adresse = isset($_POST['adresse']) ? trim($_POST['adresse']) : '';
+            
+            // Validate form data
+            $errors = [];
+            
+            if (empty($username)) {
+                $errors[] = "Le nom d'utilisateur est requis";
+            }
+            
+            if (empty($email)) {
+                $errors[] = "L'email est requis";
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "Format d'email invalide";
+            }
+            
+            if (empty($password)) {
+                $errors[] = "Le mot de passe est requis";
+            } elseif (strlen($password) < 6) {
+                $errors[] = "Le mot de passe doit contenir au moins 6 caractères";
+            }
+            
+            if ($password !== $confirm_password) {
+                $errors[] = "Les mots de passe ne correspondent pas";
+            }
+            
+            // If no errors, register the user
+            if (empty($errors)) {
+                // Check if username already exists
+                if ($this->userModel->getUserByUsername($username)) {
+                    $errors[] = "Ce nom d'utilisateur existe déjà";
+                } 
+                // Check if email already exists
+                else if ($this->userModel->getUserByEmail($email)) {
+                    $errors[] = "Cet email est déjà utilisé";
+                } else {
+                    // Default image path
+                    $image = 'dist/img/default-avatar.png';
+                    
+                    // Handle image upload if provided
+                    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                        $upload_dir = 'dist/img/users/';
+                        
+                        // Create directory if it doesn't exist
+                        if (!file_exists($upload_dir)) {
+                            mkdir($upload_dir, 0777, true);
+                        }
+                        
+                        $file_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                        $new_filename = 'user_' . time() . '_' . rand(1000, 9999) . '.' . $file_extension;
+                        $target_file = $upload_dir . $new_filename;
+                        
+                        // Check file type
+                        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+                        if (in_array($_FILES['image']['type'], $allowed_types)) {
+                            if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+                                $image = $target_file;
+                            }
+                        }
+                    }
+                    
+                    // Set password expiry days (default 90 days)
+                    $password_expiry_days = 90;
+                    
+                    // Register the user with all fields
+                    $user_id = $this->userModel->register(
+                        $username, 
+                        $password, 
+                        $email, 
+                        $role, 
+                        $image, 
+                        $telephone, 
+                        $adresse, 
+                        $password_expiry_days
+                    );
+                    
+                    if ($user_id) {
+                        // Log the registration
+                        $this->logger->info("Nouvel utilisateur enregistré", ['username' => $username, 'role' => $role]);
+                        
+                        // Redirect to login page
+                        header('Location: ' . BASE_URL . 'index.php?controller=Admin&action=ajoutUsers&success=1&message=' . urlencode('Inscription réussie. Vous pouvez maintenant vous connecter.'));
+                        exit;
+                    } else {
+                        $errors[] = "L'inscription a échoué. Veuillez réessayer.";
+                    }
+                }
+            }
+        }
+        
+        // Get available roles for the dropdown
+        $roles = ['admin', 'comptable', 'prefet', 'directeur', 'directrice', 'enseignant', 'etudiant'];
+        
+        // Load the registration view
+        require 'views/admin/ajout_users.php';
+    }
+
 
 }
 ?>

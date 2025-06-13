@@ -110,7 +110,7 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
                   <b>Email</b> <a class="pull-right"><?php echo $email; ?></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Téléphone</b> <a class="pull-right"><?php echo isset($user_details['telephone']) ? $user_details['telephone'] : 'Non renseigné'; ?></a>
+                  <b>Téléphone</b> <a class="pull-right"><?php echo isset($user_details['contact']) ? $user_details['contact'] : 'Non renseigné'; ?></a>
                 </li>
                 <li class="list-group-item">
                   <b>Date d'inscription</b> <a class="pull-right"><?php echo date('d/m/Y'); ?></a>

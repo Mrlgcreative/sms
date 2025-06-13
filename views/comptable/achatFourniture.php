@@ -180,12 +180,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'modifier' && isset($_GET['id'
 <div class="wrapper">
 
     <!-- Navigation Header -->
-    <?php include __DIR__ . '/navbar.php'; ?>
+    <?php include 'navbar.php'; ?>
 
     <!-- Sidebar -->
-    <?php include __DIR__ . '/sidebar.php'; ?>
-
-    <!-- Content Wrapper -->
+    <?php include 'sidebar.php'; ?>    <!-- Content Wrapper -->
     <div class="content-wrapper">        <!-- Content Header (Page header) -->
         <section class="content-header animate-slideInFromTop">
             <h1 class="animate-fadeInUp">
