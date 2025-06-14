@@ -2408,9 +2408,35 @@ public function logAction($action) {
         
         // Get available roles for the dropdown
         $roles = ['admin', 'comptable', 'prefet', 'directeur', 'directrice', 'enseignant', 'etudiant'];
-        
-        // Load the registration view
+          // Load the registration view
         require 'views/admin/ajout_users.php';
+    }
+
+    public function users() {
+        // Vérifier si l'utilisateur est connecté
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . BASE_URL . 'index.php?controller=Auth&action=login');
+            exit;
+        }
+
+        try {
+            // Récupérer tous les utilisateurs
+            $users = $this->userModel->getAll();
+            
+            // Logger l'action
+            $this->logger->log($_SESSION['username'] ?? 'Utilisateur inconnu', 'Consultation de la liste des utilisateurs');
+            
+            // Inclure la vue
+            include 'views/admin/users.php';
+            
+        } catch (Exception $e) {
+            // Logger l'erreur
+            $this->logger->log($_SESSION['username'] ?? 'Utilisateur inconnu', 'Erreur lors de la consultation des utilisateurs: ' . $e->getMessage());
+            
+            // Afficher une page d'erreur ou rediriger
+            $error_message = "Une erreur est survenue lors du chargement des utilisateurs.";
+            include 'views/error/error.php';
+        }
     }
 
 

@@ -229,7 +229,7 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
         <div class="col-md-4">
           <div class="box box-warning">
             <div class="box-header with-border">
-              <h3 class="box-title"><i class="fa fa-graduation-cap"></i> Statistiques étudiants</h3>
+              <h3 class="box-title"><i class="fa fa-graduation-cap"></i> Statistiques éleves</h3>
             </div>
             <div class="box-body">
               <div class="info-box bg-yellow">
@@ -259,7 +259,7 @@ $error_message = isset($_GET['error']) && isset($_GET['message']) ? $_GET['messa
               <div class="info-box bg-green">
                 <span class="info-box-icon"><i class="fa fa-check"></i></span>
                 <div class="info-box-content">
-                  <span class="info-box-text">Élèves à jour</span>
+                  <span class="info-box-text">Élèves en ordres</span>
                   <span class="info-box-number"><?php echo $eleves_a_jour; ?></span>
                   <div class="progress">
                     <div class="progress-bar" style="width: <?php echo $total_eleves > 0 ? ($eleves_a_jour / $total_eleves) * 100 : 0; ?>%"></div>
